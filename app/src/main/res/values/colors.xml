@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <!-- 500 -->
+    <color name="primary">#3F51B5</color>
+    <color name="primary_dynamic">#3643f4</color>
+    <!-- 700 -->
+    <color name="primary_dark">#303F9F</color>
+
+
+    <color name="colorTest">#b1bdf5</color>
+    <!-- A200/A400/A700 -->
+    <color name="accent">#7f93ff</color>
+    <!-- 50 light / 900 dark -->
+    <color name="window_background">#4157b9  </color>
+    <!-- 300 -->
+    <color name="lolli_btn">#bfd8f7</color>
+    <color name="color_white">#ffffff</color>
+    <color name="year">#999999</color>
+    <color name="title">#222222</color>
+    <color name="viewBg">#f1f5f8</color>
+    <color name="album_title">#4c4c4c</color>
+    <color name="cardview_color">#5469cb </color>
+    <color name="Plum">#e89cf6</color>
+    <color name="Heliotrope">#DD8EF7  </color>
+    <color name="Heliotropes">#7C4DFF  </color>
+    <color name="Electric_Purple">#673ab7</color>
+    <color name="Valhalla">#242532    </color>
+    <color name="Valhalla2">#242532    </color>2b2d3e
+
+    <color name="v">#76ff03  </color>
+    <color name="vx">#558b2f</color>
+    <color name="vzz">#29293D    </color>
+
+    <color name="Jordy_Blue">#7E9DEB   </color>
+
+</resources>

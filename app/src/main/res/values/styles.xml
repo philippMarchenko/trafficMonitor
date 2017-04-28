@@ -1,0 +1,70 @@
+<resources>
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+
+    <style name="AppThemeDrawer" parent="MaterialDrawerTheme.Light.DarkToolbar.TranslucentStatus">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:windowBackground">@color/window_background</item>
+
+
+    </style>
+
+    <style name="AppThemeNonDrawer" parent="MaterialDrawerTheme.Light.DarkToolbar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:windowBackground">@color/window_background</item>
+
+
+    </style>
+    <style name="MyMaterialTheme" parent="MyMaterialTheme.Base">
+
+    </style>
+
+    <style name="MyMaterialTheme.Base" parent="MaterialDrawerTheme.Light.DarkToolbar">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/accent</item>
+    </style>
+
+    <style name="MyButton" parent="Theme.AppCompat.Light">
+        <item name="colorControlHighlight">@color/primary_dynamic</item>
+        <item name="colorButtonNormal">@color/accent</item>
+        <item name="android:radius">@dimen/cardview_corner__radius</item>
+    </style>
+
+    <style name="MyRadioButton" parent="Theme.AppCompat.Light">
+        <item name="colorControlNormal">@color/primary</item>
+        <item name="colorControlActivated">@color/primary_dark</item>
+    </style>
+
+    <style name="MyHintText" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/material_drawer_primary_dark</item>
+    </style>
+
+    <!--Input field style-->
+    <style name="MyEditText" parent="Theme.AppCompat.Light">
+        <item name="colorControlNormal">@color/accent</item>
+        <item name="colorControlActivated">@color/primary</item>
+    </style>
+    <style name="MySwitch" parent="Theme.AppCompat.Light">
+        <!-- active thumb & track color (30% transparency) -->
+        <item name="colorControlActivated">@color/accent</item>
+
+        <!-- inactive thumb color -->
+        <item name="colorSwitchThumbNormal">@color/md_blue_100</item>
+
+        <!-- inactive track color (30% transparency) -->
+        <item name="android:colorForeground">@color/md_blue_grey_100</item>
+    </style>
+    <style name="seekArcStyle" parent="MaterialDrawerTheme.Light.DarkToolbar.TranslucentStatus">
+    </style>
+
+</resources>

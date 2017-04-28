@@ -1,0 +1,72 @@
+<resources>
+    <string name="app_name">TraficMonitor</string>
+
+    <!-- Navigation Drawer-->
+    <string name="info_fr1">Общий</string>
+    <string name="info_fr2">По приложениям</string>
+    <string name="info_fr3">Графики</string>
+    <string name="info_fr4">Настройки</string>
+
+
+    <string name="title_activity_main">DateTimePicker Example</string>
+    <string name="selected_time">The time you picked will be shown here.</string>
+    <string name="selected_date">The date you picked will be shown here.</string>
+    <string name="selected_datetime">The date and time you picked will be shown here.</string>
+    <string name="pick_time">Pick Time</string>
+    <string name="pick_date">Pick Date</string>
+    <string name="pick_datetime">Pick Date+Time</string>
+    <string name="mode_24_hours">Use 24 hour mode</string>
+    <string name="mode_dark">Use dark theme</string>
+    <string name="mode_custom_accent">Use custom accent</string>
+    <string name="vibrate">Vibrate on touch</string>
+    <string name="dismiss">Dismiss on pause (eg: orientation change)</string>
+    <string name="title">Show a title</string>
+    <string name="show_version_2">Use marshmallow layout</string>
+    <string name="show_year_first">Show the year picker first</string>
+    <string name="enable_seconds">Show seconds picker</string>
+    <string name="enable_minutes">Show minutes picker</string>
+    <string name="limit_times">Limit selectable times</string>
+    <string name="limit_dates">Limit selectable dates</string>
+    <string name="disable_dates">Disable specific dates</string>
+    <string name="highlight_dates">Highlight certain dates</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="tab_1">Траффик</string>
+    <string name="tab_2">Тест скорости</string>
+    <string name="tab_3">Настройки</string>
+
+    <string name="upload_data">Переданые данные</string>
+    <string name="download_data">Принятые данные</string>
+
+    <string name="mb"> Мб</string>
+    <string name="used">Использовано </string>
+
+    <string name="day">День</string>
+    <string name="month">Месяц</string>
+
+    <string name="have_left">Осталось траффика</string>
+    <string name="used_traffic">Использовано траффика</string>
+
+    <string name="ms">мс</string>
+    <string name="ping">Задержка</string>
+    <string name="download_speed">Загрузка</string>
+    <string name="upload_speed">Передача</string>
+
+    <string name="mbps">Мбит/с</string>
+    <string name="start_test">Начать тест!</string>
+
+    <string name="set_period">Выберите учетный период</string>
+    <string name="set_data">Установите обьем данных</string>
+    <string name="stopData">Отключить доступ при достижении</string>
+    <string name="levelWarning">Уровень предупреждения</string>
+    <string name="levelStop">Уровень ограничения</string>
+    <string name="showMessege">Показать предупреждение</string>
+    <string name="setDate">Выберите дату отсчета</string>
+    <string name="setDateButton">Задать дату</string>
+    <string name="currentDate">Текущая дата</string>
+
+    <string name="notyAllert1">Внимание!Использовано </string>
+    <string name="notyAllert2">Мб траффика</string>
+    <string name="notyStop">"Внимание!Достиигнут лимит!</string>
+
+</resources>

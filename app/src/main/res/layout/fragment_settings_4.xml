@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:weightSum="1">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/card_margin"
+        android:elevation="8dp"
+        card_view:cardCornerRadius="@dimen/cardview_corner__radius"
+        card_view:cardBackgroundColor="@color/primary"
+        android:layout_height="100dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <Button
+                android:text="Запрос"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/zapros"
+                android:theme="@style/MyButton"
+                android:textColor="@color/color_white"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true" />
+
+            <Button
+                android:text="newDay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/newDay"
+                android:layout_alignParentBottom="true"
+                android:layout_toStartOf="@+id/zapros"
+                android:layout_marginEnd="11dp" />
+
+            <Button
+                android:text="newMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/newMonth"
+                android:layout_alignParentBottom="true"
+                android:layout_toEndOf="@+id/newDay"
+                android:layout_marginStart="12dp" />
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+</LinearLayout>

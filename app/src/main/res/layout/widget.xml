@@ -1,0 +1,83 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout"
+    android:layout_width="fill_parent"
+    android:padding="0dp"
+    android:layout_height="64dp"
+    android:background="@drawable/round_corners"
+    android:alpha="1">
+
+    <ImageView
+        android:src="@drawable/bittorrent"
+        android:id="@+id/image"
+        android:layout_marginRight="5dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:layout_width="45dp"
+        android:layout_height="45dp" />
+
+    <ProgressBar
+        android:id="@+id/usageDataW"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/image"
+        android:layout_toEndOf="@+id/image"
+        android:progress="90"
+        android:max="100"
+        android:progressDrawable="@drawable/barstyle"
+        android:layout_marginBottom="5dp"
+        android:layout_marginEnd="5dp" />
+
+    <ImageView
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        card_view:srcCompat="@drawable/arrowup"
+        android:id="@+id/imSendDataW"
+        android:layout_alignBottom="@+id/tvDownloadDataW"
+        android:layout_toStartOf="@+id/tvSendDataW"
+        android:layout_marginRight="5dp" />
+
+    <TextView
+        android:text="0 Мб"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvSendDataW"
+        android:textColor="@color/color_white"
+        android:fontFamily="serif-monospace"
+        android:layout_alignBottom="@+id/imSendDataW"
+        android:layout_alignEnd="@+id/usageDataW" />
+
+    <ImageView
+        card_view:srcCompat="@drawable/arrowdown"
+        android:id="@+id/imDownloadDataW"
+        android:layout_height="25dp"
+        android:layout_width="25dp"
+        android:layout_marginRight="5dp"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@+id/tvDownloadDataW"
+        android:layout_marginTop="2dp" />
+
+    <TextView
+        android:text="0 Мб"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvDownloadDataW"
+        android:textColor="@color/color_white"
+        android:layout_marginRight="5dp"
+        android:fontFamily="serif-monospace"
+        android:layout_alignBottom="@+id/imDownloadDataW"
+        android:layout_toStartOf="@+id/imSendDataW" />
+
+    <TextView
+        android:text="Использовано 30 Мб"
+        android:id="@+id/titleW"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/color_white"
+        android:fontFamily="serif-monospace"
+        android:layout_alignBottom="@+id/imDownloadDataW"
+        android:layout_alignStart="@+id/usageDataW" />
+
+</RelativeLayout>
