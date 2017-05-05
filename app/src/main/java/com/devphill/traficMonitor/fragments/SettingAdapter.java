@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -82,10 +84,10 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
             this.button_day = (RadioButton) v.findViewById(R.id.button_day);
 
 
-            handlerSet1 = new Handler(){
-                @Override
-                public void handleMessage(Message msg) {
-                    if(msg.what == RECOVER_SETTINGS){
+          //  handlerSet1 = new Handler(){
+              //  @Override
+                //public void handleMessage(Message msg) {
+                 //   if(msg.what == RECOVER_SETTINGS){
 
                         if(TrafficService.period == TrafficService.PERIOD_DAY) {
                             button_month.setChecked(false);
@@ -95,9 +97,9 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
                             button_month.setChecked(true);
                             button_day.setChecked(false);
                         }
-                    }
-                }
-            };
+             //       }
+            //    }
+          //  };
 
         }
 
@@ -119,10 +121,10 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
             this.stopDataSwitch = (SwitchCompat) v.findViewById(R.id.stopDataSwitch);
             this.allertSwitch = (SwitchCompat) v.findViewById(R.id.allertSwitch);
 
-            handlerSet2 = new Handler() {
-                @Override
-                public void handleMessage(Message msg) {
-                    if(msg.what == RECOVER_SETTINGS){
+           // handlerSet2 = new Handler() {
+              //  @Override
+              //  public void handleMessage(Message msg) {
+                    //if(msg.what == RECOVER_SETTINGS){
                         inputDataStop.setText(Integer.toString(TrafficService.stopLevel));
                         inputDataAllert.setText(Integer.toString(TrafficService.allertLevel));
                        if(TrafficService.disable_internet == 1)
@@ -134,73 +136,50 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
                        else
                            stopDataSwitch.setChecked(false);
 
-                    }
-                }
-            };
+                   // }
+             //   }
+          //  };
         }
     }
     public class Set3Holder extends ViewHolder {
 
         public Button setupDate;
         public TextView viewDate;
+        DBHelper dbHelper = new DBHelper(mContext);
 
         public Set3Holder(View v) {
             super(v);
             this.setupDate = (Button) v.findViewById(R.id.setupDate);
             this.viewDate = (TextView) v.findViewById(R.id.viewDate);
 
-            handlerSet3 = new Handler() {
-                @Override
-                public void handleMessage(Message msg) {
-                    if(msg.what == RECOVER_SETTINGS){
+            //handlerSet3 = new Handler() {
+               // @Override
+                //public void handleMessage(Message msg) {
+                   // if(msg.what == RECOVER_SETTINGS){
                         viewDate.setText(TrafficService.day + "." + TrafficService.month + "." + TrafficService.mYear);
-                    }
-                }
-            };
-
+                  //  }
+              //  }
+           // };
+            //recoverSettings();
         }
-    }
-    public class Set4Holder extends ViewHolder {
+/*        public void recoverSettings(){
 
-        public Button zapros,newDay,newMonth;
-        DBHelper dbHelper = new DBHelper(mContext);
+            SharedPreferences mySharedPreferences = mContext.getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
 
-        public Set4Holder(View v) {
-            super(v);
-            this.zapros = (Button) v.findViewById(R.id.zapros);
-            this.newDay = (Button) v.findViewById(R.id.newDay);
-            this.newMonth = (Button) v.findViewById(R.id.newMonth);
+            TrafficService.period = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_PERIOD,TrafficService.period);
+            TrafficService.stopLevel = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_STOPL_EVEL,TrafficService.stopLevel);
+            TrafficService.allertLevel = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_ALLERT_LEVEL,TrafficService.allertLevel);
+            TrafficService.disable_internet = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_DISABLE_INTERNET,TrafficService.disable_internet);
+            TrafficService.show_allert = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_SHOW_ALLERT,TrafficService.show_allert);
+            TrafficService.day = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_DAY,TrafficService.day);
+            TrafficService.month = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_MONTH,TrafficService.month);
+            TrafficService.mYear = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_YEAR,TrafficService.mYear);
 
-            zapros.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            handlerSet1.sendEmptyMessage(RECOVER_SETTINGS);
+            handlerSet2.sendEmptyMessage(RECOVER_SETTINGS);
+            handlerSet3.sendEmptyMessage(RECOVER_SETTINGS);
 
-                    Intent i = new Intent(mContext, TrafficService.class);
-                    i.putExtra("task",TrafficService.CLEAN_TABLE);
-                    mContext.startService(i);
-                }
-            });
-            newDay.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                  TrafficService.newDay = true;
-                }
-            });
-            newMonth.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    TrafficService.newMonth = true;
-                }
-            });
-
-
-            recoverSettings();
-        }
-        public void recoverSettings(){
-
-            // подключаемся к БД
+       *//*     // подключаемся к БД
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             // делаем запрос всех данных из таблицы mytable, получаем Cursor
             Cursor c = db.query("set" + TrafficService.idsim, null, null, null, null, null, null);
@@ -219,7 +198,7 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
                 do {
                     // получаем значения по номерам столбцов и пишем все в лог
                     Log.d(LOG_TAG,
-                                    " period = " + c.getInt(periodColIndex) +
+                            " period = " + c.getInt(periodColIndex) +
                                     ", \n stopLevel = " + c.getInt(stopLevelColIndex) +
                                     ", \n allertLevel = " + c.getInt(allertLevelColIndex) +
                                     ", \n disable_internet = " + c.getInt(disable_internetColIndex) +
@@ -229,58 +208,100 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
                                     ", \n year = " + c.getInt(yearColIndex));
                     // переход на следующую строку
                     // а если следующей нет (текущая - последняя), то false - выходим из цикла
-                TrafficService.period = c.getInt(periodColIndex);
-                TrafficService.stopLevel = c.getInt(stopLevelColIndex);
-                TrafficService.allertLevel = c.getInt(allertLevelColIndex);
-                TrafficService.disable_internet = c.getInt(disable_internetColIndex);
-                TrafficService.show_allert = c.getInt(show_allertColIndex);
-                TrafficService.day = c.getInt(dayColIndex);
-                TrafficService.month = c.getInt(monthColIndex);
-                TrafficService.mYear = c.getInt(yearColIndex);
+                    TrafficService.period = c.getInt(periodColIndex);
+                    TrafficService.stopLevel = c.getInt(stopLevelColIndex);
+                    TrafficService.allertLevel = c.getInt(allertLevelColIndex);
+                    TrafficService.disable_internet = c.getInt(disable_internetColIndex);
+                    TrafficService.show_allert = c.getInt(show_allertColIndex);
+                    TrafficService.day = c.getInt(dayColIndex);
+                    TrafficService.month = c.getInt(monthColIndex);
+                    TrafficService.mYear = c.getInt(yearColIndex);
 
-                handlerSet1.sendEmptyMessage(RECOVER_SETTINGS);
-                handlerSet2.sendEmptyMessage(RECOVER_SETTINGS);
-                handlerSet3.sendEmptyMessage(RECOVER_SETTINGS);
+                    handlerSet1.sendEmptyMessage(RECOVER_SETTINGS);
+                    handlerSet2.sendEmptyMessage(RECOVER_SETTINGS);
+                    handlerSet3.sendEmptyMessage(RECOVER_SETTINGS);
 
                 } while (c.moveToNext());
             } else
                 Log.d(LOG_TAG, "0 rows");
             c.close();
             // закрываем подключение к БД
-            dbHelper.close();
+            dbHelper.close();*//*
+
+        }*/
+    }
+    public class Set4Holder extends ViewHolder {
+
+        public Button zapros,newDay,newMonth;
+
+
+        public Set4Holder(View v) {
+            super(v);
+           // this.zapros = (Button) v.findViewById(R.id.zapros);
+            this.newDay = (Button) v.findViewById(R.id.newDay);
+          //  this.newMonth = (Button) v.findViewById(R.id.newMonth);
+
+            newDay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext,TrafficService.class);
+                    intent.putExtra("task",TrafficService.CLEAN_TABLE);
+                    mContext.startService(intent);
+
+                    // TrafficService.newDay = true;
+                }
+            });
+
+
+
 
         }
 
+
     }
     public void updateSet(int setId){
-        DBHelper dbHelper = new DBHelper(mContext);
+       /* DBHelper dbHelper = new DBHelper(mContext);
         // создаем объект для данных
         ContentValues cv = new ContentValues();
         // подключаемся к БД
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         // делаем запрос всех данных из таблицы mytable, получаем Cursor
-        Cursor c = db.query("set" + TrafficService.idsim, null, null, null, null, null, null);
+        Cursor c = db.query("set" + TrafficService.idsim, null, null, null, null, null, null);*/
+
+        SharedPreferences mySharedPreferences = mContext.getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = mySharedPreferences.edit();
+
+
 
         if(setId == SET_1){
-            cv.put("period",TrafficService.period);
-            db.update("set" + TrafficService.idsim, cv, null,null);
+              editor.putInt(TrafficService.APP_PREFERENCES_PERIOD, TrafficService.period);
+          /*  cv.put("period",TrafficService.period);
+            db.update("set" + TrafficService.idsim, cv, null,null);*/
         }
         else if(setId == SET_2){
-            cv.put("allertLevel",TrafficService.allertLevel);
+            editor.putInt(TrafficService.APP_PREFERENCES_ALLERT_LEVEL, TrafficService.allertLevel);
+            editor.putInt(TrafficService.APP_PREFERENCES_STOPL_EVEL, TrafficService.stopLevel);
+            editor.putInt(TrafficService.APP_PREFERENCES_SHOW_ALLERT, TrafficService.show_allert);
+            editor.putInt(TrafficService.APP_PREFERENCES_DISABLE_INTERNET, TrafficService.disable_internet);
+            /*cv.put("allertLevel",TrafficService.allertLevel);
             cv.put("stopLevel",TrafficService.stopLevel);
-            db.update("set" + TrafficService.idsim, cv, null,null);
+            db.update("set" + TrafficService.idsim, cv, null,null);*/
         }
         else if(setId == SET_3){
-            cv.put("day",TrafficService.day);
+            editor.putInt(TrafficService.APP_PREFERENCES_DAY, TrafficService.day);
+            editor.putInt(TrafficService.APP_PREFERENCES_MONTH, TrafficService.month);
+            editor.putInt(TrafficService.APP_PREFERENCES_YEAR, TrafficService.mYear);
+
+           /* cv.put("day",TrafficService.day);
             cv.put("month",TrafficService.month);
             cv.put("year",TrafficService.mYear);
-            db.update("set" + TrafficService.idsim, cv, null,null);
+            db.update("set" + TrafficService.idsim, cv, null,null);*/
         }
 
-
-        c.close();
+        editor.apply();
+       /* c.close();
         // закрываем подключение к БД
-        dbHelper.close();
+        dbHelper.close();*/
 
     }
     public SettingAdapter(Context context, Activity activity, String[]dataSet, int[] dataSetTypes) {
@@ -384,7 +405,7 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
                                                 if(holder.inputDataStop.getText().toString().length() > 0 && TrafficService.stopLevel < 1000 && TrafficService.stopLevel > 0) {
                                                     TrafficService.allertLevel = Integer.parseInt(holder.inputDataAllert.getText().toString());
                                                     int procent2 = 100;
-                                                    if(TrafficService.allertLevel > TrafficService.allertLevel)
+                                                    if(TrafficService.stopLevel > TrafficService.allertLevel)
                                                         procent2 = TrafficService.allertLevel * 100 / TrafficService.stopLevel;
                                                     holder.rangeBar.setSeekPinByIndex(procent2);
                                                     Log.i("myLogs", "allertLevel " + TrafficService.allertLevel + " procent2 " + procent2);

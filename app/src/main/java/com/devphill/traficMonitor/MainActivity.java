@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.devphill.traficMonitor.fragments.CustomViewPager;
+import com.devphill.traficMonitor.fragments.Fragment2;
 import com.devphill.traficMonitor.fragments.Fragment3;
 import com.devphill.traficMonitor.fragments.FragmentSettings;
 import com.devphill.traficMonitor.fragments.MainFragment;
@@ -80,6 +81,7 @@ public class MainActivity extends ActionBarActivity {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new MainFragment(), getResources().getString(R.string.tab_1));
         adapter.addFragment(new Fragment3(), getResources().getString(R.string.tab_2));
+        adapter.addFragment(new Fragment2(),"Apps");
         adapter.addFragment(new FragmentSettings(),getResources().getString(R.string.tab_3));
         viewPager.setAdapter(adapter);
     }

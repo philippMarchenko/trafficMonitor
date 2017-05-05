@@ -2,11 +2,13 @@ package com.devphill.traficMonitor.fragments;
 
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -18,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -74,6 +77,8 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
     Handler handlerPieChart = new Handler();
     Timer myTimer = new Timer(); // Создаем таймер
 
+
+
     public static boolean firstStartGraph = true;
 
     public static BroadcastReceiver br;
@@ -110,7 +115,7 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
             this.lineChart = (LineChart) v.findViewById(R.id.linechart);
             this.selectPeriod = (Spinner) v.findViewById(R.id.selectPeriod);
 
-            recoverPeriodChart();
+
             initChart();
 
             Thread t = new Thread(new Runnable() {
@@ -132,6 +137,7 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
                 selectPeriod.setSelection(0);
             else if (periodChartOffset == 1200)
                 selectPeriod.setSelection(1);
+
             selectPeriod.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view,
@@ -144,7 +150,7 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
                         else if (position == 1)
                             periodChartOffset = 1200;
                         // periodChart = TrafficService.PERIOD_MOUNTH;
-                       // Toast.makeText(mContext, "periodChartOffset = " + periodChartOffset, Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(mContext, "periodChartOffset = " + periodChartOffset, Toast.LENGATH_SHORT).show();
                         Log.i(LOG_TAG, "onItemSelected spiner, periodChartOffset " + periodChartOffset);
                         updatePeriodChart(periodChartOffset);
 
@@ -191,17 +197,22 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
                 lineChart.setOnTouchListener(new View.OnTouchListener() {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
-                        MainActivity.viewPager.setPagingEnabled(false);
+                       /* MainActivity.viewPager.setPagingEnabled(false);
                         if(event.getAction() == MotionEvent.ACTION_UP)
-                            MainActivity.viewPager.setPagingEnabled(true);
+                            MainActivity.viewPager.setPagingEnabled(true);*/
+                        ViewParent parent = v.getParent();
+                        // or get a reference to the ViewPager and cast it to ViewParent
 
+                        parent.requestDisallowInterceptTouchEvent(true);
+
+                        // let this view deal with the event or
                         return false;
                     }
                 });
         }
         public void initChart(){
 
-
+            recoverPeriodChart();
 
             entriesLineChart.add(new Entry(0, 0));
 
@@ -278,9 +289,11 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
         }
         public void getDataInTable() {
 
-            // подключаемся к БД
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            Cursor c = db.query(TrafficService.idsim, null, null, null, null, null, null);
+            if (isMyServiceRunning(TrafficService.class) && TrafficService.idsim != null) {
+
+                // подключаемся к БД
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                Cursor c = db.query(TrafficService.idsim, null, null, null, null, null, null);
 
 
          /*   int countRows = c.getCount();
@@ -289,120 +302,120 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
             if(periodChart == 0)
                 periodChart = 1;*/
 
-            //  if(countRows > 1000)
-            //    periodChart = periodChart / 50;
+                //  if(countRows > 1000)
+                //    periodChart = periodChart / 50;
 
-          //   Log.d(LOG_TAG, "Count rows " + c.getCount());
+                //   Log.d(LOG_TAG, "Count rows " + c.getCount());
 
-          //  if(periodChart == TrafficService.PERIOD_DAY)
-           //     periodChartOffset = 29;
-            //else if(periodChart == TrafficService.PERIOD_MOUNTH)
-             //   periodChartOffset = 1200;
-            // ставим позицию курсора на первую строку выборки
-            // если в выборке нет строк, вернется falseе
-
-
-
-            if (c.moveToFirst()) {
-                // определяем номера столбцов по имени в выборке
-                int timeColIndex = c.getColumnIndex("time");
-                int mobile_trafficTXTodayColIndex = c.getColumnIndex("mobile_trafficTXToday");
-                int mobile_trafficRXTodayColIndex = c.getColumnIndex("mobile_trafficRXToday");
-                int mobile_trafficTXYesterdayColIndex = c.getColumnIndex("mobile_trafficTXYesterday");
-                int mobile_trafficRXYesterdayColIndex = c.getColumnIndex("mobile_trafficRXYesterday");
-                int allTrafficMobileColIndex = c.getColumnIndex("allTrafficMobile");
-                int lastDayColIndex  = c.getColumnIndex("lastDay");
-                int idColIndex  = c.getColumnIndex("id");
-
-                do {
-                    currentTime = c.getLong(timeColIndex);
-
-                    if(currentTime > lastTime || firstStartGraph) { // получаем значения по номерам столбцов и пишем все в лог
+                //  if(periodChart == TrafficService.PERIOD_DAY)
+                //     periodChartOffset = 29;
+                //else if(periodChart == TrafficService.PERIOD_MOUNTH)
+                //   periodChartOffset = 1200;
+                // ставим позицию курсора на первую строку выборки
+                // если в выборке нет строк, вернется falseе
 
 
-                        firstStartGraph = false;
-                        Log.d(LOG_TAG, " \n Есть новые запси в базе! " + c.getLong(timeColIndex) +
-                                ", id = " + c.getInt(idColIndex) +
-                                ", mobile_trafficTXToday = " + c.getLong(mobile_trafficTXTodayColIndex) +
-                                ", mobile_trafficRXToday = " + c.getLong(mobile_trafficRXTodayColIndex) +
-                                ", mobile_trafficTXYesterday = " + c.getLong(mobile_trafficTXYesterdayColIndex) +
-                                ", mobile_trafficRXYesterday = " + c.getLong(mobile_trafficRXYesterdayColIndex) +
-                                ", allTrafficMobile = " + c.getLong(allTrafficMobileColIndex) +
-                                " lastDay = " + c.getInt(lastDayColIndex));
+                if (c.moveToFirst()) {
+                    // определяем номера столбцов по имени в выборке
+                    int timeColIndex = c.getColumnIndex("time");
+                    int mobile_trafficTXTodayColIndex = c.getColumnIndex("mobile_trafficTXToday");
+                    int mobile_trafficRXTodayColIndex = c.getColumnIndex("mobile_trafficRXToday");
+                    int mobile_trafficTXYesterdayColIndex = c.getColumnIndex("mobile_trafficTXYesterday");
+                    int mobile_trafficRXYesterdayColIndex = c.getColumnIndex("mobile_trafficRXYesterday");
+                    int allTrafficMobileColIndex = c.getColumnIndex("allTrafficMobile");
+                    int lastDayColIndex = c.getColumnIndex("lastDay");
+                    int idColIndex = c.getColumnIndex("id");
 
-                        float trafficFloat = (float)c.getLong(allTrafficMobileColIndex)/1024;
-                        trafficFloat = Math.round(trafficFloat*(float)100.0)/(float)100.0;  //округляем до сотых
+                    do {
+                        currentTime = c.getLong(timeColIndex);
 
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-                        String strTime = simpleDateFormat.format(new Date(currentTime));
-
-                        SimpleDateFormat simpleDateFormatDate = new SimpleDateFormat("yyyy.MM.dd HH:mm");
-                        String strTimeDate = simpleDateFormatDate.format(new Date(currentTime));
-                        labelsLineChartDate.add(countEntrys,strTimeDate);
+                        if (currentTime > lastTime || firstStartGraph) { // получаем значения по номерам столбцов и пишем все в лог
 
 
-                        LineData data = lineChart.getData();
-                        if (data != null) {
+                            firstStartGraph = false;
+                            Log.d(LOG_TAG, " \n Есть новые запси в базе! " + c.getLong(timeColIndex) +
+                                    ", id = " + c.getInt(idColIndex) +
+                                    ", mobile_trafficTXToday = " + c.getLong(mobile_trafficTXTodayColIndex) +
+                                    ", mobile_trafficRXToday = " + c.getLong(mobile_trafficRXTodayColIndex) +
+                                    ", mobile_trafficTXYesterday = " + c.getLong(mobile_trafficTXYesterdayColIndex) +
+                                    ", mobile_trafficRXYesterday = " + c.getLong(mobile_trafficRXYesterdayColIndex) +
+                                    ", allTrafficMobile = " + c.getLong(allTrafficMobileColIndex) +
+                                    " lastDay = " + c.getInt(lastDayColIndex));
 
-                            data.addXValue(strTime);
+                            float trafficFloat = (float) c.getLong(allTrafficMobileColIndex) / 1024;
+                            trafficFloat = Math.round(trafficFloat * (float) 100.0) / (float) 100.0;  //округляем до сотых
+
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+                            String strTime = simpleDateFormat.format(new Date(currentTime));
+
+                            SimpleDateFormat simpleDateFormatDate = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+                            String strTimeDate = simpleDateFormatDate.format(new Date(currentTime));
+                            labelsLineChartDate.add(countEntrys, strTimeDate);
+
+
+                            LineData data = lineChart.getData();
+                            if (data != null) {
+
+                                data.addXValue(strTime);
 
                           /*  int xIndex = (c.getInt(idColIndex) - periodChart) + 1;
 
                             if(xIndex < 0)
                                xIndex = 0;*/
 
-                            data.addEntry(new Entry(trafficFloat, countEntrys),0);  // добавляем значение трафика по оси Y, по Х id из таблицы
-                            //data.addXValue(labels.get(labels.size()));                                    //метка для значение по оси Х - это время
-                           // entriesLineChart.add(new Entry(trafficFloat, xIndex));
-                            lineChart.setDescription(mContext.getResources().getString(R.string.used) + " " + trafficFloat + mContext.getResources().getString(R.string.mb));
-                            countEntrys++;
+                                data.addEntry(new Entry(trafficFloat, countEntrys), 0);  // добавляем значение трафика по оси Y, по Х id из таблицы
+                                //data.addXValue(labels.get(labels.size()));                                    //метка для значение по оси Х - это время
+                                // entriesLineChart.add(new Entry(trafficFloat, xIndex));
+                                lineChart.setDescription(mContext.getResources().getString(R.string.used) + " " + trafficFloat + mContext.getResources().getString(R.string.mb));
+                                countEntrys++;
+                            }
                         }
-                    }
 
-                    // переход на следующую строку
-                    // а если следующей нет (текущая - последняя), то false - выходим из цикла
-                } while (c.move(periodChartOffset));
-            }
-
-            float y = c.getCount()/(float)periodChartOffset;
-            if(y % 1 != 0){ //не целое
-
-                labelsLineChart.remove(countEntrys-1);  //удаляем последнюю точку
-                entriesLineChart.remove(countEntrys-1);
-                labelsLineChartDate.remove(countEntrys-1);
-
-                countEntrys--;
-                Log.d(LOG_TAG, " Не целое значание, y = " + y);
-
-                c.moveToLast();                         //курсор на послнднюю
-
-                int allTrafficMobileColIndex = c.getColumnIndex("allTrafficMobile");
-                int timeColIndex = c.getColumnIndex("time");
-                float trafficFloat = (float)c.getLong(allTrafficMobileColIndex)/1024;
-                trafficFloat = Math.round(trafficFloat*(float)100.0)/(float)100.0;  //округляем до сотых
-
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-                String strTime = simpleDateFormat.format(new Date((c.getLong(timeColIndex))));
-
-                SimpleDateFormat simpleDateFormatDate = new SimpleDateFormat("yyyy.MM.dd HH:mm");
-                String strTimeDate = simpleDateFormatDate.format(new Date(c.getLong(timeColIndex)));
-                labelsLineChartDate.add(countEntrys,strTimeDate);
-
-
-                LineData data = lineChart.getData();
-                if (data != null) {
-
-                    data.addXValue(strTime);
-                    data.addEntry(new Entry(trafficFloat, countEntrys),0);  // добавляем значение трафика по оси Y, по Х id из таблицы
-                    lineChart.setDescription(mContext.getResources().getString(R.string.used) + " " + trafficFloat + mContext.getResources().getString(R.string.mb));
-                    countEntrys++;
+                        // переход на следующую строку
+                        // а если следующей нет (текущая - последняя), то false - выходим из цикла
+                    } while (c.move(periodChartOffset));
                 }
+
+                float y = c.getCount() / (float) periodChartOffset;
+                if (y % 1 != 0) { //не целое
+
+                    labelsLineChart.remove(countEntrys - 1);  //удаляем последнюю точку
+                    entriesLineChart.remove(countEntrys - 1);
+                    labelsLineChartDate.remove(countEntrys - 1);
+
+                    countEntrys--;
+                    Log.d(LOG_TAG, " Не целое значание, y = " + y);
+
+                    c.moveToLast();                         //курсор на послнднюю
+
+                    int allTrafficMobileColIndex = c.getColumnIndex("allTrafficMobile");
+                    int timeColIndex = c.getColumnIndex("time");
+                    float trafficFloat = (float) c.getLong(allTrafficMobileColIndex) / 1024;
+                    trafficFloat = Math.round(trafficFloat * (float) 100.0) / (float) 100.0;  //округляем до сотых
+
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+                    String strTime = simpleDateFormat.format(new Date((c.getLong(timeColIndex))));
+
+                    SimpleDateFormat simpleDateFormatDate = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+                    String strTimeDate = simpleDateFormatDate.format(new Date(c.getLong(timeColIndex)));
+                    labelsLineChartDate.add(countEntrys, strTimeDate);
+
+
+                    LineData data = lineChart.getData();
+                    if (data != null) {
+
+                        data.addXValue(strTime);
+                        data.addEntry(new Entry(trafficFloat, countEntrys), 0);  // добавляем значение трафика по оси Y, по Х id из таблицы
+                        lineChart.setDescription(mContext.getResources().getString(R.string.used) + " " + trafficFloat + mContext.getResources().getString(R.string.mb));
+                        countEntrys++;
+                    }
+                }
+
+                //   dbHelper.close();
+                c.close();
+
+                lastTime = currentTime;
             }
-
-         //   dbHelper.close();
-            c.close();
-
-            lastTime = currentTime;
         }
         public void clearChart(){
             lastTime = 0;
@@ -416,8 +429,27 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
             initChart();
             updateChart();
         }
+        public boolean isMyServiceRunning(Class<?> serviceClass) {
+            ActivityManager manager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (serviceClass.getName().equals(service.service.getClassName())) {
+                    return true;
+                }
+            }
+            return false;
+        }
         public void updatePeriodChart(int period){
-            DBHelper dbHelper = new DBHelper(mContext);
+
+            if(isMyServiceRunning(TrafficService.class)) {
+
+                SharedPreferences mySharedPreferences = mContext.getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = mySharedPreferences.edit();
+                editor.putInt(TrafficService.APP_PREFERENCES_PERIOD_CHART, period);
+                editor.apply();
+                Log.d(LOG_TAG,
+                        " periodChartOffset is update = " + periodChartOffset);
+            }
+           /* DBHelper dbHelper = new DBHelper(mContext);
             // создаем объект для данных
             ContentValues cv = new ContentValues();
             // подключаемся к БД
@@ -432,12 +464,19 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
                     " periodChartOffset is update = " + periodChartOffset);
             c.close();
             // закрываем подключение к БД
-            dbHelper.close();
+            dbHelper.close();*/
 
         }
         public void recoverPeriodChart(){
 
-            // подключаемся к БД
+            if(isMyServiceRunning(TrafficService.class)) {
+                SharedPreferences mySharedPreferences = mContext.getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
+                periodChartOffset = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_PERIOD_CHART,1200);
+                Log.d(LOG_TAG,
+                        " recoverPeriodChart = " + periodChartOffset);
+            }
+
+           /* // подключаемся к БД
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             // делаем запрос всех данных из таблицы mytable, получаем Cursor
             Cursor c = db.query("set" + TrafficService.idsim, null, null, null, null, null, null);
@@ -460,7 +499,7 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
 
                  c.close();
                  // закрываем подключение к БД
-                 dbHelper.close();
+                 dbHelper.close();*/
 
         }
         public void getDataTestTable(){

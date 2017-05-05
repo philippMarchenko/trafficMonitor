@@ -42,9 +42,18 @@ public class Widget extends AppWidgetProvider {
             float trafficTxFloat = intent.getFloatExtra("trafficTxFloat",0);
             float trafficRxFloat = intent.getFloatExtra("trafficRxFloat",0);
 
-            views.setTextViewText(R.id.titleW, "Использовано " + traffic + " Мб");
-            views.setTextViewText(R.id.tvSendDataW, Float.toString(trafficTxFloat));
-            views.setTextViewText(R.id.tvDownloadDataW, Float.toString(trafficRxFloat));
+
+            if(traffic < 100){
+                views.setTextViewText(R.id.titleW, "Использовано " + traffic + " Мб");
+                views.setTextViewText(R.id.tvSendDataW, Float.toString(trafficTxFloat));
+                views.setTextViewText(R.id.tvDownloadDataW, Float.toString(trafficRxFloat));
+            }
+            else{
+                views.setTextViewText(R.id.titleW, "Использовано " + (int)traffic + " Мб");
+                views.setTextViewText(R.id.tvSendDataW, "" + (int)trafficTxFloat);
+                views.setTextViewText(R.id.tvDownloadDataW, "" + (int)trafficRxFloat);
+            }
+
             views.setProgressBar(R.id.usageDataW, intent.getIntExtra("stopLevel",0),(int)traffic,false);
             views.setImageViewResource(R.id.imSendDataW,R.drawable.arrowup);
             views.setImageViewResource(R.id.imDownloadDataW,R.drawable.arrowdown);

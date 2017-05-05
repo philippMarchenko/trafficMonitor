@@ -5,6 +5,6 @@
     android:resizeMode="none"
     android:label="@string/app_name"
     android:updatePeriodMillis="100000"
-    android:previewImage="@drawable/header"
+    android:previewImage="@drawable/widget"
     android:layout_height="match_parent"
     android:layout_width="match_parent"/>

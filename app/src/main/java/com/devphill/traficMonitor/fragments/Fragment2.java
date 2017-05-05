@@ -1,15 +1,24 @@
 package com.devphill.traficMonitor.fragments;
 
 
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.TrafficStats;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +31,7 @@ import android.widget.TextView;
 import com.devphill.traficMonitor.ApplicationItem;
 import com.devphill.traficMonitor.DBHelper;
 import com.devphill.traficMonitor.R;
+import com.devphill.traficMonitor.TrafficService;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -34,7 +44,7 @@ import java.util.TimerTask;
 public class Fragment2 extends Fragment {
 
 
-    public  String LOG_TAG = "myLogs";
+    public  String LOG_TAG = "fragmentTrafficApps";
 
     DBHelper dbHelper;
     /// создаем объект для данных базы
@@ -49,14 +59,12 @@ public class Fragment2 extends Fragment {
     TextView tvDataUsageTotal;
     ListView lvApplications;
 
-    int year;
-    int month;
-    int day;
-
     private long dataUsageTotalLast = 0;
 
     static ArrayAdapter<ApplicationItem> adapterApplications;
 
+    public static BroadcastReceiver brAppsTrafficFragment;
+    public static final String UPDATE_TRAFFIC_APPS = "update_traffic_apps";
 
     private static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -64,29 +72,40 @@ public class Fragment2 extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_2, container, false);
 
-
         tvSupported = (TextView) view.findViewById(R.id.tvSupported);
         tvDataUsageWiFi = (TextView) view.findViewById(R.id.tvDataUsageWiFi);
         tvDataUsageMobile = (TextView) view.findViewById(R.id.tvDataUsageMobile);
         tvDataUsageTotal = (TextView) view.findViewById(R.id.tvDataUsageTotal);
 
+        lvApplications = (ListView) view.findViewById(R.id.lvInstallApplication);
+
+        //UpdateAdapter updateAdapter = new UpdateAdapter();
+      //  updateAdapter.execute();
+
+        initAdapter();
 
 
-   /*     if (TrafficStats.getTotalRxBytes() != TrafficStats.UNSUPPORTED && TrafficStats.getTotalTxBytes() != TrafficStats.UNSUPPORTED) {
-            // handler.postDelayed(runnable, 0);
-            task();
+        if (TrafficStats.getTotalRxBytes() != TrafficStats.UNSUPPORTED && TrafficStats.getTotalTxBytes() != TrafficStats.UNSUPPORTED) {
 
-            initAdapter();
-            lvApplications = (ListView) view.findViewById(R.id.lvInstallApplication);
             lvApplications.setAdapter(adapterApplications);
+
         } else {
             tvSupported.setVisibility(View.VISIBLE);
-        }*/
+        }
+        brAppsTrafficFragment = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+             //   Log.i(LOG_TAG, "onReceive brAppsTrafficFragment ");
+                updateAdapter();
 
+            }
+        };
 
+        getActivity().registerReceiver(brAppsTrafficFragment, new IntentFilter(Fragment2.UPDATE_TRAFFIC_APPS));
 
-            Log.i(LOG_TAG, "onCreateView fragment ");
-         return view;
+        Log.i(LOG_TAG, "onCreateView fragment2 ");
+
+        return view;
 
     }
     public void task (){
@@ -101,22 +120,22 @@ public class Fragment2 extends Fragment {
                     @Override
                     public void run() {
                         if(runTimer){
-
-                         Log.d(LOG_TAG, "Функция  iHandler.post");
-                            long mobile = TrafficStats.getMobileRxBytes() + TrafficStats.getMobileTxBytes();
+                            updateAdapter();
+                            Log.d(LOG_TAG, "Update apps traffic list");
+                            /*long mobile = TrafficStats.getMobileRxBytes() + TrafficStats.getMobileTxBytes();
                             long total = TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
-                            tvDataUsageWiFi.setText("" + (total - mobile) / 1024 + " Kb");
-                            tvDataUsageMobile.setText("" + mobile / 1024 + " Kb");
-                            tvDataUsageTotal.setText("" + total / 1024 + " Kb");
-                            if (dataUsageTotalLast != total) {
-                                dataUsageTotalLast = total;
-                                updateAdapter();
-                            }
+                            tvDataUsageWiFi.setText("" + (total - mobile) / 1048576 + " Mb");
+                            tvDataUsageMobile.setText("" + mobile / 1048576 + " Mb");
+                            tvDataUsageTotal.setText("" + total / 1048576 + " Mb");
+                            if (dataUsageTotalLast != total) {*/
+                                //dataUsageTotalLast = total;
 
-                            Calendar calendar = Calendar.getInstance();
+                           // }
+
+                           /* Calendar calendar = Calendar.getInstance();
                             year = calendar.get(Calendar.YEAR);
                             month= calendar.get(Calendar.MONTH);
-                            day = calendar.get(Calendar.DAY_OF_MONTH);
+                            day = calendar.get(Calendar.DAY_OF_MONTH);*/
 
                      }
                     }
@@ -124,7 +143,27 @@ public class Fragment2 extends Fragment {
 
             };
 
-        }, 0L, 8L * 1000); // интервал - 8000 миллисекунд, 0 миллисекунд до первого запуска.
+        }, 0L, 3L * 1000); // интервал - 8000 миллисекунд, 0 миллисекунд до первого запуска.
+    }
+    private class UpdateAdapter extends AsyncTask<Void, Void, Integer> {
+
+
+        protected Integer doInBackground(Void... params) {
+            try {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        initAdapter();
+                    }
+                });
+
+
+            } catch (Exception e) {
+                Log.i(LOG_TAG, "Ошибка запроса инициализации адаптера " + e.getMessage());
+            }
+
+            return null;
+        }
     }
     public void initAdapter() {
 
@@ -144,7 +183,7 @@ public class Fragment2 extends Fragment {
                 TextView tvAppTraffic = (TextView) result.findViewById(R.id.tvAppTraffic);
 
                 // TODO: resize once
-                final int iconSize = Math.round(32 * getResources().getDisplayMetrics().density);
+                final int iconSize = Math.round(48 * getResources().getDisplayMetrics().density);
                 tvAppName.setCompoundDrawablesWithIntrinsicBounds(
                         //app.icon,
                         new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(
@@ -153,6 +192,7 @@ public class Fragment2 extends Fragment {
                         null, null, null
                 );
                 tvAppName.setText(app.getApplicationLabel(getActivity().getPackageManager()));
+              //  int trafficApp = app.getTotalUsageKb() - getTrafficApps(app);
                 tvAppTraffic.setText(Integer.toString(app.getTotalUsageKb()) + " Kb");
 
                 return result;
@@ -168,13 +208,36 @@ public class Fragment2 extends Fragment {
             }
         };
 
-        // TODO: resize icon once
+
+        ApplicationInfo app1 = new ApplicationInfo();
+       // app1.
+
+
+         List<ApplicationInfo> listApp = getActivity().getPackageManager().getInstalledApplications(0);
+
+            int count = 0;
+       // TODO: resize icon once
         for (ApplicationInfo app : getActivity().getPackageManager().getInstalledApplications(0)) {
-            ApplicationItem item = ApplicationItem.create(app);
+            ApplicationItem item = ApplicationItem.create(app,getContext());
             if(item != null) {
                 adapterApplications.add(item);
             }
-        }
+            Log.i(LOG_TAG, "count = " + count++);
+           }
+
+    /*    for(int i = 0; adapterApplications.getCount() < 15; i ++){
+            ApplicationItem item = ApplicationItem.create(listApp.get(i),getContext());
+            if(item != null) {
+                adapterApplications.add(item);
+            }
+        }*/
+        Log.i(LOG_TAG, "adapterApplications.getCount = " + adapterApplications.getCount());
+    }
+    public int getTrafficApps(ApplicationItem item){
+         SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
+
+         return mySharedPreferences.getInt(item.getApplicationLabel(getContext().getPackageManager()),0);
+
     }
     public void updateAdapter() {
         for (int i = 0, l = adapterApplications.getCount(); i < l; i++) {
@@ -189,9 +252,11 @@ public class Fragment2 extends Fragment {
             }
         });
         adapterApplications.notifyDataSetChanged();
+        Log.i(LOG_TAG, "Fragment2 updateAdapter");
     }
     public void onResume() {
         super.onResume();
+
         runTimer = true;
 
         Log.i(LOG_TAG, "Fragment2 onResume");

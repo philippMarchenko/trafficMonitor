@@ -1,5 +1,7 @@
 package com.devphill.traficMonitor;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -22,8 +24,11 @@ public class ApplicationItem {
 
     private boolean isMobil = false;
 
+    static Context mContex;
+
     public ApplicationItem(ApplicationInfo _app) {
         app = _app;
+
         update();
     }
 
@@ -46,18 +51,23 @@ public class ApplicationItem {
         }
     }
 
-    public static ApplicationItem create(ApplicationInfo _app){
+    public static ApplicationItem create(ApplicationInfo _app,Context context){
         long _tx = TrafficStats.getUidTxBytes(_app.uid);
         long _rx = TrafficStats.getUidRxBytes(_app.uid);
-
+        mContex = context;
         if((_tx + _rx) > 0) return new ApplicationItem(_app);
         return null;
     }
 
     public int getTotalUsageKb() {
-        return Math.round((tx + rx)/ 1024);
+        return Math.round((tx + rx)/ 1024)- getTrafficApps();
     }
+    public int getTrafficApps(){
+        SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
 
+        return mySharedPreferences.getInt(mContex.getPackageManager().getApplicationLabel(app).toString(),0);
+
+    }
     public String getApplicationLabel(PackageManager _packageManager) {
         return _packageManager.getApplicationLabel(app).toString();
     }

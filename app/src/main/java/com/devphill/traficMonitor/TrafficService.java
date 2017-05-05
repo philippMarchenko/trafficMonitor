@@ -8,6 +8,8 @@ import android.app.Service;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.RingtoneManager;
@@ -23,6 +25,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.devphill.traficMonitor.fragments.Fragment2;
 import com.devphill.traficMonitor.fragments.MainFragmentAdapter;
 
 import java.lang.reflect.Field;
@@ -70,9 +73,24 @@ public class TrafficService extends Service {
 	public static int month = 0;
 	public static int mYear = 0;
 
+	public static final String APP_PREFERENCES = "settingsTrafficMonitor";
+	public static final String APP_PREFERENCES_TRAFFIC_APPS = "settingsTrafficApps";
+	public static final String APP_PREFERENCES_PERIOD = "period";
+	public static final String APP_PREFERENCES_PERIOD_CHART = "period_chart";
+	public static final String APP_PREFERENCES_STOPL_EVEL =  "stopLevel";
+	public static final String APP_PREFERENCES_ALLERT_LEVEL = "allertLevel";
+	public static final String APP_PREFERENCES_DISABLE_INTERNET = "disable_internet";
+	public static final String APP_PREFERENCES_SHOW_ALLERT = "show_allert";
+	public static final String APP_PREFERENCES_DAY = "day";
+	public static final String APP_PREFERENCES_MONTH = "month";
+	public static final String APP_PREFERENCES_YEAR = "year";
+
+
 	Widget widget = new Widget();
 
 	public static boolean brRegistered = false;
+
+	Fragment2 fragment2 = new Fragment2();
 
 	public void onCreate() {
 		super.onCreate();
@@ -84,7 +102,7 @@ public class TrafficService extends Service {
 		getlistTable(db);            //получаем список созданых таблиц
 
 		for (int i = 0; i < MAX_SIM; i++) {
-			Log.d(LOG_TAG, "Table " + i + " " + list_table[i] + "\n");    //выведем в лог список таблиц
+			Log.d(LOG_TAG, " Table" + i + " " + list_table[i] + "\n");    //выведем в лог список таблиц
 
 			if (idsim.equals(list_table[i])) {                                //если есть таблица с номером нашей симки
 				Log.d(LOG_TAG, "Есть совпадение таблиц!");
@@ -105,6 +123,8 @@ public class TrafficService extends Service {
 		showListTables();
 		recoverSettings();
 
+		initNoty();
+		task();
 	}
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.d(LOG_TAG, "onStartCommandService");
@@ -112,16 +132,18 @@ public class TrafficService extends Service {
 		int task;
 		task = intent.getIntExtra("task", 0);           //достаем номер задачи
 
-		if (task == CLEAN_TABLE)                        //если задача очистить таблицу
-			cleanTable(idsim);                          //очистим ее
+		if (task == CLEAN_TABLE) {                       //если задача очистить таблицу
+			Log.d(LOG_TAG, "CLEAN_TABLE_ACTION");
+			cleanTable(idsim);
+			saveTrafficApps();
+		}//очистим ее
 		else if (task == SET_REBOOT_ACTION){
 			setRebootAction(1);
 			resetTrafficReboot();
 			Log.d(LOG_TAG, "SET_REBOOT_ACTION");
 		}
 
-		initNoty();
-		task();
+
 		runTimer = true;
 
 		return super.onStartCommand(intent, flags, startId);
@@ -273,25 +295,33 @@ public class TrafficService extends Service {
 		Notification notification;
 
 		float trafficFloat = (float)allTrafficMobile/1024;
-		trafficFloat = Math.round(trafficFloat*(float)100.0)/(float)100.0;
+		trafficFloat = Math.round(trafficFloat*(float)10.0)/(float)10.0;
 
 		float trafficTxFloat = (float)mobile_trafficTXToday/1048576;
-		trafficTxFloat = Math.round(trafficTxFloat*(float)100.0)/(float)100.0;  //округляем до сотых
+		trafficTxFloat = Math.round(trafficTxFloat*(float)10.0)/(float)10.0;  //округляем до сотых
+
 
 		float trafficRxFloat = (float)mobile_trafficRXToday/1048576;
-		trafficRxFloat = Math.round(trafficRxFloat*(float)100.0)/(float)100.0;  //округляем до сотых
+		trafficRxFloat = Math.round(trafficRxFloat*(float)10.0)/(float)10.0;  //округляем до сотых
 
 		float procent = trafficFloat /  (float)stopLevel*100;
-		//if(trafficFloat > 0) {
-			procent = Math.round(procent*(float)10.0/(float)10.0);
-		//}
+		procent = Math.round(procent*(float)10.0/(float)10.0);
+
 		contentView.setImageViewResource(R.id.image, R.drawable.bittorrent);
-		contentView.setTextViewText(R.id.title, "Использовано " + trafficFloat + " Мб");
-		contentView.setProgressBar(R.id.usageData,stopLevel,(int)(allTrafficMobile/1024),false);
-		contentView.setImageViewResource(R.id.imSendData,R.drawable.arrowup);
-		contentView.setImageViewResource(R.id.imDownloadData,R.drawable.arrowdown);
-		contentView.setTextViewText(R.id.tvDownloadData,Float.toString(trafficRxFloat));
-		contentView.setTextViewText(R.id.tvSendData,Float.toString(trafficTxFloat));
+		contentView.setProgressBar(R.id.usageData, stopLevel, (int) (allTrafficMobile / 1024), false);
+		contentView.setImageViewResource(R.id.imSendData, R.drawable.arrowup);
+		contentView.setImageViewResource(R.id.imDownloadData, R.drawable.arrowdown);
+		if((int)trafficFloat < 100) {
+			contentView.setTextViewText(R.id.title, "Использовано " + trafficFloat + " Мб");
+			contentView.setTextViewText(R.id.tvDownloadData,Float.toString(trafficRxFloat));
+			contentView.setTextViewText(R.id.tvSendData,Float.toString(trafficTxFloat));
+		}
+		else {
+			contentView.setTextViewText(R.id.title, "Использовано " + (int)trafficFloat + " Мб");
+			contentView.setTextViewText(R.id.tvDownloadData,"" + (int)trafficRxFloat);
+			contentView.setTextViewText(R.id.tvSendData,"" + (int)trafficTxFloat);
+		}
+
 		contentView.setTextViewText(R.id.procentData,(int)procent + " %");
 
 		Intent notificationIntent = new Intent(getBaseContext(), MainActivity.class);
@@ -478,6 +508,7 @@ public class TrafficService extends Service {
 
 						if (isNewDay() || isNewMonth()) {
 							Log.d(LOG_TAG, "Конец учетного периода");
+							saveTrafficApps();						//сохраним значения траффика для приложений
 							resetTraffic();                        //считали значения сегоднашнего траффика, записали его в переменные вчерашнего
 							cleanTable(idsim);                    //очистили таблицу
 							setRebootAction(0);
@@ -662,6 +693,21 @@ public class TrafficService extends Service {
 
 		setMobileDataEnabledMethod.invoke(iConnectivityManager, enabled);
 	}
+	public void saveTrafficApps(){
+		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = mySharedPreferences.edit();
+
+
+
+		for (ApplicationInfo app : getBaseContext().getPackageManager().getInstalledApplications(0)) {
+			ApplicationItem item = ApplicationItem.create(app,getBaseContext());
+			if(item != null) {
+				editor.putInt(item.getApplicationLabel(getBaseContext().getPackageManager()), item.getTotalUsageKb());
+			}
+		}
+
+		editor.apply();
+	}
 	public void resetTraffic() {
 
 		mobile_trafficTXYesterday = TrafficStats.getMobileTxBytes();
@@ -812,6 +858,12 @@ public class TrafficService extends Service {
 
 		intent.putExtra(MainFragmentAdapter.UPDATE_DATA,1);    //обновили граффик,
 
+		Intent intent2 = new Intent(Fragment2.UPDATE_TRAFFIC_APPS);
+	//	intent2.putExtra(MainFragmentAdapter.UPDATE_DATA,1);    //обновили граффик,
+		sendBroadcast(intent2);
+		//fragment2.initAdapter();
+	//	fragment2.updateAdapter();
+
 	try
 	{
 		sendBroadcast(intent);            //послали интент фрагменту
@@ -826,54 +878,69 @@ public class TrafficService extends Service {
 }
 	public void recoverSettings(){
 
-		// создаем объект для данных
-		ContentValues cv = new ContentValues();
+		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
 
-		// подключаемся к БД
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		// делаем запрос всех данных из таблицы mytable, получаем Cursor
-		Cursor c = db.query("set" + TrafficService.idsim, null, null, null, null, null, null);
+		TrafficService.period = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_PERIOD,TrafficService.period);
+		TrafficService.stopLevel = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_STOPL_EVEL,TrafficService.stopLevel);
+		TrafficService.allertLevel = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_ALLERT_LEVEL,TrafficService.allertLevel);
+		TrafficService.disable_internet = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_DISABLE_INTERNET,TrafficService.disable_internet);
+		TrafficService.show_allert = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_SHOW_ALLERT,TrafficService.show_allert);
+		TrafficService.day = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_DAY,TrafficService.day);
+		TrafficService.month = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_MONTH,TrafficService.month);
+		TrafficService.mYear = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_YEAR,TrafficService.mYear);
 
-		if (c.moveToFirst()) {
+		//handlerSet1.sendEmptyMessage(RECOVER_SETTINGS);
+	//	handlerSet2.sendEmptyMessage(RECOVER_SETTINGS);
+		//handlerSet3.sendEmptyMessage(RECOVER_SETTINGS);
 
-			int periodColIndex = c.getColumnIndex("period");
-			int stopLevelColIndex = c.getColumnIndex("stopLevel");
-			int allertLevelColIndex = c.getColumnIndex("allertLevel");
-			int disable_internetColIndex = c.getColumnIndex("disable_internet");
-			int show_allertColIndex = c.getColumnIndex("show_allert");
-			int dayColIndex = c.getColumnIndex("day");
-			int monthColIndex = c.getColumnIndex("month");
-			int yearColIndex  = c.getColumnIndex("year");
+       /*     // подключаемся к БД
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            // делаем запрос всех данных из таблицы mytable, получаем Cursor
+            Cursor c = db.query("set" + TrafficService.idsim, null, null, null, null, null, null);
 
-			do {
-				// получаем значения по номерам столбцов и пишем все в лог
-				Log.d(LOG_TAG,
-						" period = " + c.getInt(periodColIndex) +
-								", \n stopLevel = " + c.getInt(stopLevelColIndex) +
-								", \n allertLevel = " + c.getInt(allertLevelColIndex) +
-								", \n disable_internet = " + c.getInt(disable_internetColIndex) +
-								", \n show_allert = " + c.getInt(show_allertColIndex) +
-								", \n day = " + c.getInt(dayColIndex) +
-								", \n month = " + c.getInt(monthColIndex) +
-								", \n year = " + c.getInt(yearColIndex));
-				// переход на следующую строку
-				// а если следующей нет (текущая - последняя), то false - выходим из цикла
-				period = c.getInt(periodColIndex);
-				stopLevel = c.getInt(stopLevelColIndex);
-				allertLevel = c.getInt(allertLevelColIndex);
-				disable_internet = c.getInt(disable_internetColIndex);
-				show_allert = c.getInt(show_allertColIndex);
-				day = c.getInt(dayColIndex);
-				month = c.getInt(monthColIndex);
-				mYear = c.getInt(yearColIndex);
+            if (c.moveToFirst()) {
 
+                int periodColIndex = c.getColumnIndex("period");
+                int stopLevelColIndex = c.getColumnIndex("stopLevel");
+                int allertLevelColIndex = c.getColumnIndex("allertLevel");
+                int disable_internetColIndex = c.getColumnIndex("disable_internet");
+                int show_allertColIndex = c.getColumnIndex("show_allert");
+                int dayColIndex = c.getColumnIndex("day");
+                int monthColIndex = c.getColumnIndex("month");
+                int yearColIndex  = c.getColumnIndex("year");
 
-			} while (c.moveToNext());
-		} else
-			Log.d(LOG_TAG, "0 rows");
-		c.close();
-		// закрываем подключение к БД
-		//db.close();
+                do {
+                    // получаем значения по номерам столбцов и пишем все в лог
+                    Log.d(LOG_TAG,
+                            " period = " + c.getInt(periodColIndex) +
+                                    ", \n stopLevel = " + c.getInt(stopLevelColIndex) +
+                                    ", \n allertLevel = " + c.getInt(allertLevelColIndex) +
+                                    ", \n disable_internet = " + c.getInt(disable_internetColIndex) +
+                                    ", \n show_allert = " + c.getInt(show_allertColIndex) +
+                                    ", \n day = " + c.getInt(dayColIndex) +
+                                    ", \n month = " + c.getInt(monthColIndex) +
+                                    ", \n year = " + c.getInt(yearColIndex));
+                    // переход на следующую строку
+                    // а если следующей нет (текущая - последняя), то false - выходим из цикла
+                    TrafficService.period = c.getInt(periodColIndex);
+                    TrafficService.stopLevel = c.getInt(stopLevelColIndex);
+                    TrafficService.allertLevel = c.getInt(allertLevelColIndex);
+                    TrafficService.disable_internet = c.getInt(disable_internetColIndex);
+                    TrafficService.show_allert = c.getInt(show_allertColIndex);
+                    TrafficService.day = c.getInt(dayColIndex);
+                    TrafficService.month = c.getInt(monthColIndex);
+                    TrafficService.mYear = c.getInt(yearColIndex);
+
+                    handlerSet1.sendEmptyMessage(RECOVER_SETTINGS);
+                    handlerSet2.sendEmptyMessage(RECOVER_SETTINGS);
+                    handlerSet3.sendEmptyMessage(RECOVER_SETTINGS);
+
+                } while (c.moveToNext());
+            } else
+                Log.d(LOG_TAG, "0 rows");
+            c.close();
+            // закрываем подключение к БД
+            dbHelper.close();*/
 
 	}
 	public void readDB() {
