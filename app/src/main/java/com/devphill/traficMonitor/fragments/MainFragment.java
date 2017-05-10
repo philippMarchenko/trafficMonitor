@@ -93,7 +93,7 @@ public class MainFragment extends Fragment {
            getActivity().unregisterReceiver(MainFragmentAdapter.br);
            TrafficService.brRegistered = false;
         }catch (IllegalArgumentException e){
-            Log.d(LOG_TAG, "Error unregisterReceiver" + e.getMessage());
+            Log.d(LOG_TAG, "Error unregisterReceiver in MainFragment" + e.getMessage());
         }
         }
 

@@ -59,8 +59,11 @@ public class ApplicationItem {
         return null;
     }
 
-    public int getTotalUsageKb() {
+    public int getUsageKb() {
         return Math.round((tx + rx)/ 1024)- getTrafficApps();
+    }
+    public int getTotalUsageKb() {
+        return Math.round((tx + rx)/ 1024);
     }
     public int getTrafficApps(){
         SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);

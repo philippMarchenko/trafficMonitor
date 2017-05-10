@@ -651,23 +651,29 @@ public class TrafficService extends Service {
 	boolean isNewMonth() {
 
 		// подключаемся к БД
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		/*SQLiteDatabase db = dbHelper.getWritableDatabase();
 
 		Log.d(LOG_TAG, "Проверяем на новый Месяц ");
 		// делаем запрос всех данных из таблицы mytable, получаем Cursor
 		Cursor c = db.query("set" + idsim, null, null, null, null, null, null);
 
-		if (c.moveToFirst()) {
+		if (c.moveToFirst()) {*/
 
 			Date d = new Date();
 
-			int monthColIndex = c.getColumnIndex("month");
+	/*		int monthColIndex = c.getColumnIndex("month");
 			int dayColIndex = c.getColumnIndex("day");
 
 			int month = c.getInt(monthColIndex);
-			int day = c.getInt(dayColIndex);
+			int day = c.getInt(dayColIndex);*/
 
-			Log.d(LOG_TAG, "month " + month + ", day  " + c.getInt(dayColIndex));
+
+			SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
+
+			int month = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_MONTH,TrafficService.month);
+			int day = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_DAY,TrafficService.day);
+
+			Log.d(LOG_TAG, "month " + month + ", day  " + day);
 
 
 			if ((day ==  d.getDate() || newMonth) && month == (d.getMonth() + 1) && period == PERIOD_MOUNTH) {
@@ -676,9 +682,9 @@ public class TrafficService extends Service {
 				return true;
 			}
 
-		}
+		//}
 		//db.close();
-		c.close();
+		//c.close();
 		return false;
 	}
 	private void setMobileDataEnabled(Context context, boolean enabled) throws InvocationTargetException, IllegalAccessException, ClassNotFoundException, NoSuchFieldException, NoSuchMethodException {
@@ -694,10 +700,9 @@ public class TrafficService extends Service {
 		setMobileDataEnabledMethod.invoke(iConnectivityManager, enabled);
 	}
 	public void saveTrafficApps(){
+		Log.d(LOG_TAG, "saveTrafficApps" );
 		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = mySharedPreferences.edit();
-
-
 
 		for (ApplicationInfo app : getBaseContext().getPackageManager().getInstalledApplications(0)) {
 			ApplicationItem item = ApplicationItem.create(app,getBaseContext());
@@ -707,6 +712,8 @@ public class TrafficService extends Service {
 		}
 
 		editor.apply();
+
+
 	}
 	public void resetTraffic() {
 

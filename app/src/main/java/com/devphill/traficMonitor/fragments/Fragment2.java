@@ -193,7 +193,7 @@ public class Fragment2 extends Fragment {
                 );
                 tvAppName.setText(app.getApplicationLabel(getActivity().getPackageManager()));
               //  int trafficApp = app.getTotalUsageKb() - getTrafficApps(app);
-                tvAppTraffic.setText(Integer.toString(app.getTotalUsageKb()) + " Kb");
+                tvAppTraffic.setText(Integer.toString(app.getUsageKb()) + " Kb");
 
                 return result;
             }
@@ -248,7 +248,7 @@ public class Fragment2 extends Fragment {
         adapterApplications.sort(new Comparator<ApplicationItem>() {
             @Override
             public int compare(ApplicationItem lhs, ApplicationItem rhs) {
-                return (int)(rhs.getTotalUsageKb() - lhs.getTotalUsageKb());
+                return (int)(rhs.getUsageKb() - lhs.getUsageKb());
             }
         });
         adapterApplications.notifyDataSetChanged();
@@ -266,6 +266,12 @@ public class Fragment2 extends Fragment {
     public void onPause() {
         super.onPause();
         runTimer = false;
+        try {
+            getActivity().unregisterReceiver(brAppsTrafficFragment);
+        }catch (IllegalArgumentException e){
+            Log.d(LOG_TAG, "Error unregisterReceiver in Fragment2" + e.getMessage());
+        }
+
         Log.i(LOG_TAG, "Fragment2 onPause");
     }
 
