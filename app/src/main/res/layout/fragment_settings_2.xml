@@ -40,8 +40,6 @@
                 android:textColor="@color/material_drawer_dark_header_selection_text"
                 android:id="@+id/textView"
                 android:textSize="18sp"
-
-
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginTop="8dp"

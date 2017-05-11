@@ -40,7 +40,7 @@ public class TrafficService extends Service {
 	final String LOG_TAG = "serviceTag";
 	final int MAX_SIM = 10;
 	public long mobile_trafficTXToday, mobile_trafficRXToday, mobile_trafficTXYesterday, mobile_trafficRXYesterday,allTrafficMobile;
-	static public String idsim;
+	static public String idsim = "mySim";
 	public int networkstate;
 
 	public String list_table[] = new String[10];
@@ -84,7 +84,7 @@ public class TrafficService extends Service {
 	public static final String APP_PREFERENCES_DAY = "day";
 	public static final String APP_PREFERENCES_MONTH = "month";
 	public static final String APP_PREFERENCES_YEAR = "year";
-
+	public static final String APP_PREFERENCES_REBOOT_ACTION = "reboot_action";
 
 	Widget widget = new Widget();
 
@@ -95,7 +95,7 @@ public class TrafficService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		Log.d(LOG_TAG, "onCreateService");
-		getSerialSim();    //получаем айди симки
+		//getSerialSim();    //получаем айди симки
 		dbHelper = new DBHelper(getBaseContext());  // создаем объект для создания и управления версиями БД
 		SQLiteDatabase db = dbHelper.getWritableDatabase(); // подключаемся к БД
 
@@ -255,7 +255,17 @@ public class TrafficService extends Service {
 			return false;
 	}
 	public void setRebootAction(int reboot){
-		DBHelper dbHelper = new DBHelper(getBaseContext());
+
+		Log.d(LOG_TAG, "setRebootAction" );
+		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = mySharedPreferences.edit();
+
+		editor.putInt(APP_PREFERENCES_REBOOT_ACTION,reboot);
+
+		editor.apply();
+
+		Log.d("serviceTag", " rebootAction  " + reboot);
+		/*DBHelper dbHelper = new DBHelper(getBaseContext());
 		// создаем объект для данных
 		ContentValues cv = new ContentValues();
 		// подключаемся к БД
@@ -269,11 +279,15 @@ public class TrafficService extends Service {
 		Log.d("serviceTag", " rebootAction  " + reboot);
 		c.close();
 		// закрываем подключение к БД
-		dbHelper.close();
+		dbHelper.close();*/
 	}
 	public int getRebootAction(){
 
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
+		Log.d(LOG_TAG, "getRebootAction = " + mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION,0));
+		return mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION,0);
+
+	/*	SQLiteDatabase db = dbHelper.getWritableDatabase();
 		Cursor c = db.query("set" + idsim, null, null, null, null, null, null);
 
 		if (c.moveToLast()) {
@@ -285,7 +299,7 @@ public class TrafficService extends Service {
 
 		}
 		c.close();
-		return 0;
+		return 0;*/
 	}
 	public void updateNoty (){
 
@@ -526,6 +540,7 @@ public class TrafficService extends Service {
 							Log.d(LOG_TAG, "Спим дальше");
 
 						refreshWidget();
+						saveTrafficApps();	//постоянно пишем значения траффика по приложениям что бы восстановить при перезагрузке
 						updateNoty();
 						updateData();
 
@@ -867,6 +882,7 @@ public class TrafficService extends Service {
 
 		Intent intent2 = new Intent(Fragment2.UPDATE_TRAFFIC_APPS);
 	//	intent2.putExtra(MainFragmentAdapter.UPDATE_DATA,1);    //обновили граффик,
+		intent2.putExtra("allTrafficMobile",allTrafficMobile);
 		sendBroadcast(intent2);
 		//fragment2.initAdapter();
 	//	fragment2.updateAdapter();

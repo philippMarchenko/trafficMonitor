@@ -69,5 +69,8 @@
     <string name="notyAllert2">Мб трафіку</string>
     <string name="notyStop">Увага!Був досягнутий ліміт!</string>
 
+    <string name="used_all">Використано всього</string>
+    <string name="app_data">По додаткам</string>
+
 
 </resources>

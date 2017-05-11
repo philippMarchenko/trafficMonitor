@@ -71,4 +71,6 @@
     <string name="notyAllert2">Mb data</string>
     <string name="notyStop">Attention! The limit is reached!</string>
 
+    <string name="used_all">All used data</string>
+    <string name="app_data">App data</string>
 </resources>

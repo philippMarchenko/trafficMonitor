@@ -81,7 +81,7 @@ public class MainActivity extends ActionBarActivity {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new MainFragment(), getResources().getString(R.string.tab_1));
         adapter.addFragment(new Fragment3(), getResources().getString(R.string.tab_2));
-        adapter.addFragment(new Fragment2(),"Apps");
+        adapter.addFragment(new Fragment2(),getResources().getString(R.string.app_data));
         adapter.addFragment(new FragmentSettings(),getResources().getString(R.string.tab_3));
         viewPager.setAdapter(adapter);
     }

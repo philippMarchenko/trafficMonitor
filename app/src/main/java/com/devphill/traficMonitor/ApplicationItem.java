@@ -58,9 +58,20 @@ public class ApplicationItem {
         if((_tx + _rx) > 0) return new ApplicationItem(_app);
         return null;
     }
+    public int getRebootAction() {
 
+        SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
+
+        return mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION, 0);
+    }
     public int getUsageKb() {
-        return Math.round((tx + rx)/ 1024)- getTrafficApps();
+        if(getRebootAction() == 1){
+            return Math.round((tx + rx)/ 1024)+ getTrafficApps();
+        }
+        else{
+            return Math.round((tx + rx)/ 1024)- getTrafficApps();
+        }
+
     }
     public int getTotalUsageKb() {
         return Math.round((tx + rx)/ 1024);

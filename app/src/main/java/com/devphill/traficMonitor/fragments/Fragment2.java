@@ -53,7 +53,7 @@ public class Fragment2 extends Fragment {
 
     boolean runTimer = true;
 
-    TextView tvSupported;
+    TextView kb;
     TextView tvDataUsageWiFi;
     TextView tvDataUsageMobile;
     TextView tvDataUsageTotal;
@@ -72,10 +72,11 @@ public class Fragment2 extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_2, container, false);
 
-        tvSupported = (TextView) view.findViewById(R.id.tvSupported);
+        kb = (TextView) view.findViewById(R.id.kb);
+        /*
         tvDataUsageWiFi = (TextView) view.findViewById(R.id.tvDataUsageWiFi);
         tvDataUsageMobile = (TextView) view.findViewById(R.id.tvDataUsageMobile);
-        tvDataUsageTotal = (TextView) view.findViewById(R.id.tvDataUsageTotal);
+        tvDataUsageTotal = (TextView) view.findViewById(R.id.tvDataUsageTotal);*/
 
         lvApplications = (ListView) view.findViewById(R.id.lvInstallApplication);
 
@@ -90,7 +91,7 @@ public class Fragment2 extends Fragment {
             lvApplications.setAdapter(adapterApplications);
 
         } else {
-            tvSupported.setVisibility(View.VISIBLE);
+          //  tvSupported.setVisibility(View.VISIBLE);
         }
         brAppsTrafficFragment = new BroadcastReceiver() {
             @Override
@@ -98,16 +99,22 @@ public class Fragment2 extends Fragment {
              //   Log.i(LOG_TAG, "onReceive brAppsTrafficFragment ");
                 updateAdapter();
 
+                long traffic = intent.getLongExtra("allTrafficMobile",0);
+                float trafficFloat = (float)traffic/1024;
+                trafficFloat = Math.round(trafficFloat*(float)10.0)/(float)10.0;
+                kb.setText(trafficFloat + " Mb");
+
             }
         };
 
-        getActivity().registerReceiver(brAppsTrafficFragment, new IntentFilter(Fragment2.UPDATE_TRAFFIC_APPS));
+
 
         Log.i(LOG_TAG, "onCreateView fragment2 ");
 
         return view;
 
     }
+
     public void task (){
         final Handler uiHandler = new Handler();
         myTimer.schedule(new TimerTask() { // Определяем задачу
@@ -193,7 +200,9 @@ public class Fragment2 extends Fragment {
                 );
                 tvAppName.setText(app.getApplicationLabel(getActivity().getPackageManager()));
               //  int trafficApp = app.getTotalUsageKb() - getTrafficApps(app);
+
                 tvAppTraffic.setText(Integer.toString(app.getUsageKb()) + " Kb");
+
 
                 return result;
             }
@@ -233,12 +242,6 @@ public class Fragment2 extends Fragment {
         }*/
         Log.i(LOG_TAG, "adapterApplications.getCount = " + adapterApplications.getCount());
     }
-    public int getTrafficApps(ApplicationItem item){
-         SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
-
-         return mySharedPreferences.getInt(item.getApplicationLabel(getContext().getPackageManager()),0);
-
-    }
     public void updateAdapter() {
         for (int i = 0, l = adapterApplications.getCount(); i < l; i++) {
             ApplicationItem app = adapterApplications.getItem(i);
@@ -258,7 +261,7 @@ public class Fragment2 extends Fragment {
         super.onResume();
 
         runTimer = true;
-
+        getActivity().registerReceiver(brAppsTrafficFragment, new IntentFilter(Fragment2.UPDATE_TRAFFIC_APPS));
         Log.i(LOG_TAG, "Fragment2 onResume");
     }
 

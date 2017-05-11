@@ -10,7 +10,9 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Title"
         android:id="@+id/tvAppName"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -18,9 +20,8 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="0 Kb"
         android:id="@+id/tvAppTraffic"
+        android:gravity="center"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:gravity="center"/>
+        android:layout_alignParentRight="true" />
 
 </RelativeLayout>
