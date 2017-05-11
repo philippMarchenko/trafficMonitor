@@ -34,7 +34,7 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-
+//йобана
 public class TrafficService extends Service {
 
 	final String LOG_TAG = "serviceTag";
