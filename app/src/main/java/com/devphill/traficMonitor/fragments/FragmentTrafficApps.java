@@ -11,6 +11,8 @@ import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -41,7 +43,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 //implements CompoundButton.OnCheckedChangeListener
-public class Fragment2 extends Fragment {
+public class FragmentTrafficApps extends Fragment {
 
 
     public  String LOG_TAG = "fragmentTrafficApps";
@@ -81,7 +83,7 @@ public class Fragment2 extends Fragment {
         lvApplications = (ListView) view.findViewById(R.id.lvInstallApplication);
 
         //UpdateAdapter updateAdapter = new UpdateAdapter();
-      //  updateAdapter.execute();
+        //  updateAdapter.execute();
 
         initAdapter();
 
@@ -91,22 +93,22 @@ public class Fragment2 extends Fragment {
             lvApplications.setAdapter(adapterApplications);
 
         } else {
-          //  tvSupported.setVisibility(View.VISIBLE);
+            //  tvSupported.setVisibility(View.VISIBLE);
         }
         brAppsTrafficFragment = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-             //   Log.i(LOG_TAG, "onReceive brAppsTrafficFragment ");
+                //   Log.i(LOG_TAG, "onReceive brAppsTrafficFragment ");
                 updateAdapter();
 
-                long traffic = intent.getLongExtra("allTrafficMobile",0);
-                float trafficFloat = (float)traffic/1024;
-                trafficFloat = Math.round(trafficFloat*(float)10.0)/(float)10.0;
+                long traffic = intent.getLongExtra("allTrafficMobile", 0);
+                float trafficFloat = (float) traffic / 1024;
+                trafficFloat = Math.round(trafficFloat * (float) 10.0) / (float) 10.0;
                 kb.setText(trafficFloat + " Mb");
+                Log.i(LOG_TAG, "updateAdapter, allTrafficMobile " + traffic);
 
             }
         };
-
 
 
         Log.i(LOG_TAG, "onCreateView fragment2 ");
@@ -115,63 +117,6 @@ public class Fragment2 extends Fragment {
 
     }
 
-    public void task (){
-        final Handler uiHandler = new Handler();
-        myTimer.schedule(new TimerTask() { // Определяем задачу
-            @Override
-            public void run() {//функция для длительных задач(например работа с сетью)
-                if(runTimer){
-
-                }
-                uiHandler.post(new Runnable() { //здесь можна выводить на экран и работать с основным потоком
-                    @Override
-                    public void run() {
-                        if(runTimer){
-                            updateAdapter();
-                            Log.d(LOG_TAG, "Update apps traffic list");
-                            /*long mobile = TrafficStats.getMobileRxBytes() + TrafficStats.getMobileTxBytes();
-                            long total = TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
-                            tvDataUsageWiFi.setText("" + (total - mobile) / 1048576 + " Mb");
-                            tvDataUsageMobile.setText("" + mobile / 1048576 + " Mb");
-                            tvDataUsageTotal.setText("" + total / 1048576 + " Mb");
-                            if (dataUsageTotalLast != total) {*/
-                                //dataUsageTotalLast = total;
-
-                           // }
-
-                           /* Calendar calendar = Calendar.getInstance();
-                            year = calendar.get(Calendar.YEAR);
-                            month= calendar.get(Calendar.MONTH);
-                            day = calendar.get(Calendar.DAY_OF_MONTH);*/
-
-                     }
-                    }
-                });
-
-            };
-
-        }, 0L, 3L * 1000); // интервал - 8000 миллисекунд, 0 миллисекунд до первого запуска.
-    }
-    private class UpdateAdapter extends AsyncTask<Void, Void, Integer> {
-
-
-        protected Integer doInBackground(Void... params) {
-            try {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        initAdapter();
-                    }
-                });
-
-
-            } catch (Exception e) {
-                Log.i(LOG_TAG, "Ошибка запроса инициализации адаптера " + e.getMessage());
-            }
-
-            return null;
-        }
-    }
     public void initAdapter() {
 
         adapterApplications = new ArrayAdapter<ApplicationItem>(getActivity(), R.layout.item_install_application) {
@@ -199,9 +144,10 @@ public class Fragment2 extends Fragment {
                         null, null, null
                 );
                 tvAppName.setText(app.getApplicationLabel(getActivity().getPackageManager()));
-              //  int trafficApp = app.getTotalUsageKb() - getTrafficApps(app);
-
-                tvAppTraffic.setText(Integer.toString(app.getUsageKb()) + " Kb");
+                if(app.getUsageKb() > 0)
+                     tvAppTraffic.setText(Integer.toString(app.getUsageKb()) + " Kb");
+                else
+                    Log.i(LOG_TAG, "Траффик почемуто меньше ноля((");
 
 
                 return result;
@@ -217,12 +163,6 @@ public class Fragment2 extends Fragment {
             }
         };
 
-
-        ApplicationInfo app1 = new ApplicationInfo();
-       // app1.
-
-
-         List<ApplicationInfo> listApp = getActivity().getPackageManager().getInstalledApplications(0);
 
             int count = 0;
        // TODO: resize icon once
@@ -242,26 +182,32 @@ public class Fragment2 extends Fragment {
         }*/
         Log.i(LOG_TAG, "adapterApplications.getCount = " + adapterApplications.getCount());
     }
+    public boolean isConnectedMobile(){
+        ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_MOBILE);
+    }
     public void updateAdapter() {
         for (int i = 0, l = adapterApplications.getCount(); i < l; i++) {
             ApplicationItem app = adapterApplications.getItem(i);
+            app.setMobilTraffic(isConnectedMobile());
             app.update();
         }
 
         adapterApplications.sort(new Comparator<ApplicationItem>() {
             @Override
             public int compare(ApplicationItem lhs, ApplicationItem rhs) {
-                return (int)(rhs.getUsageKb() - lhs.getUsageKb());
+                return (int)(rhs.getUsageKbInt() - lhs.getUsageKbInt());
             }
         });
         adapterApplications.notifyDataSetChanged();
-        Log.i(LOG_TAG, "Fragment2 updateAdapter");
+
     }
     public void onResume() {
         super.onResume();
 
         runTimer = true;
-        getActivity().registerReceiver(brAppsTrafficFragment, new IntentFilter(Fragment2.UPDATE_TRAFFIC_APPS));
+        getActivity().registerReceiver(brAppsTrafficFragment, new IntentFilter(FragmentTrafficApps.UPDATE_TRAFFIC_APPS));
         Log.i(LOG_TAG, "Fragment2 onResume");
     }
 

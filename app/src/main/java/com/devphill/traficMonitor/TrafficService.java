@@ -25,7 +25,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.devphill.traficMonitor.fragments.Fragment2;
+import com.devphill.traficMonitor.fragments.FragmentTrafficApps;
 import com.devphill.traficMonitor.fragments.MainFragmentAdapter;
 
 import java.lang.reflect.Field;
@@ -34,7 +34,7 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-//йобана
+
 public class TrafficService extends Service {
 
 	final String LOG_TAG = "serviceTag";
@@ -53,7 +53,7 @@ public class TrafficService extends Service {
 
 	DBHelper dbHelper;
 	Timer myTimerService = new Timer(); // Создаем таймер
-	Timer myTimer2Service = new Timer(); // Создаем таймер
+//	Timer myTimer2Service = new Timer(); // Создаем таймер
 
 	public static int CLEAN_TABLE = 1;
 	public static int SET_REBOOT_ACTION = 2;
@@ -74,7 +74,8 @@ public class TrafficService extends Service {
 	public static int mYear = 0;
 
 	public static final String APP_PREFERENCES = "settingsTrafficMonitor";
-	public static final String APP_PREFERENCES_TRAFFIC_APPS = "settingsTrafficApps";
+	public static final String APP_PREFERENCES_TRAFFIC_APPS = "TrafficApps";
+	public static final String APP_PREFERENCES_TRAFFIC_APPS_REBOOT= "TrafficAppsReboot";
 	public static final String APP_PREFERENCES_PERIOD = "period";
 	public static final String APP_PREFERENCES_PERIOD_CHART = "period_chart";
 	public static final String APP_PREFERENCES_STOPL_EVEL =  "stopLevel";
@@ -85,12 +86,13 @@ public class TrafficService extends Service {
 	public static final String APP_PREFERENCES_MONTH = "month";
 	public static final String APP_PREFERENCES_YEAR = "year";
 	public static final String APP_PREFERENCES_REBOOT_ACTION = "reboot_action";
+	public static final String APP_PREFERENCES_HAS_VISITED = "has_visited";
 
 	Widget widget = new Widget();
 
 	public static boolean brRegistered = false;
 
-	Fragment2 fragment2 = new Fragment2();
+	//FragmentTrafficApps fragment2 = new FragmentTrafficApps();
 
 	public void onCreate() {
 		super.onCreate();
@@ -117,10 +119,10 @@ public class TrafficService extends Service {
 			}
 		}
 
-		db = dbHelper.getWritableDatabase(); // подключаемся к БД
-		getlistTable(db);                       // еще раз выведем в лог список
+		//db = dbHelper.getWritableDatabase(); // подключаемся к БД
+		//getlistTable(db);                       // еще раз выведем в лог список
 	//	creatTestTable(db);
-		showListTables();
+	//	showListTables();
 		recoverSettings();
 
 		initNoty();
@@ -195,7 +197,7 @@ public class TrafficService extends Service {
 				+ "lastDay integer,"             //день последний
 				+ "reserved integer" + ");"); //зарезервировано
 
-		db.execSQL("create table " + "set" + id_sim + " (" //создание таблицы с названием серии сим карты для настроек
+		/*db.execSQL("create table " + "set" + id_sim + " (" //создание таблицы с названием серии сим карты для настроек
 				+ "id integer primary key autoincrement,"
 				+ "period integer,"         //период
 				+ "periodChartOffset integer,"         //период граффика
@@ -206,9 +208,9 @@ public class TrafficService extends Service {
 				+ "reboot_device integer," //было ли устройство перезагруженно (обнуление данных в устройстве)
 				+ "day integer,"     //день
 				+ "month integer,"             //месяц
-				+ "year integer" + ");"); //год начала отсчета за месяц
+				+ "year integer" + ");"); //год начала отсчета за месяц*/
 
-		initSettings();
+		//initSettings();
 
 		db.close();
 
@@ -257,14 +259,13 @@ public class TrafficService extends Service {
 	public void setRebootAction(int reboot){
 
 		Log.d(LOG_TAG, "setRebootAction" );
-		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
+		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = mySharedPreferences.edit();
 
 		editor.putInt(APP_PREFERENCES_REBOOT_ACTION,reboot);
 
 		editor.apply();
 
-		Log.d("serviceTag", " rebootAction  " + reboot);
 		/*DBHelper dbHelper = new DBHelper(getBaseContext());
 		// создаем объект для данных
 		ContentValues cv = new ContentValues();
@@ -484,7 +485,10 @@ public class TrafficService extends Service {
 
 		}
 		allTrafficMobile = mobile_trafficTXToday + mobile_trafficRXToday;
-		allTrafficMobile = allTrafficMobile / 1024;       //для Кб
+		if(allTrafficMobile > 0)
+			allTrafficMobile = allTrafficMobile / 1024;       //для Кб
+		else
+			allTrafficMobile = 0;
 
 		float trafficFloat = (float)allTrafficMobile/1024;
 		trafficFloat = Math.round(trafficFloat*(float)100.0)/(float)100.0;
@@ -540,7 +544,7 @@ public class TrafficService extends Service {
 							Log.d(LOG_TAG, "Спим дальше");
 
 						refreshWidget();
-						saveTrafficApps();	//постоянно пишем значения траффика по приложениям что бы восстановить при перезагрузке
+						saveTrafficAppsForReboot();
 						updateNoty();
 						updateData();
 
@@ -623,13 +627,13 @@ public class TrafficService extends Service {
 			return activeNetwork.getTypeName();
 		}
 		return null;
-	}
+	}			//получим тип сети
 	public boolean isNetworkConnected(Context context) {
 		ConnectivityManager cm =
 				(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 		return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-	}
+	}		//есть ли инет
 	boolean isNewDay() {
 
 		// подключаемся к БД
@@ -662,7 +666,7 @@ public class TrafficService extends Service {
 		//db.close();
 		c.close();
 		return false;
-	}
+	}			//наступил новый день?
 	boolean isNewMonth() {
 
 		// подключаемся к БД
@@ -701,7 +705,7 @@ public class TrafficService extends Service {
 		//db.close();
 		//c.close();
 		return false;
-	}
+	}			//наступил новый месяц?
 	private void setMobileDataEnabled(Context context, boolean enabled) throws InvocationTargetException, IllegalAccessException, ClassNotFoundException, NoSuchFieldException, NoSuchMethodException {
 		final ConnectivityManager conman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		final Class conmanClass = Class.forName(conman.getClass().getName());
@@ -729,7 +733,23 @@ public class TrafficService extends Service {
 		editor.apply();
 
 
-	}
+	} //ложим траффик приложения по окончанию учетного периода
+	public void saveTrafficAppsForReboot(){
+		Log.d(LOG_TAG, "saveTrafficAppsForReboot" );
+		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_REBOOT, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = mySharedPreferences.edit();
+
+		for (ApplicationInfo app : getBaseContext().getPackageManager().getInstalledApplications(0)) {
+			ApplicationItem item = ApplicationItem.create(app,getBaseContext());
+			if(item != null) {
+				editor.putInt(item.getApplicationLabel(getBaseContext().getPackageManager()), item.getTotalUsageKb());
+			}
+		}
+
+		editor.apply();
+
+
+	} //ложим траффик приложения если была перезагрузка
 	public void resetTraffic() {
 
 		mobile_trafficTXYesterday = TrafficStats.getMobileTxBytes();
@@ -738,7 +758,7 @@ public class TrafficService extends Service {
 		mobile_trafficTXToday = 0;
 		mobile_trafficRXToday = 0;
 
-	}
+	}	//перезаписываем теперешний траффик в переменные для вчерашнего
 	public void resetTrafficReboot() {
 
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -777,7 +797,7 @@ public class TrafficService extends Service {
 		c.close();
 
 
-	}
+	}	//в переменные для вчерашнего запишем траффик до перезагрузки
 	public void initSettings() {
 
 		// создаем объект для данных
@@ -808,7 +828,7 @@ public class TrafficService extends Service {
 		// закрываем подключение к БД
 	//	db.close();
 		c.close();
-	}
+	}		//настройки старіе в бд(не используется)
 	public void dbWriteTraffic() {
 		//Log.d(LOG_TAG, "--- Insert in " + idsim);
 		// подготовим данные для вставки в виде пар: наименование столбца - значение
@@ -873,15 +893,14 @@ public class TrafficService extends Service {
 		c.close();
 
 
-	}
+	}		//записть данных в бд
 	public void updateData (){
 
 		final Intent intent = new Intent(MainFragmentAdapter.BROADCAST_ACTION);
 
 		intent.putExtra(MainFragmentAdapter.UPDATE_DATA,1);    //обновили граффик,
 
-		Intent intent2 = new Intent(Fragment2.UPDATE_TRAFFIC_APPS);
-	//	intent2.putExtra(MainFragmentAdapter.UPDATE_DATA,1);    //обновили граффик,
+		Intent intent2 = new Intent(FragmentTrafficApps.UPDATE_TRAFFIC_APPS);
 		intent2.putExtra("allTrafficMobile",allTrafficMobile);
 		sendBroadcast(intent2);
 		//fragment2.initAdapter();
@@ -898,7 +917,7 @@ public class TrafficService extends Service {
 		e.printStackTrace();
 	}
 
-}
+}			//посылем сообщения фрагментам для обновления данных
 	public void recoverSettings(){
 
 		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
@@ -912,6 +931,16 @@ public class TrafficService extends Service {
 		TrafficService.month = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_MONTH,TrafficService.month);
 		TrafficService.mYear = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_YEAR,TrafficService.mYear);
 
+
+
+		boolean hasVisited = mySharedPreferences.getBoolean(APP_PREFERENCES_HAS_VISITED,false);
+
+		if(!hasVisited){		//первый раз запуск приложения?
+			newDay = true;		//очистим таблицу и траффик
+			SharedPreferences.Editor editor = mySharedPreferences.edit();
+			editor.putBoolean(APP_PREFERENCES_HAS_VISITED,true);
+			editor.apply();
+		}
 		//handlerSet1.sendEmptyMessage(RECOVER_SETTINGS);
 	//	handlerSet2.sendEmptyMessage(RECOVER_SETTINGS);
 		//handlerSet3.sendEmptyMessage(RECOVER_SETTINGS);
@@ -965,7 +994,7 @@ public class TrafficService extends Service {
             // закрываем подключение к БД
             dbHelper.close();*/
 
-	}
+	}		//востановим настройки
 	public void readDB() {
 		  // подключаемся к БД
 		  SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -1022,7 +1051,7 @@ public class TrafficService extends Service {
 		Log.d(LOG_TAG, "deleted rows count = " + clearCount);
 		//закрываем подключение к БД
 		db.close();
-	}
+	}	//очистка таблицы с траффиком
     public void onDestroy() {
 	    super.onDestroy();//sendBroadcast(new Intent("YouWillNeverKillMe"));
 		runTimer = false;

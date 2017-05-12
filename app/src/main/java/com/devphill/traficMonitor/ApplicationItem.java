@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.TrafficStats;
+import android.util.Log;
 
 public class ApplicationItem {
     private long tx = 0;
@@ -65,19 +66,52 @@ public class ApplicationItem {
         return mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION, 0);
     }
     public int getUsageKb() {
+       /* Log.i("appTrafficLogs", "getUsageKb");
+
+        Log.i("appTrafficLogs","Name app = " + mContex.getPackageManager().getApplicationLabel(app).toString());
+        Log.i("appTrafficLogs","Tx = " + tx);
+        Log.i("appTrafficLogs","Rx = " +  rx);
+
+        Log.i("appTrafficLogs","tx + rx /1024" +  ((tx + rx))/1024);*/
+
         if(getRebootAction() == 1){
-            return Math.round((tx + rx)/ 1024)+ getTrafficApps();
+           /* float traffic = ((float) (tx + rx) + (float)getTrafficAppsForReboot())/ ((float)1024*(float)1024);
+            Log.i("appTrafficLogs","getRebootAction() = 1 " + getTrafficAppsForReboot());
+            return Math.round(traffic * (float) 10.0) / (float) 10.0;*/
+            return Math.round((tx + rx)/ 1024)+ getTrafficAppsForReboot();
         }
         else{
+          /*  float traffic = ((float) (tx + rx) - (float)getTrafficAppsForReboot())/ ((float)1024*(float)1024);
+            Log.i("appTrafficLogs","getRebootAction() = 0", "" + getTrafficAppsForReboot());
+            return Math.round(traffic * (float) 10.0) / (float) 10.0;*/
             return Math.round((tx + rx)/ 1024)- getTrafficApps();
         }
 
     }
+    public float getUsageKbInt() {
+
+
+        if(getRebootAction() == 1){
+             return Math.round((tx + rx)/ 1024)+ getTrafficAppsForReboot();
+        }
+        else{
+             return Math.round((tx + rx)/ 1024)- getTrafficApps();
+        }
+
+    }
     public int getTotalUsageKb() {
+
+
         return Math.round((tx + rx)/ 1024);
     }
-    public int getTrafficApps(){
+    public int getTrafficApps(){        //достаем траффик приложения по окончанию учетного периода
         SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
+
+        return mySharedPreferences.getInt(mContex.getPackageManager().getApplicationLabel(app).toString(),0);
+
+    }
+    public int getTrafficAppsForReboot(){ //достаем траффик приложения если была перезагрузка
+        SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_REBOOT, Context.MODE_PRIVATE);
 
         return mySharedPreferences.getInt(mContex.getPackageManager().getApplicationLabel(app).toString(),0);
 

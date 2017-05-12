@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import com.devphill.traficMonitor.R;
 
 
-public class Fragment3 extends Fragment {
+public class FragmentTestSpeed extends Fragment {
 
     public static String LOG_TAG = "myLogs";
 

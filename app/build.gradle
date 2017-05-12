@@ -6,8 +6,8 @@ android {
 
     defaultConfig {
         applicationId "com.devphill.traficmonitor"
-        minSdkVersion 14
-        targetSdkVersion 14
+        minSdkVersion 16
+        targetSdkVersion 16
         versionCode 6
         versionName "1.0.6"
     }

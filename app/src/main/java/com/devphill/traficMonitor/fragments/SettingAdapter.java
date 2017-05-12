@@ -248,7 +248,8 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
                     intent.putExtra("task",TrafficService.CLEAN_TABLE);
                     mContext.startService(intent);
 
-                    // TrafficService.newDay = true;
+                    TrafficService.newDay = true;
+
                 }
             });
 
