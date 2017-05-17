@@ -46,7 +46,8 @@
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true" />
 
-            <com.github.anastr.speedviewlib.SpeedView
+            <view
+                class="com.github.anastr.speedviewlib.SpeedView"
                 android:id="@+id/speedView"
                 android:layout_height="250dp"
                 android:layout_width="250dp"

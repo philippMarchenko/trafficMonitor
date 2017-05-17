@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -12,16 +13,55 @@
         android:id="@+id/tvAppName"
         android:gravity="center"
         android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp" />
+        android:layout_alignTop="@+id/imageApp"
+        android:layout_toRightOf="@+id/imageApp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@mipmap/ic_launcher"
+        android:id="@+id/imageApp"
+        android:layout_marginStart="5dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true" />
+
+    <ImageView
+        app:srcCompat="@drawable/wifi"
+        android:id="@+id/imageWiFi"
+        android:layout_alignBottom="@+id/imageApp"
+        android:layout_alignLeft="@+id/tvAppName"
+        android:layout_height="25dp"
+        android:layout_width="25dp" />
+
+    <TextView
+        android:text="0 Mb"
+        android:layout_width="wrap_content"
+        android:id="@+id/wiFiusageApp"
+        android:gravity="center"
+        android:layout_height="25dp"
+        android:layout_alignTop="@+id/imageWiFi"
+        android:layout_toRightOf="@+id/imageWiFi"
+        android:layout_marginLeft="10dp" />
+
+    <ImageView
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        app:srcCompat="@drawable/tree_g"
+        android:id="@+id/imageMobileDataApp"
+        android:layout_alignTop="@+id/wiFiusageApp"
+        android:layout_alignParentRight="false"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="190dp" />
 
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="0 Kb"
-        android:id="@+id/tvAppTraffic"
+        android:text="0 Mb"
+        android:id="@+id/mobileUsageApp"
         android:gravity="center"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true" />
+        android:layout_height="25dp"
+        android:layout_alignTop="@+id/imageMobileDataApp"
+        android:layout_toRightOf="@+id/imageMobileDataApp"
+        android:layout_marginStart="10dp" />
 
 </RelativeLayout>

@@ -73,7 +73,6 @@ public class ApplicationItem {
         Log.i("appTrafficLogs","Rx = " +  rx);
 
         Log.i("appTrafficLogs","tx + rx /1024" +  ((tx + rx))/1024);*/
-
         if(getRebootAction() == 1){
            /* float traffic = ((float) (tx + rx) + (float)getTrafficAppsForReboot())/ ((float)1024*(float)1024);
             Log.i("appTrafficLogs","getRebootAction() = 1 " + getTrafficAppsForReboot());
@@ -86,23 +85,29 @@ public class ApplicationItem {
             return Math.round(traffic * (float) 10.0) / (float) 10.0;*/
             return Math.round((tx + rx)/ 1024)- getTrafficApps();
         }
-
     }
     public float getUsageKbInt() {
-
-
         if(getRebootAction() == 1){
              return Math.round((tx + rx)/ 1024)+ getTrafficAppsForReboot();
         }
         else{
              return Math.round((tx + rx)/ 1024)- getTrafficApps();
         }
-
     }
     public int getTotalUsageKb() {
-
-
         return Math.round((tx + rx)/ 1024);
+    }
+    public float getMobileUsageKb() {
+        float traffic = ((float) (mobil_tx + mobil_rx)) / ((float)1024*(float)1024);
+        //Log.i("appTrafficLogs","getRebootAction() = 1 " + getTrafficAppsForReboot());
+       // Log.i("appTrafficLogs","traffic = " + traffic);
+        return Math.round(traffic * (float) 10.0) / (float) 10.0;
+        //return Math.round((mobil_tx + mobil_rx)/ 1024);
+    }
+    public float getWiFiUsageKb() {
+        float traffic = ((float) (wifi_rx + wifi_tx)) / ((float)1024*(float)1024);
+        return Math.round(traffic * (float) 10.0) / (float) 10.0;
+        //return Math.round((wifi_rx + wifi_tx)/ 1024);
     }
     public int getTrafficApps(){        //достаем траффик приложения по окончанию учетного периода
         SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);

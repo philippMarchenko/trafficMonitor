@@ -81,7 +81,7 @@ public class MainActivity extends ActionBarActivity {
     private void setupViewPager(CustomViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new MainFragment(), getResources().getString(R.string.tab_1));
-      //  adapter.addFragment(new FragmentTrafficApps(),getResources().getString(R.string.app_data));
+        adapter.addFragment(new FragmentTrafficApps(),getResources().getString(R.string.app_data));
         adapter.addFragment(new FragmentTestSpeed(), getResources().getString(R.string.tab_2));
         adapter.addFragment(new FragmentSettings(),getResources().getString(R.string.tab_3));
         viewPager.setAdapter(adapter);

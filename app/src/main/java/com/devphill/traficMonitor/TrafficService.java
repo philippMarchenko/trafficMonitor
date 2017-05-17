@@ -75,6 +75,7 @@ public class TrafficService extends Service {
 
 	public static final String APP_PREFERENCES = "settingsTrafficMonitor";
 	public static final String APP_PREFERENCES_TRAFFIC_APPS = "TrafficApps";
+	public static final String APP_PREFERENCES_TOTAL_TRAFFIC = "totalTraffic";
 	public static final String APP_PREFERENCES_TRAFFIC_APPS_REBOOT= "TrafficAppsReboot";
 	public static final String APP_PREFERENCES_PERIOD = "period";
 	public static final String APP_PREFERENCES_PERIOD_CHART = "period_chart";
@@ -131,8 +132,9 @@ public class TrafficService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.d(LOG_TAG, "onStartCommandService");
 
-		int task;
-		task = intent.getIntExtra("task", 0);           //достаем номер задачи
+		int task = 255;
+		if(intent != null )
+			task = intent.getIntExtra("task", 0);           //достаем номер задачи
 
 		if (task == CLEAN_TABLE) {                       //если задача очистить таблицу
 			Log.d(LOG_TAG, "CLEAN_TABLE_ACTION");
@@ -259,28 +261,12 @@ public class TrafficService extends Service {
 	public void setRebootAction(int reboot){
 
 		Log.d(LOG_TAG, "setRebootAction" );
-		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
+		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = mySharedPreferences.edit();
 
 		editor.putInt(APP_PREFERENCES_REBOOT_ACTION,reboot);
 
 		editor.apply();
-
-		/*DBHelper dbHelper = new DBHelper(getBaseContext());
-		// создаем объект для данных
-		ContentValues cv = new ContentValues();
-		// подключаемся к БД
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		// делаем запрос всех данных из таблицы mytable, получаем Cursor
-		Cursor c = db.query("set" + idsim, null, null, null, null, null, null);
-
-		cv.put("reboot_device",reboot);
-		db.update("set" + idsim, cv, null,null);
-
-		Log.d("serviceTag", " rebootAction  " + reboot);
-		c.close();
-		// закрываем подключение к БД
-		dbHelper.close();*/
 	}
 	public int getRebootAction(){
 
@@ -288,19 +274,6 @@ public class TrafficService extends Service {
 		Log.d(LOG_TAG, "getRebootAction = " + mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION,0));
 		return mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION,0);
 
-	/*	SQLiteDatabase db = dbHelper.getWritableDatabase();
-		Cursor c = db.query("set" + idsim, null, null, null, null, null, null);
-
-		if (c.moveToLast()) {
-
-			int reboot_deviceColIndex = c.getColumnIndex("reboot_device");
-
-			Log.d(LOG_TAG, "getRebootAction = " + c.getInt(reboot_deviceColIndex));
-			return  c.getInt(reboot_deviceColIndex);
-
-		}
-		c.close();
-		return 0;*/
 	}
 	public void updateNoty (){
 
@@ -471,15 +444,15 @@ public class TrafficService extends Service {
 			if(getRebootAction() == 1){
 				mobile_trafficTXToday = TrafficStats.getMobileTxBytes() + c.getLong(mobile_trafficTXYesterdayColIndex); //Переданные через мобильный интерфейс
 				mobile_trafficRXToday = TrafficStats.getMobileRxBytes() + c.getLong(mobile_trafficRXYesterdayColIndex); //Принятые через мобильный интерфейс
-				//Log.d(LOG_TAG, "mobile_trafficTXToday = " + mobile_trafficTXToday +
-				//		" mobile_trafficRXToday = " + mobile_trafficRXToday);
+				Log.d(LOG_TAG, "mobile_trafficTXToday = " + mobile_trafficTXToday +
+						" mobile_trafficRXToday = " + mobile_trafficRXToday);
 			}
 			else{
 				mobile_trafficTXToday = TrafficStats.getMobileTxBytes() - c.getLong(mobile_trafficTXYesterdayColIndex); //Переданные через мобильный интерфейс
 				mobile_trafficRXToday = TrafficStats.getMobileRxBytes() - c.getLong(mobile_trafficRXYesterdayColIndex); //Принятые через мобильный интерфейс
 
-				//Log.d(LOG_TAG, "mobile_trafficTXToday = " + mobile_trafficTXToday +
-				//		" mobile_trafficRXToday = " + mobile_trafficRXToday);
+				Log.d(LOG_TAG, "mobile_trafficTXToday = " + mobile_trafficTXToday +
+						" mobile_trafficRXToday = " + mobile_trafficRXToday);
 			}
 
 
@@ -526,7 +499,8 @@ public class TrafficService extends Service {
 
 						if (isNewDay() || isNewMonth()) {
 							Log.d(LOG_TAG, "Конец учетного периода");
-							saveTrafficApps();						//сохраним значения траффика для приложений
+							//saveTrafficApps();					//сохраним значения траффика для приложений
+							saveTotalTraffic();
 							resetTraffic();                        //считали значения сегоднашнего траффика, записали его в переменные вчерашнего
 							cleanTable(idsim);                    //очистили таблицу
 							setRebootAction(0);
@@ -544,7 +518,7 @@ public class TrafficService extends Service {
 							Log.d(LOG_TAG, "Спим дальше");
 
 						refreshWidget();
-						saveTrafficAppsForReboot();
+						//saveTrafficAppsForReboot();
 						updateNoty();
 						updateData();
 
@@ -663,29 +637,12 @@ public class TrafficService extends Service {
 			}
 
 		}
-		//db.close();
 		c.close();
 		return false;
 	}			//наступил новый день?
 	boolean isNewMonth() {
 
-		// подключаемся к БД
-		/*SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-		Log.d(LOG_TAG, "Проверяем на новый Месяц ");
-		// делаем запрос всех данных из таблицы mytable, получаем Cursor
-		Cursor c = db.query("set" + idsim, null, null, null, null, null, null);
-
-		if (c.moveToFirst()) {*/
-
 			Date d = new Date();
-
-	/*		int monthColIndex = c.getColumnIndex("month");
-			int dayColIndex = c.getColumnIndex("day");
-
-			int month = c.getInt(monthColIndex);
-			int day = c.getInt(dayColIndex);*/
-
 
 			SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
 
@@ -700,10 +657,6 @@ public class TrafficService extends Service {
 				firstWriteDB = true;
 				return true;
 			}
-
-		//}
-		//db.close();
-		//c.close();
 		return false;
 	}			//наступил новый месяц?
 	private void setMobileDataEnabled(Context context, boolean enabled) throws InvocationTargetException, IllegalAccessException, ClassNotFoundException, NoSuchFieldException, NoSuchMethodException {
@@ -750,6 +703,18 @@ public class TrafficService extends Service {
 
 
 	} //ложим траффик приложения если была перезагрузка
+	public void saveTotalTraffic() {
+
+		Log.d(LOG_TAG, "saveTotalTraffic" );
+		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = mySharedPreferences.edit();
+
+		long totalTraffic = TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
+
+		editor.putLong(APP_PREFERENCES_TOTAL_TRAFFIC, totalTraffic);
+
+		editor.apply();
+	}
 	public void resetTraffic() {
 
 		mobile_trafficTXYesterday = TrafficStats.getMobileTxBytes();
@@ -995,50 +960,6 @@ public class TrafficService extends Service {
             dbHelper.close();*/
 
 	}		//востановим настройки
-	public void readDB() {
-		  // подключаемся к БД
-		  SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-		  Log.d(LOG_TAG, "--- Rows in " + idsim);
-		  // делаем запрос всех данных из таблицы mytable, получаем Cursor
-		  Cursor c = db.query(idsim, null, null, null, null, null, null);
-
-		  // ставим позицию курсора на первую строку выборки
-		  // если в выборке нет строк, вернется false
-		  if (c.moveToFirst()) {
-
-			// определяем номера столбцов по имени в выборке
-			int timeColIndex = c.getColumnIndex("time");
-			int mobile_trafficTXTodayColIndex = c.getColumnIndex("mobile_trafficTXToday");
-			int mobile_trafficRXTodayColIndex = c.getColumnIndex("mobile_trafficRXToday");
-		    int mobile_trafficTXYesterdayColIndex = c.getColumnIndex("mobile_trafficTXYesterday");
-		    int mobile_trafficRXYesterdayColIndex = c.getColumnIndex("mobile_trafficRXYesterday");
-		    int wifi_trafficTXColIndex = c.getColumnIndex("wifi_trafficTX");
-			int wifi_trafficRXColIndex = c.getColumnIndex("wifi_trafficRX");
-		    int lastDayColIndex  = c.getColumnIndex("lastDay");
-			int reboot_deviceColIndex  = c.getColumnIndex("reboot_device");
-
-			do {
-			  // получаем значения по номерам столбцов и пишем все в лог
-			  Log.d(LOG_TAG,
-				  "  time = " + c.getString(timeColIndex) +
-				  ", mobile_trafficTXToday = " + c.getLong(mobile_trafficTXTodayColIndex) +
-				  ", mobile_trafficRXToday = " + c.getLong(mobile_trafficRXTodayColIndex) +
-				  ", mobile_trafficTXYesterday = " + c.getLong(mobile_trafficTXYesterdayColIndex) +
-				  ", mobile_trafficRXYesterday = " + c.getLong(mobile_trafficRXYesterdayColIndex) +
-				  ", wifi_trafficTX = " + c.getLong(wifi_trafficTXColIndex) +
-				  ", wifi_trafficRX = " + c.getLong(wifi_trafficRXColIndex) +
-				  ", lastDay = " + c.getInt(lastDayColIndex) +
-				  ", reboot_device = " + c.getInt(reboot_deviceColIndex));
-			  // переход на следующую строку
-			  // а если следующей нет (текущая - последняя), то false - выходим из цикла
-			} while (c.moveToNext());
-		  } else
-			 Log.d(LOG_TAG, "0 rows");
-		     c.close();
-			 // закрываем подключение к БД
-			// dbHelper.close();
-		  }
 	public void cleanTable(String table) {
 
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -1057,7 +978,6 @@ public class TrafficService extends Service {
 		runTimer = false;
 	    Log.d(LOG_TAG, "onDestroy traffic_service");
 	  }
-
 	@Override
 	public IBinder onBind(Intent arg0) {
 		// TODO Auto-generated method stub

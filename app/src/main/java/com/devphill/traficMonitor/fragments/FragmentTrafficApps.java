@@ -11,6 +11,7 @@ import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
@@ -27,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -55,7 +57,7 @@ public class FragmentTrafficApps extends Fragment {
 
     boolean runTimer = true;
 
-    TextView kb;
+    TextView three_g_kb;
     TextView tvDataUsageWiFi;
     TextView tvDataUsageMobile;
     TextView tvDataUsageTotal;
@@ -70,23 +72,20 @@ public class FragmentTrafficApps extends Fragment {
 
     private static final String ARG_SECTION_NUMBER = "section_number";
 
+    private boolean isWifiEnabled = false;
+    private boolean isMobilEnabled = false;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_2, container, false);
+        View view = inflater.inflate(R.layout.fragment_app_traff, container, false);
 
-        kb = (TextView) view.findViewById(R.id.kb);
-        /*
-        tvDataUsageWiFi = (TextView) view.findViewById(R.id.tvDataUsageWiFi);
         tvDataUsageMobile = (TextView) view.findViewById(R.id.tvDataUsageMobile);
-        tvDataUsageTotal = (TextView) view.findViewById(R.id.tvDataUsageTotal);*/
+        tvDataUsageWiFi = (TextView) view.findViewById(R.id.tvDataUsageWiFi);
+        tvDataUsageTotal = (TextView) view.findViewById(R.id.tvDataUsageTotal);
 
         lvApplications = (ListView) view.findViewById(R.id.lvInstallApplication);
 
-        //UpdateAdapter updateAdapter = new UpdateAdapter();
-        //  updateAdapter.execute();
-
         initAdapter();
-
 
         if (TrafficStats.getTotalRxBytes() != TrafficStats.UNSUPPORTED && TrafficStats.getTotalTxBytes() != TrafficStats.UNSUPPORTED) {
 
@@ -101,11 +100,30 @@ public class FragmentTrafficApps extends Fragment {
                 //   Log.i(LOG_TAG, "onReceive brAppsTrafficFragment ");
                 updateAdapter();
 
-                long traffic = intent.getLongExtra("allTrafficMobile", 0);
-                float trafficFloat = (float) traffic / 1024;
-                trafficFloat = Math.round(trafficFloat * (float) 10.0) / (float) 10.0;
-                kb.setText(trafficFloat + " Mb");
-                Log.i(LOG_TAG, "updateAdapter, allTrafficMobile " + traffic);
+                long trafficMobile = intent.getLongExtra("allTrafficMobile", 0);
+                long trafficWiFi = 0;
+                long trafficTotal = 0;
+
+                float trafficMobileFloat = (float) trafficMobile / 1024;
+                trafficMobileFloat = Math.round(trafficMobileFloat * (float) 10.0) / (float) 10.0;
+                tvDataUsageMobile.setText(trafficMobileFloat + " Mb");
+
+                if(adapterApplications.getItem(1).getRebootAction() == 1){
+                    trafficTotal = (TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes()) + getTotalTraffic();
+                }
+                else{
+                    trafficTotal = (TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes()) - getTotalTraffic();
+                }
+                float trafficTotalFloat = ((float)trafficTotal) / ((float)1024*(float)1024);
+                trafficTotalFloat = Math.round(trafficTotalFloat * (float) 10.0) / (float) 10.0;
+                tvDataUsageTotal.setText(Float.toString(trafficTotalFloat) + " Mb");
+
+                trafficWiFi = trafficTotal - (trafficMobile*1024);
+                float trafficWiFiFloat = ((float)trafficWiFi) / ((float)1024*(float)1024);
+                trafficWiFiFloat = Math.round(trafficWiFiFloat * (float) 10.0) / (float) 10.0;
+
+                tvDataUsageWiFi.setText(Float.toString(trafficWiFiFloat) + " Mb");
+                Log.i(LOG_TAG, "updateAdapter, allTrafficMobile " + trafficMobileFloat);
 
             }
         };
@@ -132,23 +150,31 @@ public class FragmentTrafficApps extends Fragment {
                 }
 
                 TextView tvAppName = (TextView) result.findViewById(R.id.tvAppName);
-                TextView tvAppTraffic = (TextView) result.findViewById(R.id.tvAppTraffic);
+                TextView mobileUsageApp = (TextView) result.findViewById(R.id.mobileUsageApp);
+                TextView wiFiusageApp  = (TextView) result.findViewById(R.id.wiFiusageApp);
+                ImageView imageApp = (ImageView) result.findViewById(R.id.imageApp);
 
                 // TODO: resize once
                 final int iconSize = Math.round(48 * getResources().getDisplayMetrics().density);
-                tvAppName.setCompoundDrawablesWithIntrinsicBounds(
+                /*tvAppName.setCompoundDrawablesWithIntrinsicBounds(
                         //app.icon,
                         new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(
                                 ((BitmapDrawable) app.getIcon(getActivity().getPackageManager())).getBitmap(), iconSize, iconSize, true)
                         ),
                         null, null, null
-                );
-                tvAppName.setText(app.getApplicationLabel(getActivity().getPackageManager()));
-                if(app.getUsageKb() > 0)
-                     tvAppTraffic.setText(Integer.toString(app.getUsageKb()) + " Kb");
-                else
-                    Log.i(LOG_TAG, "Траффик почемуто меньше ноля((");
+                );*/
+                imageApp.setImageDrawable(new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(
+                        ((BitmapDrawable) app.getIcon(getActivity().getPackageManager())).getBitmap(), iconSize, iconSize, true)
+                ));
 
+                tvAppName.setText(app.getApplicationLabel(getActivity().getPackageManager()));
+
+                if(app.getMobileUsageKb() >= 0)
+                    mobileUsageApp.setText(Float.toString(app.getMobileUsageKb()) + " Mb");
+                else
+                    Log.i(LOG_TAG, "Траффик почемуто меньше ноля((" + app.getMobileUsageKb());
+
+                wiFiusageApp.setText(Float.toString(app.getWiFiUsageKb()) + " Mb");
 
                 return result;
             }
@@ -182,25 +208,43 @@ public class FragmentTrafficApps extends Fragment {
         }*/
         Log.i(LOG_TAG, "adapterApplications.getCount = " + adapterApplications.getCount());
     }
-    public boolean isConnectedMobile(){
-        ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_MOBILE);
-    }
+
     public void updateAdapter() {
+        updateNetworkState();
         for (int i = 0, l = adapterApplications.getCount(); i < l; i++) {
             ApplicationItem app = adapterApplications.getItem(i);
-            app.setMobilTraffic(isConnectedMobile());
+            app.setMobilTraffic(isMobilEnabled);
             app.update();
         }
 
         adapterApplications.sort(new Comparator<ApplicationItem>() {
             @Override
             public int compare(ApplicationItem lhs, ApplicationItem rhs) {
-                return (int)(rhs.getUsageKbInt() - lhs.getUsageKbInt());
+                return (int)((rhs.getMobileUsageKb() - lhs.getMobileUsageKb())*10);
             }
         });
         adapterApplications.notifyDataSetChanged();
+
+    }
+    private void updateNetworkState() {
+        isWifiEnabled = isConnectedWifi();
+        isMobilEnabled = isConnectedMobile();
+    }
+    public boolean isConnectedWifi(){
+        ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
+    }
+
+    public boolean isConnectedMobile(){
+        ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_MOBILE);
+    }
+    public long getTotalTraffic(){        //достаем полный траффик(wiFi + mobile) приложения по окончанию учетного периода
+        SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
+
+        return mySharedPreferences.getLong(TrafficService.APP_PREFERENCES_TOTAL_TRAFFIC,0);
 
     }
     public void onResume() {
