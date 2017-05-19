@@ -244,11 +244,12 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
             newDay.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(mContext,TrafficService.class);
+                   /* Intent intent = new Intent(mContext,TrafficService.class);
                     intent.putExtra("task",TrafficService.CLEAN_TABLE);
-                    mContext.startService(intent);
+                    mContext.startService(intent);*/
 
                     TrafficService.newDay = true;
+                    TrafficService.newMonth = true;
 
                 }
             });

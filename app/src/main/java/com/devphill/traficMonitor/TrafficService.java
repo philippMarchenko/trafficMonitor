@@ -69,9 +69,9 @@ public class TrafficService extends Service {
 	public static int allertLevel = 80;
 	public static int disable_internet = 1;
 	public static int show_allert = 1;
-	public static int day = 0;
-	public static int month = 0;
-	public static int mYear = 0;
+	public static int day = 1;
+	public static int month = 1;
+	public static int mYear = 2017;
 
 	public static final String APP_PREFERENCES = "settingsTrafficMonitor";
 	public static final String APP_PREFERENCES_TRAFFIC_APPS = "TrafficApps";
@@ -458,11 +458,18 @@ public class TrafficService extends Service {
 
 		}
 		allTrafficMobile = mobile_trafficTXToday + mobile_trafficRXToday;
-		if(allTrafficMobile > 0)
+		if(allTrafficMobile >= 0 && mobile_trafficTXToday >= 0 && mobile_trafficRXToday >= 0) {
+			Log.d(LOG_TAG, "Update Widget.");
+			Log.d(LOG_TAG, "\n allTrafficMobile " + allTrafficMobile + " \n mobile_trafficTXToday " + mobile_trafficTXToday + "\n mobile_trafficRXToday " + mobile_trafficRXToday);
 			allTrafficMobile = allTrafficMobile / 1024;       //для Кб
-		else
+		}
+		else {
+			Log.d(LOG_TAG, "Update Widget.ошибка подсчета траффика. \n Отрицательный траффик.");
+			Log.d(LOG_TAG, "\n allTrafficMobile " + allTrafficMobile + " \n mobile_trafficTXToday " + mobile_trafficTXToday + "\n mobile_trafficRXToday " + mobile_trafficRXToday);
+			mobile_trafficTXToday = 0;
+			mobile_trafficRXToday = 0;
 			allTrafficMobile = 0;
-
+		}
 		float trafficFloat = (float)allTrafficMobile/1024;
 		trafficFloat = Math.round(trafficFloat*(float)100.0)/(float)100.0;
 
@@ -486,7 +493,7 @@ public class TrafficService extends Service {
 	//	db.close();
 		c.close();
 
-		//Log.d(LOG_TAG, "Update Widget ");
+
 	}
 	public void task() {
 		final Intent intent = new Intent(MainFragmentAdapter.BROADCAST_ACTION);
@@ -494,7 +501,7 @@ public class TrafficService extends Service {
 		myTimerService.schedule(new TimerTask() { // Определяем задачу
 			@Override
 			public void run() {//функция для длительных задач(например работа с сетью)
-					if(runTimer) {
+					//if(runTimer) {
 
 
 						if (isNewDay() || isNewMonth()) {
@@ -545,7 +552,7 @@ public class TrafficService extends Service {
 							}
 						}
 
-					}
+				//	}
 
 				uiHandler.post(new Runnable() { //здесь можна выводить на экран и работать с основным потоком
 					@Override
@@ -652,7 +659,7 @@ public class TrafficService extends Service {
 			Log.d(LOG_TAG, "month " + month + ", day  " + day);
 
 
-			if ((day ==  d.getDate() || newMonth) && month == (d.getMonth() + 1) && period == PERIOD_MOUNTH) {
+			if (((day ==  d.getDate() && month == (d.getMonth() + 1)) || newMonth) && period == PERIOD_MOUNTH) {
 				newMonth = false;
 				firstWriteDB = true;
 				return true;
@@ -975,7 +982,7 @@ public class TrafficService extends Service {
 	}	//очистка таблицы с траффиком
     public void onDestroy() {
 	    super.onDestroy();//sendBroadcast(new Intent("YouWillNeverKillMe"));
-		runTimer = false;
+		//runTimer = false;
 	    Log.d(LOG_TAG, "onDestroy traffic_service");
 	  }
 	@Override

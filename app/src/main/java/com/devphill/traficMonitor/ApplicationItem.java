@@ -6,6 +6,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.TrafficStats;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 public class ApplicationItem {
@@ -21,7 +24,7 @@ public class ApplicationItem {
     private long current_tx = 0;
     private long current_rx = 0;
 
-    private ApplicationInfo app;
+    private transient ApplicationInfo app;
 
     private boolean isMobil = false;
 
@@ -29,10 +32,12 @@ public class ApplicationItem {
 
     public ApplicationItem(ApplicationInfo _app) {
         app = _app;
-
         update();
     }
 
+    public ApplicationItem() {
+
+    }
     public void update() {
         long delta_tx = TrafficStats.getUidTxBytes(app.uid) - tx;
         long delta_rx = TrafficStats.getUidRxBytes(app.uid) - rx;
@@ -56,13 +61,14 @@ public class ApplicationItem {
         long _tx = TrafficStats.getUidTxBytes(_app.uid);
         long _rx = TrafficStats.getUidRxBytes(_app.uid);
         mContex = context;
+
         if((_tx + _rx) > 0) return new ApplicationItem(_app);
         return null;
     }
     public int getRebootAction() {
 
         SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
-
+        Log.i("appTrafficLogs", "getRebootAction " + mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION, 0));
         return mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION, 0);
     }
     public int getUsageKb() {
@@ -132,4 +138,6 @@ public class ApplicationItem {
     public void setMobilTraffic(boolean _isMobil) {
         isMobil = _isMobil;
     }
+
+
 }
