@@ -1,6 +1,7 @@
 package com.devphill.traficMonitor.fragments;
 
 
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -77,8 +78,9 @@ public class FragmentTrafficApps extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_app_traff, container, false);
-
+      //  if(isMyServiceRunning(TrafficService.class)) {
             initAdapter();
+      //  }
 
         tvDataUsageMobile = (TextView) view.findViewById(R.id.tvDataUsageMobile);
         tvDataUsageWiFi = (TextView) view.findViewById(R.id.tvDataUsageWiFi);
@@ -112,8 +114,14 @@ public class FragmentTrafficApps extends Fragment {
                     //if (adapterApplications.getItem(1).getRebootAction() == 1) {
                     //    trafficTotal = (TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes()) + getTotalTraffic();
                   //  } else {
-                        trafficTotal = (TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes()) - getTotalTraffic();
-                   // }
+
+                if(getRebootAction() == 1) {
+                    trafficTotal = (TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes()) + getTotalTraffic();
+                }
+                else{
+                    trafficTotal = (TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes()) - getTotalTraffic();
+                }
+                    // }
                // }
                 float trafficTotalFloat = ((float)trafficTotal) / ((float)1024*(float)1024);
                 trafficTotalFloat = Math.round(trafficTotalFloat * (float) 10.0) / (float) 10.0;
@@ -122,9 +130,10 @@ public class FragmentTrafficApps extends Fragment {
                 trafficWiFi = trafficTotal - (trafficMobile*1024);
                 float trafficWiFiFloat = ((float)trafficWiFi) / ((float)1024*(float)1024);
                 trafficWiFiFloat = Math.round(trafficWiFiFloat * (float) 10.0) / (float) 10.0;
-
+                if(trafficWiFiFloat < 0)
+                    trafficWiFiFloat = 0;
                 tvDataUsageWiFi.setText(Float.toString(trafficWiFiFloat) + " Mb");
-              //  Log.i(LOG_TAG, "updateAdapter, allTrafficMobile " + trafficMobileFloat + " trafficTotal " + trafficTotal);
+                Log.i(LOG_TAG, "updateAdapter, allTrafficMobile " + trafficMobileFloat + " trafficTotal " + trafficTotal);
 
             }
         };
@@ -135,31 +144,22 @@ public class FragmentTrafficApps extends Fragment {
         return view;
 
     }
-    public void saveAppTraffic(){
-        SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = mySharedPreferences.edit();
-
-        Gson gson = new Gson();
-
-        String json;
-
-        if(adapterApplications != null) {
-            for (int i = 0, l = adapterApplications.getCount(); i < l; i++) {
-                json = gson.toJson(adapterApplications.getItem(i));
-                ApplicationItem item = adapterApplications.getItem(i);
-
-                editor.putString(item.getApplicationLabel(getContext().getPackageManager()),json);
+    public boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
             }
         }
-        editor.apply();
+        return false;
     }
     public void initAdapter() {
 
         adapterApplications = new ArrayAdapter<ApplicationItem>(getActivity(), R.layout.item_install_application) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
+               // ApplicationItem app = TrafficService.appList.get(position);
                 ApplicationItem app = getItem(position);
-
                 final View result;
                 if (convertView == null) {
                     result = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_install_application, parent, false);
@@ -174,13 +174,6 @@ public class FragmentTrafficApps extends Fragment {
 
                 // TODO: resize once
                 final int iconSize = Math.round(48 * getResources().getDisplayMetrics().density);
-                /*tvAppName.setCompoundDrawablesWithIntrinsicBounds(
-                        //app.icon,
-                        new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(
-                                ((BitmapDrawable) app.getIcon(getActivity().getPackageManager())).getBitmap(), iconSize, iconSize, true)
-                        ),
-                        null, null, null
-                );*/
                 imageApp.setImageDrawable(new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(
                         ((BitmapDrawable) app.getIcon(getActivity().getPackageManager())).getBitmap(), iconSize, iconSize, true)
                 ));
@@ -204,116 +197,53 @@ public class FragmentTrafficApps extends Fragment {
             @Override
             public Filter getFilter() {
                 return super.getFilter();
+            }
+            @Override
+            public void notifyDataSetChanged() {
+                //do your sorting here
+
+                super.notifyDataSetChanged();
             }
         };
 
         initAppList();
 
     }
-    public void initAdapterSaved(ArrayList<ApplicationItem> list) {
-
-        adapterApplications = new ArrayAdapter<ApplicationItem>(getActivity(), R.layout.item_install_application) {
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                ApplicationItem app = getItem(position);
-
-                final View result;
-                if (convertView == null) {
-                    result = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_install_application, parent, false);
-                } else {
-                    result = convertView;
-                }
-
-                TextView tvAppName = (TextView) result.findViewById(R.id.tvAppName);
-                TextView mobileUsageApp = (TextView) result.findViewById(R.id.mobileUsageApp);
-                TextView wiFiusageApp  = (TextView) result.findViewById(R.id.wiFiusageApp);
-                ImageView imageApp = (ImageView) result.findViewById(R.id.imageApp);
-
-                // TODO: resize once
-                final int iconSize = Math.round(48 * getResources().getDisplayMetrics().density);
-                /*tvAppName.setCompoundDrawablesWithIntrinsicBounds(
-                        //app.icon,
-                        new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(
-                                ((BitmapDrawable) app.getIcon(getActivity().getPackageManager())).getBitmap(), iconSize, iconSize, true)
-                        ),
-                        null, null, null
-                );*/
-                imageApp.setImageDrawable(new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(
-                        ((BitmapDrawable) app.getIcon(getActivity().getPackageManager())).getBitmap(), iconSize, iconSize, true)
-                ));
-
-                tvAppName.setText(app.getApplicationLabel(getActivity().getPackageManager()));
-
-                if(app.getMobileUsageKb() >= 0)
-                    mobileUsageApp.setText(Float.toString(app.getMobileUsageKb()) + " Mb");
-                else
-                    Log.i(LOG_TAG, "Траффик почемуто меньше ноля((" + app.getMobileUsageKb());
-
-                wiFiusageApp.setText(Float.toString(app.getWiFiUsageKb()) + " Mb");
-
-                return result;
-            }
-            @Override
-            public int getCount() {
-                return super.getCount();
-            }
-
-            @Override
-            public Filter getFilter() {
-                return super.getFilter();
-            }
-        };
-        int count = 0;
-         for (int i = 0, l = list.size(); i < l; i++) {
-             adapterApplications.add(list.get(i));
-             count++;
-        }
-        Log.i(LOG_TAG, "open saved list = " + count++);
-    }
     public void initAppList() {
-        Gson gson = new Gson();
+
         SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
-      //  mySharedPreferences.
-       // if(mySharedPreferences.contains(TrafficService.APP_PREFERENCES_TRAFFIC_APPS)) {
-            String json;
-            if (adapterApplications != null) {
-                for (ApplicationInfo app : getActivity().getPackageManager().getInstalledApplications(0)) {
 
-                    String labelApp = getActivity().getPackageManager().getApplicationLabel(app).toString();
-                    json = mySharedPreferences.getString(labelApp, "");
-
-                    ApplicationItem item = gson.fromJson(json, ApplicationItem.class);
-                    Log.i(LOG_TAG, "Fragment2 labelApp  " + labelApp);
-                    Log.i(LOG_TAG, "Fragment2 Json item " + json);
+                int count = 0;
+                for (int i = 0; i < TrafficService.appList.size(); i++) {
+                    ApplicationItem app = TrafficService.appList.get(i);
+                    if(app != null) {
+                        adapterApplications.add(app);
+                    }
+                    Log.i(LOG_TAG, "count = " + count++);
                 }
-        }
-        else{
-            int count = 0;
-            // TODO: resize icon once
-            for (ApplicationInfo app : getActivity().getPackageManager().getInstalledApplications(0)) {
-                ApplicationItem item = ApplicationItem.create(app,getContext());
-                if(item != null) {
-                    adapterApplications.add(item);
-                }
-                Log.i(LOG_TAG, "count = " + count++);
-
-            }
-                Log.i(LOG_TAG, "adapterApplications.getCount = " + adapterApplications.getCount());
-
-        }
+        Log.i(LOG_TAG, "Fragment2 initAppList");
     }
     public void updateAdapter() {
-        updateNetworkState();
+   /*     updateNetworkState();
+        for (int i = 0; i < TrafficService.appList.size(); i++) {
+            ApplicationItem app = TrafficService.appList.get(i);
+            app.setMobilTraffic(isMobilEnabled);
+            app.update();
+        }*/
+
         for (int i = 0, l = adapterApplications.getCount(); i < l; i++) {
             ApplicationItem app = adapterApplications.getItem(i);
             app.setMobilTraffic(isMobilEnabled);
             app.update();
         }
-
         adapterApplications.sort(new Comparator<ApplicationItem>() {
             @Override
             public int compare(ApplicationItem lhs, ApplicationItem rhs) {
-                return (int)((rhs.getWiFiUsageKb() - lhs.getWiFiUsageKb())*10);
+              //  Log.i(LOG_TAG, "Fragment2 sort lhs " + lhs.getMobileUsageKb());
+                //Log.i(LOG_TAG, "Fragment2 sort rhs " + rhs.getMobileUsageKb());
+
+              //  Log.i(LOG_TAG, "Fragment2 sort " +(int)((rhs.getMobileUsageKb() - lhs.getMobileUsageKb())*10));
+                return (int)((rhs.getMobileUsageKb() - lhs.getMobileUsageKb())*10);
             }
         });
         adapterApplications.notifyDataSetChanged();
@@ -339,6 +269,18 @@ public class FragmentTrafficApps extends Fragment {
         return mySharedPreferences.getLong(TrafficService.APP_PREFERENCES_TOTAL_TRAFFIC,0);
 
     }
+    public int getRebootAction() {
+            try{
+                SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
+                // Log.i("appTrafficLogs", "getRebootAction " + mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION, 0));
+                return mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION, 0);
+            }
+            catch (Exception e) {
+                Log.i(LOG_TAG, "Ошибка запроса событие перезагрузки " + e.getMessage());
+                return 0;
+            }
+
+    }
     public void onResume() {
         super.onResume();
         getActivity().registerReceiver(brAppsTrafficFragment, new IntentFilter(FragmentTrafficApps.UPDATE_TRAFFIC_APPS));
@@ -359,7 +301,7 @@ public class FragmentTrafficApps extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        saveAppTraffic();
+        //saveAppTraffic();
         Log.i(LOG_TAG, "Fragment2 onDestroy");
     }
 }
