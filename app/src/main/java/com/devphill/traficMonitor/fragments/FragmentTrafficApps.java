@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -30,10 +31,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.devphill.traficMonitor.ApplicationItem;
 import com.devphill.traficMonitor.DBHelper;
@@ -75,6 +78,11 @@ public class FragmentTrafficApps extends Fragment {
     private boolean isWifiEnabled = false;
     private boolean isMobilEnabled = false;
 
+    private boolean sortMobile = true;
+
+
+    Button button;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_app_traff, container, false);
@@ -87,8 +95,6 @@ public class FragmentTrafficApps extends Fragment {
         tvDataUsageTotal = (TextView) view.findViewById(R.id.tvDataUsageTotal);
 
         lvApplications = (ListView) view.findViewById(R.id.lvInstallApplication);
-
-
 
         if (TrafficStats.getTotalRxBytes() != TrafficStats.UNSUPPORTED && TrafficStats.getTotalTxBytes() != TrafficStats.UNSUPPORTED) {
 
@@ -110,13 +116,16 @@ public class FragmentTrafficApps extends Fragment {
                 float trafficMobileFloat = (float) trafficMobile / 1024;
                 trafficMobileFloat = Math.round(trafficMobileFloat * (float) 10.0) / (float) 10.0;
                 tvDataUsageMobile.setText(trafficMobileFloat + " Mb");
+
+
+
                 //if(adapterApplications != null) {
                     //if (adapterApplications.getItem(1).getRebootAction() == 1) {
                     //    trafficTotal = (TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes()) + getTotalTraffic();
                   //  } else {
 
                 if(getRebootAction() == 1) {
-                    trafficTotal = (TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes()) + getTotalTraffic();
+                    trafficTotal = (TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes()) + getAllTrafficReboot();
                 }
                 else{
                     trafficTotal = (TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes()) - getTotalTraffic();
@@ -142,6 +151,12 @@ public class FragmentTrafficApps extends Fragment {
         Log.i(LOG_TAG, "onCreateView fragment2 ");
 
         return view;
+
+    }
+    public long getAllTrafficReboot(){ //достаем траффик приложения если была перезагрузка
+        SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TOTAL_TRAFFIC_REBOOT, Context.MODE_PRIVATE);
+
+        return mySharedPreferences.getLong(TrafficService.APP_PREFERENCES_TOTAL_TRAFFIC,0);
 
     }
     public boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -172,6 +187,30 @@ public class FragmentTrafficApps extends Fragment {
                 TextView wiFiusageApp  = (TextView) result.findViewById(R.id.wiFiusageApp);
                 ImageView imageApp = (ImageView) result.findViewById(R.id.imageApp);
 
+
+                mobileUsageApp.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (!sortMobile) {
+                            Toast.makeText(getContext(), "Сортировка по мобильному траффику.", Toast.LENGTH_SHORT).show();
+                            sortMobile = true;
+                            updateAdapter();
+                        }
+                    }
+                });
+
+                wiFiusageApp.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(sortMobile){
+                            Toast.makeText(getContext(), "Сортировка по WiFi.", Toast.LENGTH_SHORT).show();
+                            sortMobile = false;
+                            updateAdapter();
+                        }
+
+
+                    }
+                });
                 // TODO: resize once
                 final int iconSize = Math.round(48 * getResources().getDisplayMetrics().density);
                 imageApp.setImageDrawable(new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(
@@ -180,12 +219,12 @@ public class FragmentTrafficApps extends Fragment {
 
                 tvAppName.setText(app.getApplicationLabel(getActivity().getPackageManager()));
 
-                if(app.getMobileUsageKb() >= 0)
-                    mobileUsageApp.setText(Float.toString(app.getMobileUsageKb()) + " Mb");
+                if(app.getMobileUsageMb() >= 0)
+                    mobileUsageApp.setText(Float.toString(app.getMobileUsageMb()) + " Mb");
                 else
-                    Log.i(LOG_TAG, "Траффик почемуто меньше ноля((" + app.getMobileUsageKb());
+                    Log.i(LOG_TAG, "Траффик почемуто меньше ноля((" + app.getMobileUsageMb());
 
-                wiFiusageApp.setText(Float.toString(app.getWiFiUsageKb()) + " Mb");
+                wiFiusageApp.setText(Float.toString(app.getWiFiUsageMb()) + " Mb");
 
                 return result;
             }
@@ -211,8 +250,6 @@ public class FragmentTrafficApps extends Fragment {
     }
     public void initAppList() {
 
-        SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
-
                 int count = 0;
                 for (int i = 0; i < TrafficService.appList.size(); i++) {
                     ApplicationItem app = TrafficService.appList.get(i);
@@ -223,29 +260,56 @@ public class FragmentTrafficApps extends Fragment {
                 }
         Log.i(LOG_TAG, "Fragment2 initAppList");
     }
+    public void updateAllList(){
+
+        TrafficService.appList.clear();
+        adapterApplications.clear();
+
+
+        int c = 0;
+
+        PackageManager pm = getContext().getPackageManager();
+        List<ApplicationInfo> list = getContext().getPackageManager().getInstalledApplications(0);
+        Log.i(LOG_TAG, " Count list " + list.size() );
+
+        for (int i = 0; i < list.size(); i ++) {
+
+            ApplicationItem item = ApplicationItem.create(list.get(i), getContext());
+            if (item != null) {
+                TrafficService.appList.add(item);
+                adapterApplications.add(item);
+                c++;
+                Log.i(LOG_TAG, " add app " + item.getApplicationLabel(pm) );
+            }
+        }
+        updateAdapter();
+        Log.i(LOG_TAG, " updateAllList " + c );
+    }
     public void updateAdapter() {
-   /*     updateNetworkState();
-        for (int i = 0; i < TrafficService.appList.size(); i++) {
-            ApplicationItem app = TrafficService.appList.get(i);
-            app.setMobilTraffic(isMobilEnabled);
-            app.update();
-        }*/
 
         for (int i = 0, l = adapterApplications.getCount(); i < l; i++) {
             ApplicationItem app = adapterApplications.getItem(i);
             app.setMobilTraffic(isMobilEnabled);
             app.update();
         }
-        adapterApplications.sort(new Comparator<ApplicationItem>() {
-            @Override
-            public int compare(ApplicationItem lhs, ApplicationItem rhs) {
-              //  Log.i(LOG_TAG, "Fragment2 sort lhs " + lhs.getMobileUsageKb());
-                //Log.i(LOG_TAG, "Fragment2 sort rhs " + rhs.getMobileUsageKb());
 
-              //  Log.i(LOG_TAG, "Fragment2 sort " +(int)((rhs.getMobileUsageKb() - lhs.getMobileUsageKb())*10));
-                return (int)((rhs.getMobileUsageKb() - lhs.getMobileUsageKb())*10);
-            }
-        });
+        if(sortMobile) {
+            adapterApplications.sort(new Comparator<ApplicationItem>() {
+                @Override
+                public int compare(ApplicationItem lhs, ApplicationItem rhs) {
+                    return (int) ((rhs.getMobileUsageMb() - lhs.getMobileUsageMb()) * 10);
+                }
+            });
+        }
+        else{
+            adapterApplications.sort(new Comparator<ApplicationItem>() {
+                @Override
+                public int compare(ApplicationItem lhs, ApplicationItem rhs) {
+                    return (int) ((rhs.getWiFiUsageMb() - lhs.getWiFiUsageMb()) * 10);
+                }
+            });
+        }
+
         adapterApplications.notifyDataSetChanged();
 
     }
@@ -264,10 +328,15 @@ public class FragmentTrafficApps extends Fragment {
         return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_MOBILE);
     }
     public long getTotalTraffic(){        //достаем полный траффик(wiFi + mobile) приложения по окончанию учетного периода
-        SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
-        //Log.i(LOG_TAG, "Fragment2 getTotalTraffic " + mySharedPreferences.getLong(TrafficService.APP_PREFERENCES_TOTAL_TRAFFIC,0));
-        return mySharedPreferences.getLong(TrafficService.APP_PREFERENCES_TOTAL_TRAFFIC,0);
 
+      try{
+          SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
+          //Log.i(LOG_TAG, "Fragment2 getTotalTraffic " + mySharedPreferences.getLong(TrafficService.APP_PREFERENCES_TOTAL_TRAFFIC,0));
+          return mySharedPreferences.getLong(TrafficService.APP_PREFERENCES_TOTAL_TRAFFIC,0);
+      }
+       catch(Exception e){
+            return  0;
+        }
     }
     public int getRebootAction() {
             try{

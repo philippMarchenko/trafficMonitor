@@ -74,8 +74,9 @@ public class ApplicationItem {
         long _rx = TrafficStats.getUidRxBytes(_app.uid);
         mContex = context;
 
-        if((_tx + _rx) > 0) return new ApplicationItem(_app);
-        return null;
+        //if((_tx + _rx) > 0)
+            return new ApplicationItem(_app);
+        //return null;
     }
     public int getRebootAction() {
 
@@ -83,35 +84,6 @@ public class ApplicationItem {
       // Log.i("appTrafficLogs", "getRebootAction " + mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION, 0));
         return mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION, 0);
     }
-/*    public int getUsageKb() {
-       *//* Log.i("appTrafficLogs", "getUsageKb");
-
-        Log.i("appTrafficLogs","Name app = " + mContex.getPackageManager().getApplicationLabel(app).toString());
-        Log.i("appTrafficLogs","Tx = " + tx);
-        Log.i("appTrafficLogs","Rx = " +  rx);
-
-        Log.i("appTrafficLogs","tx + rx /1024" +  ((tx + rx))/1024);*//*
-        if(getRebootAction() == 1){
-           *//* float traffic = ((float) (tx + rx) + (float)getTrafficAppsForReboot())/ ((float)1024*(float)1024);
-            Log.i("appTrafficLogs","getRebootAction() = 1 " + getTrafficAppsForReboot());
-            return Math.round(traffic * (float) 10.0) / (float) 10.0;*//*
-            return Math.round((tx + rx)/ 1024)+ getTrafficAppsForReboot();
-        }
-        else{
-          *//*  float traffic = ((float) (tx + rx) - (float)getTrafficAppsForReboot())/ ((float)1024*(float)1024);
-            Log.i("appTrafficLogs","getRebootAction() = 0", "" + getTrafficAppsForReboot());
-            return Math.round(traffic * (float) 10.0) / (float) 10.0;*//*
-            return Math.round((tx + rx)/ 1024)- getTrafficApps();
-        }
-    }*/
-/*    public float getUsageKbInt() {
-        if(getRebootAction() == 1){
-             return Math.round((tx + rx)/ 1024)+ getTrafficAppsForReboot();
-        }
-        else{
-             return Math.round((tx + rx)/ 1024)- getTrafficApps();
-        }
-    }*/
     public int getTotalUsageKb() {
         return Math.round((tx + rx)/ 1024);
     }
@@ -120,7 +92,7 @@ public class ApplicationItem {
         float traffic = (float) (mobil_tx + mobil_rx) / ((float)1024*(float)1024);
         return Math.round(traffic * (float) 10.0) / (float) 10.0;
     }
-    public float getMobileUsageKb() {
+    public float getMobileUsageMb() {
 
         float traffic;
 
@@ -132,31 +104,56 @@ public class ApplicationItem {
         else{
             traffic = ((float) (mobil_tx + mobil_rx) / ((float)1024*(float)1024));
           //  Log.i("appTrafficLogs","traffic" + traffic);
-            traffic = Math.round(traffic * (float) 10.0) / (float) 10.0;
+
            // Log.i("appTrafficLogs","traffic" + traffic);
             traffic = traffic - getTrafficApps();
            // Log.i("appTrafficLogs","traffic" + traffic);
-
-             Log.i("appTrafficLogs","getTrafficApps. appLabel = " + getApplicationLabel(mContex.getPackageManager()) +
-                    " traffic last = " + getTrafficApps());
-            Log.i("appTrafficLogs","getTrafficApps. appLabel = " + getApplicationLabel(mContex.getPackageManager()) +
-                    " allTrafficApp = " +  ((float) (mobil_tx + mobil_rx) / ((float)1024*(float)1024)));
+            traffic = Math.round(traffic * (float) 10.0) / (float) 10.0;
+           // Log.i("appTrafficLogs","getTrafficApps. appLabel = " + getApplicationLabel(mContex.getPackageManager()) +
+             //       " traffic last = " + getTrafficApps());
+          //  Log.i("appTrafficLogs","getTrafficApps. appLabel = " + getApplicationLabel(mContex.getPackageManager()) +
+               //     " allTrafficApp = " +  ((float) (mobil_tx + mobil_rx) / ((float)1024*(float)1024)));
 
 
             if(traffic >= 0)
               return traffic;
             else return  0;
         }
-
-        //Log.i("appTrafficLogs","getRebootAction() = 1 " + getTrafficAppsForReboot());
-       // Log.i("appTrafficLogs","traffic = " + traffic);
-      //  return Math.round(traffic * (float) 10.0) / (float) 10.0;
-        //return Math.round((mobil_tx + mobil_rx)/ 1024);
     }
-    public float getWiFiUsageKb() {
+    public float getWiFiUsageMb() {
+
+
+        float traffic;
+
+        if(getRebootAction() == 1){
+            traffic = (float) (wifi_rx + wifi_tx) / ((float)1024*(float)1024) + getTrafficAppsForRebootWiFi();
+            //Log.i("appTrafficLogs","getRebootAction() = 1 " + getTrafficAppsForReboot());
+            return Math.round(traffic * (float) 10.0) / (float) 10.0;
+        }
+        else{
+            traffic = ((float) ((float) (wifi_rx + wifi_tx)) / ((float)1024*(float)1024));
+            //  Log.i("appTrafficLogs","traffic" + traffic);
+
+            // Log.i("appTrafficLogs","traffic" + traffic);
+            traffic = traffic - getTrafficAppsWiFi();
+            // Log.i("appTrafficLogs","traffic" + traffic);
+            traffic = Math.round(traffic * (float) 10.0) / (float) 10.0;
+
+             Log.i("appTrafficLogs","getTrafficApps. appLabel = " + getApplicationLabel(mContex.getPackageManager()) +
+                   " traffic last = " + getTrafficAppsWiFi());
+              Log.i("appTrafficLogs","getTrafficApps. appLabel = " + getApplicationLabel(mContex.getPackageManager()) +
+                 " allTrafficApp = " +  ((float) (wifi_rx + wifi_tx) / ((float)1024*(float)1024)));
+
+
+            if(traffic >= 0)
+                return traffic;
+            else return  0;
+        }
+
+    }
+    public float getWiFiMb() {
         float traffic = ((float) (wifi_rx + wifi_tx)) / ((float)1024*(float)1024);
         return Math.round(traffic * (float) 10.0) / (float) 10.0;
-        //return Math.round((wifi_rx + wifi_tx)/ 1024);
     }
     public float getTrafficApps(){        //достаем траффик приложения по окончанию учетного периода
         SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
@@ -164,8 +161,20 @@ public class ApplicationItem {
         return mySharedPreferences.getFloat(mContex.getPackageManager().getApplicationLabel(app).toString(),0);
 
     }
+    public float getTrafficAppsWiFi(){        //достаем траффик приложения по окончанию учетного периода
+        SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_WIFI, Context.MODE_PRIVATE);
+
+        return mySharedPreferences.getFloat(mContex.getPackageManager().getApplicationLabel(app).toString(),0);
+
+    }
     public float getTrafficAppsForReboot(){ //достаем траффик приложения если была перезагрузка
         SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_REBOOT, Context.MODE_PRIVATE);
+
+        return mySharedPreferences.getFloat(mContex.getPackageManager().getApplicationLabel(app).toString(),0);
+
+    }
+    public float getTrafficAppsForRebootWiFi(){ //достаем траффик приложения если была перезагрузка
+        SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_REBOOT_WIFI, Context.MODE_PRIVATE);
 
         return mySharedPreferences.getFloat(mContex.getPackageManager().getApplicationLabel(app).toString(),0);
 
@@ -179,7 +188,6 @@ public class ApplicationItem {
     public Drawable getIcon(PackageManager _packageManager) {
         return _packageManager.getApplicationIcon(app);
     }
-
     public void setMobilTraffic(boolean _isMobil) {
         isMobil = _isMobil;
     }

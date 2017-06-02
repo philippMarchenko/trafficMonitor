@@ -33,7 +33,6 @@
         android:text="Использовано WiFi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textView3"
         android:layout_below="@+id/tvUsedMobile"
         android:id="@+id/tvUsedWiFi"
         android:textStyle="bold"
@@ -53,7 +52,7 @@
         android:textColor="@color/colorTest"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="85dp" />
+        android:layout_below="@+id/tvUsedWiFi" />
 
     <TextView
         android:text="0 Mb"
@@ -91,6 +90,15 @@
         android:layout_marginLeft="86dp"
         android:layout_alignBaseline="@+id/tvUsedWiFi"
         android:layout_alignBottom="@+id/tvUsedWiFi"
-        android:layout_toRightOf="@+id/tvUsedWiFi" />
+        android:layout_toRightOf="@+id/tvUsedWiFi" /><![CDATA[
 
+
+
+
+
+    />
+
+
+
+]]>
 </RelativeLayout>

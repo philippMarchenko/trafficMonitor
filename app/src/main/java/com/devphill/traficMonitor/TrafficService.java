@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.RingtoneManager;
@@ -34,6 +35,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -82,8 +84,11 @@ public class TrafficService extends Service {
 
 	public static final String APP_PREFERENCES = "settingsTrafficMonitor";
 	public static final String APP_PREFERENCES_TRAFFIC_APPS = "TrafficApps";
+	public static final String APP_PREFERENCES_TRAFFIC_APPS_WIFI = "TrafficAppsWiFi";
 	public static final String APP_PREFERENCES_TOTAL_TRAFFIC = "totalTraffic";
+	public static final String APP_PREFERENCES_TOTAL_TRAFFIC_REBOOT = "totalTrafficReboot";
 	public static final String APP_PREFERENCES_TRAFFIC_APPS_REBOOT= "TrafficAppsReboot";
+	public static final String APP_PREFERENCES_TRAFFIC_APPS_REBOOT_WIFI= "TrafficAppsRebootWiFi";
 	public static final String APP_PREFERENCES_PERIOD = "period";
 	public static final String APP_PREFERENCES_PERIOD_CHART = "period_chart";
 	public static final String APP_PREFERENCES_STOPL_EVEL =  "stopLevel";
@@ -159,6 +164,7 @@ public class TrafficService extends Service {
 			Log.d(LOG_TAG, "SET_REBOOT_ACTION");
 		}
 		else if (task == ALARM_ACTION){
+			setTimer();
 			Log.d(LOG_TAG, "ALARM_ACTION");
 			newDay = true;
 		}
@@ -522,6 +528,7 @@ public class TrafficService extends Service {
 						if (isNewDay() || isNewMonth()) {
 							Log.d(LOG_TAG, "Конец учетного периода");
 							saveAppTraffic();					   //сохраним значения траффика для приложений при обнулении статистики
+							saveAppTrafficWiFi();
 							saveTotalTraffic();
 							resetTraffic();                        //считали значения сегоднашнего траффика, записали его в переменные вчерашнего
 							cleanTable(idsim);                    //очистили таблицу
@@ -549,8 +556,11 @@ public class TrafficService extends Service {
 						dbWriteTraffic();
 
 						updateAppTrafficList();
-						saveTrafficAppsForReboot();
-
+						if(getRebootAction() == 0) {
+							saveTrafficAppsForReboot();
+							saveTrafficAppsForRebootWiFi();
+							saveTotalTrafficReboot();
+						}
 						if (isAllertLevel() && !showNotyStop && !showNotyAllert)
 							sendNotyAllert();
 						if (isStopLevel() && !showNotyStop) {
@@ -750,6 +760,22 @@ public class TrafficService extends Service {
 
 
 	} //ложим траффик приложения по окончанию учетного периода
+	public void saveAppTrafficWiFi(){
+		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_WIFI, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = mySharedPreferences.edit();
+
+		if(appList != null) {
+			for (int i = 0; i < appList.size(); i++) {
+				ApplicationItem item = appList.get(i);
+				Log.i(LOG_TAG,  " saveAppTraffic app = " + item.getApplicationLabel(getBaseContext().getPackageManager()) + "\n " +
+						item.getWiFiMb());
+				editor.putFloat(item.getApplicationLabel(getBaseContext().getPackageManager()),item.getWiFiMb());
+			}
+		}
+		editor.apply();
+
+
+	} //ложим траффик приложения по окончанию учетного периода
 	public void saveTrafficAppsForReboot(){
 
 		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_REBOOT, Context.MODE_PRIVATE);
@@ -760,7 +786,25 @@ public class TrafficService extends Service {
 				ApplicationItem item = appList.get(i);
 				//Log.i(LOG_TAG, " saveTrafficAppsForReboot app = " + item.getApplicationLabel(getBaseContext().getPackageManager()) + "\n " +
 					//	item.getMobileUsageKb());
-				editor.putFloat(item.getApplicationLabel(getBaseContext().getPackageManager()),item.getMobileUsageKb());
+				editor.putFloat(item.getApplicationLabel(getBaseContext().getPackageManager()),item.getMobileMb());
+			}
+		}
+
+		editor.apply();
+
+
+	} //ложим траффик приложения если была перезагрузка
+	public void saveTrafficAppsForRebootWiFi(){
+
+		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_REBOOT_WIFI, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = mySharedPreferences.edit();
+
+		if(appList != null) {
+			for (int i = 0; i < appList.size(); i++) {
+				ApplicationItem item = appList.get(i);
+				//Log.i(LOG_TAG, " saveTrafficAppsForReboot app = " + item.getApplicationLabel(getBaseContext().getPackageManager()) + "\n " +
+				//	item.getMobileUsageKb());
+				editor.putFloat(item.getApplicationLabel(getBaseContext().getPackageManager()),item.getWiFiMb());
 			}
 		}
 
@@ -772,6 +816,18 @@ public class TrafficService extends Service {
 
 		Log.d(LOG_TAG, "saveTotalTraffic" );
 		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = mySharedPreferences.edit();
+
+		long totalTraffic = TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
+
+		editor.putLong(APP_PREFERENCES_TOTAL_TRAFFIC, totalTraffic);
+
+		editor.apply();
+	}
+	public void saveTotalTrafficReboot() {
+
+		Log.d(LOG_TAG, "saveTotalTrafficReboot" );
+		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TOTAL_TRAFFIC_REBOOT, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = mySharedPreferences.edit();
 
 		long totalTraffic = TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
@@ -860,23 +916,53 @@ public class TrafficService extends Service {
 		c.close();
 	}		//настройки старіе в бд(не используется)
 	public void initAppTrafficList() {
-		final Handler handler = new Handler();
-		handler.postDelayed(new Runnable() {
-			@Override
-			public void run() {
 
-			}
-		}, 3000); //3000 sec delay
-
+		int count = 0;
 
 		for (ApplicationInfo app : getBaseContext().getPackageManager().getInstalledApplications(0)) {
-			ApplicationItem item = ApplicationItem.create(app, getBaseContext());
-			if (item != null) {
-				appList.add(item);
+
+				ApplicationItem item = ApplicationItem.create(app, getBaseContext());
+				if (item != null) {
+					appList.add(item);
+					count++;
+				}
+		}
+		Log.d(LOG_TAG, "initAppTrafficList table count " +  count);
+	}
+
+	public void updateInitAppTrafficList() {
+
+		int count = 1;
+		PackageManager pm = getBaseContext().getPackageManager();
+
+		List<ApplicationInfo> list = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+		Log.d(LOG_TAG, "count instal app = " + list.size() );
+		Log.d(LOG_TAG, "count list app = " + appList.size() );
+
+
+		Log.d(LOG_TAG, "initAppTrafficList table. count = " + count );
+		for (ApplicationInfo app : pm.getInstalledApplications(0)) {
+
+			if(isNewApp(app,pm)){
+				ApplicationItem item = ApplicationItem.create(app, getBaseContext());
+				if (item != null) {
+					appList.add(item);
+					count++;
+				}
 			}
 		}
-		Log.d(LOG_TAG, "initAppTrafficList table " );
 
+
+	}
+	public boolean isNewApp(ApplicationInfo app, PackageManager pm){
+
+		for(int i = 0; i < appList.size() + 1; i ++){
+			if(!appList.get(i).getApplicationLabel(pm).equals(pm.getApplicationLabel(app)))
+				return true;
+			else
+				return false;
+		}
+		return false;
 	}
 	public void updateAppTrafficList() {
 			updateNetworkState();
