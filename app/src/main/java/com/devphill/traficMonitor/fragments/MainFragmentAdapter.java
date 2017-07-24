@@ -295,26 +295,6 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
                 Cursor c = db.query(TrafficService.idsim, null, null, null, null, null, null);
 
-
-         /*   int countRows = c.getCount();
-
-            periodChart = countRows / countPointsCharts;
-            if(periodChart == 0)
-                periodChart = 1;*/
-
-                //  if(countRows > 1000)
-                //    periodChart = periodChart / 50;
-
-                //   Log.d(LOG_TAG, "Count rows " + c.getCount());
-
-                //  if(periodChart == TrafficService.PERIOD_DAY)
-                //     periodChartOffset = 29;
-                //else if(periodChart == TrafficService.PERIOD_MOUNTH)
-                //   periodChartOffset = 1200;
-                // ставим позицию курсора на первую строку выборки
-                // если в выборке нет строк, вернется falseе
-
-
                 if (c.moveToFirst()) {
                     // определяем номера столбцов по имени в выборке
                     int timeColIndex = c.getColumnIndex("time");
@@ -358,14 +338,8 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
 
                                 data.addXValue(strTime);
 
-                          /*  int xIndex = (c.getInt(idColIndex) - periodChart) + 1;
-
-                            if(xIndex < 0)
-                               xIndex = 0;*/
-
                                 data.addEntry(new Entry(trafficFloat, countEntrys), 0);  // добавляем значение трафика по оси Y, по Х id из таблицы
-                                //data.addXValue(labels.get(labels.size()));                                    //метка для значение по оси Х - это время
-                                // entriesLineChart.add(new Entry(trafficFloat, xIndex));
+
                                 lineChart.setDescription(mContext.getResources().getString(R.string.used) + " " + trafficFloat + mContext.getResources().getString(R.string.mb));
                                 countEntrys++;
                             }
@@ -411,7 +385,6 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
                     }
                 }
 
-                //   dbHelper.close();
                 c.close();
 
                 lastTime = currentTime;
@@ -449,22 +422,6 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
                 Log.d(LOG_TAG,
                         " periodChartOffset is update = " + periodChartOffset);
             }
-           /* DBHelper dbHelper = new DBHelper(mContext);
-            // создаем объект для данных
-            ContentValues cv = new ContentValues();
-            // подключаемся к БД
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            // делаем запрос всех данных из таблицы mytable, получаем Cursor
-            Cursor c = db.query("set" + TrafficService.idsim, null, null, null, null, null, null);
-
-            cv.put("periodChartOffset",period);
-            db.update("set" + TrafficService.idsim, cv, null,null);
-
-            Log.d(LOG_TAG,
-                    " periodChartOffset is update = " + periodChartOffset);
-            c.close();
-            // закрываем подключение к БД
-            dbHelper.close();*/
 
         }
         public void recoverPeriodChart(){
@@ -475,31 +432,6 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
                 Log.d(LOG_TAG,
                         " recoverPeriodChart = " + periodChartOffset);
             }
-
-           /* // подключаемся к БД
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            // делаем запрос всех данных из таблицы mytable, получаем Cursor
-            Cursor c = db.query("set" + TrafficService.idsim, null, null, null, null, null, null);
-
-            if (c.moveToFirst()) {
-
-                int periodChartOffsetChartColIndex = c.getColumnIndex("periodChartOffset");
-                do {
-                    // получаем значения по номерам столбцов и пишем все в лог
-                    Log.d(LOG_TAG,
-                            " periodChartOffset = " + c.getInt(periodChartOffsetChartColIndex));
-
-                    periodChartOffset = c.getInt(periodChartOffsetChartColIndex);
-
-                } while (c.moveToNext());
-
-
-            }
-
-
-                 c.close();
-                 // закрываем подключение к БД
-                 dbHelper.close();*/
 
         }
         public void getDataTestTable(){
@@ -675,19 +607,11 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
                    // Color.YELLOW,
             };
 
-            //  entriesPie.add(new Entry(100, 0));
-            //   entriesPie.add(new Entry(50, 0));
-
 
             // adding colors
             ArrayList<Integer> colors = new ArrayList<Integer>();
 
             PieDataSet dataset = new PieDataSet(entriesPie, "");
-
-
-            // labelsPie.add("January");
-            // labelsPie.add("asfvas");
-
 
             PieData data = new PieData(labelsPie, dataset);
             // Added My Own colors
@@ -703,8 +627,6 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
             data.setValueFormatter(new MyValueFormatterPie(mContext));
 
             pieChart.setDrawSliceText(false);
-          //  pieChart.setCenterTextColor(Color.BLACK);
-            // configure pie chart
             pieChart.setDescription("");
           //  pieChart.setHoleColor(Color.BLACK);
             //  pieChart.setUsePercentValues(true);
@@ -722,11 +644,7 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
             pieChart.setRotationAngle(0);
             pieChart.setRotationEnabled(true);
 
-
-
             pieChart.setData(data);
-
-
 
         }
 
@@ -735,8 +653,6 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
             // подключаемся к БД
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             Cursor c = db.query(TrafficService.idsim, null, null, null, null, null, null);
-            //Cursor c = db.query("n8938003992134961737f", null, null, null, null, null, null);
-
             // ставим позицию курсора на первую строку выборки
             // если в выборке нет строк, вернется false
             if (c.moveToLast()) {
@@ -746,28 +662,22 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
                 float trafficFloat = (float)c.getLong(allTrafficMobileColIndex)/1024;
                 trafficFloat = Math.round(trafficFloat*(float)100.0)/(float)100.0;  //округляем до сотых
 
-               // Log.i(LOG_TAG, "timerPie  trafficFloat " + trafficFloat);
                 PieData d = pieChart.getData();
-
                 pieChart.clear();
-
                 entriesPie.clear();
                 labelsPie.clear();
 
                 d.addEntry(new Entry((TrafficService.stopLevel - trafficFloat),0),0);
                 d.addEntry(new Entry(trafficFloat,0),0);
 
-
                 labelsPie.add(mContext.getResources().getString(R.string.have_left));
                 labelsPie.add(mContext.getResources().getString(R.string.used_traffic));
 
                 initPieChart();
 
-
                 pieChart.notifyDataSetChanged();
                 pieChart.invalidate();
             }
-
 
             dbHelper.close();
             c.close();
@@ -778,7 +688,6 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
         mDataSet = dataSet;
         mDataSetTypes = dataSetTypes;
         myActivity = activity;
-      //  mPager = viewPager;
         Log.i(LOG_TAG, "MainFragmentAdapter");
     }
     @Override
@@ -811,8 +720,6 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
         if (viewHolder.getItemViewType() == CARD_1) {
             final LineChartHolder lineChartHolder = (LineChartHolder) viewHolder;
-
-          //  lineChartHolder.task();
 
         }
         else if (viewHolder.getItemViewType() == CARD_2) {

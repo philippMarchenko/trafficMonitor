@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -31,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.appyvet.rangebar.RangeBar;
+import com.devphill.traficMonitor.BuildConfig;
 import com.devphill.traficMonitor.DBHelper;
 import com.devphill.traficMonitor.R;
 import com.devphill.traficMonitor.TrafficService;
@@ -233,13 +236,12 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
     public class Set4Holder extends ViewHolder {
 
         public Button zapros,newDay,newMonth;
+        TextView versionApp;
 
-
-        public Set4Holder(View v) {
+        public Set4Holder(View v) throws PackageManager.NameNotFoundException {
             super(v);
-           // this.zapros = (Button) v.findViewById(R.id.zapros);
             this.newDay = (Button) v.findViewById(R.id.newDay);
-          //  this.newMonth = (Button) v.findViewById(R.id.newMonth);
+            this.versionApp = (TextView) v.findViewById(R.id.versionApp);
 
             newDay.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -254,6 +256,11 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
                 }
             });
 
+
+        //    PackageInfo pInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
+            versionApp.setText("Версия приложения " + BuildConfig.VERSION_NAME);
+
+           //;
 
 
 
@@ -332,8 +339,11 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
         else if (viewType == SET_4){
             v = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.fragment_settings_4, viewGroup, false);
-            return new Set4Holder(v);
-
+            try {
+                return new Set4Holder(v);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
         }
 
         return null;

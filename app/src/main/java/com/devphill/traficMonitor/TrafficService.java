@@ -61,7 +61,8 @@ public class TrafficService extends Service {
 	DBHelper dbHelper;
 	Timer myTimerService = new Timer(); // Создаем таймер
 //	Timer myTimer2Service = new Timer(); // Создаем таймер
-	public static ArrayList<ApplicationItem> appList = new ArrayList<ApplicationItem>();
+	public static ArrayList<ApplicationItem> appList = new ArrayList<ApplicationItem>();	//список приложений для вівода на дисплей
+	public  ArrayList<ApplicationItem> appListLocal = new ArrayList<ApplicationItem>();	//список приложений для отслеживания траффика
 
 	public static int CLEAN_TABLE = 1;
 	public static int SET_REBOOT_ACTION = 2;
@@ -81,6 +82,10 @@ public class TrafficService extends Service {
 	public static int day = 1;
 	public static int month = 1;
 	public static int mYear = 2017;
+
+	int min = 0;
+	int hours = 0;
+	int sec = 0;
 
 	public static final String APP_PREFERENCES = "settingsTrafficMonitor";
 	public static final String APP_PREFERENCES_TRAFFIC_APPS = "TrafficApps";
@@ -104,8 +109,6 @@ public class TrafficService extends Service {
 	Widget widget = new Widget();
 
 	public static boolean brRegistered = false;
-
-	//FragmentTrafficApps fragment2 = new FragmentTrafficApps();
 
 	public void onCreate() {
 		super.onCreate();
@@ -527,12 +530,16 @@ public class TrafficService extends Service {
 
 						if (isNewDay() || isNewMonth()) {
 							Log.d(LOG_TAG, "Конец учетного периода");
-							saveAppTraffic();					   //сохраним значения траффика для приложений при обнулении статистики
-							saveAppTrafficWiFi();
+							//saveAppTraffic();					   //сохраним значения траффика для приложений при обнулении статистики
+						//	saveAppTrafficWiFi();
 							saveTotalTraffic();
 							resetTraffic();                        //считали значения сегоднашнего траффика, записали его в переменные вчерашнего
 							cleanTable(idsim);                    //очистили таблицу
 							setRebootAction(0);
+
+							initAppTrafficList();
+							initAppTrafficList();
+
 							intent.putExtra(MainFragmentAdapter.UPDATE_CHART, 1);    //обновили граффик,
 
 
@@ -598,36 +605,6 @@ public class TrafficService extends Service {
 
 		}, 0L, 3L * 1000); // интервал - 3000 миллисекунд, 0 миллисекунд до первого запуска.
 	}
-	public void refreshService(){
-
-		String netType = getNetworkType(getBaseContext());
-		Timer timer = new Timer();
-
-		TimerTask delayedThreadStartTask = new TimerTask() {
-			@Override
-			public void run() {
-
-				//captureCDRProcess();
-				//moved to TimerTask
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-					if (!isNetworkConnected(getBaseContext())) {
-							Log.d(LOG_TAG, "Подключение к сети отсутствует!");
-							stopSelf();
-							stopForeground(true);
-						} else {
-							Log.d(LOG_TAG, "Подключение к сети присутствует!");
-
-						}
-
-					}
-				}).start();
-			}
-		};
-
-		timer.schedule(delayedThreadStartTask, 20 * 1000); //10 sec
-	}
 	public String getNetworkType(Context context) {
 		ConnectivityManager cm =
 				(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -644,35 +621,6 @@ public class TrafficService extends Service {
 		return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 	}		//есть ли инет
 	boolean isNewDay() {
-
-		/*// подключаемся к БД
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-		Log.d(LOG_TAG, "Проверяем на новый день ");
-		// делаем запрос всех данных из таблицы mytable, получаем Cursor
-		Cursor c = db.query(idsim, null, null, null, null, null, null);
-
-		if (c.moveToLast()) {
-
-			Date d = new Date();
-
-			int lastDayColIndex = c.getColumnIndex("lastDay");
-			int idColIndex = c.getColumnIndex("id");
-
-			int lastDay = c.getInt(lastDayColIndex);
-
-
-			Log.d(LOG_TAG, "lastDay " + lastDay + ", id  " + c.getLong(idColIndex));
-
-
-			if ((lastDay != d.getDate() || newDay) && period == PERIOD_DAY) {
-				newDay = false;
-				firstWriteDB = true;
-				return true;
-			}
-
-		}
-		c.close();*/
 
 		if ( newDay && period == PERIOD_DAY) {
 			newDay = false;
@@ -718,9 +666,9 @@ public class TrafficService extends Service {
 		Calendar calNow = Calendar.getInstance();
 		Calendar calSet = (Calendar) calNow.clone();
 
-		calSet.set(Calendar.HOUR_OF_DAY,0);
-		calSet.set(Calendar.MINUTE, 0);
-		calSet.set(Calendar.SECOND, 0);
+		calSet.set(Calendar.HOUR_OF_DAY,hours);
+		calSet.set(Calendar.MINUTE, min);
+		calSet.set(Calendar.SECOND, sec);
 		calSet.set(Calendar.MILLISECOND, 0);
 
 		if(calSet.compareTo(calNow) <= 0){
@@ -744,38 +692,6 @@ public class TrafficService extends Service {
 		alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 
 	}
-	public void saveAppTraffic(){
-		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = mySharedPreferences.edit();
-
-		if(appList != null) {
-			for (int i = 0; i < appList.size(); i++) {
-				ApplicationItem item = appList.get(i);
-				Log.i(LOG_TAG,  " saveAppTraffic app = " + item.getApplicationLabel(getBaseContext().getPackageManager()) + "\n " +
-						item.getMobileMb());
-				editor.putFloat(item.getApplicationLabel(getBaseContext().getPackageManager()),item.getMobileMb());
-			}
-		}
-		editor.apply();
-
-
-	} //ложим траффик приложения по окончанию учетного периода
-	public void saveAppTrafficWiFi(){
-		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_WIFI, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = mySharedPreferences.edit();
-
-		if(appList != null) {
-			for (int i = 0; i < appList.size(); i++) {
-				ApplicationItem item = appList.get(i);
-				Log.i(LOG_TAG,  " saveAppTraffic app = " + item.getApplicationLabel(getBaseContext().getPackageManager()) + "\n " +
-						item.getWiFiMb());
-				editor.putFloat(item.getApplicationLabel(getBaseContext().getPackageManager()),item.getWiFiMb());
-			}
-		}
-		editor.apply();
-
-
-	} //ложим траффик приложения по окончанию учетного периода
 	public void saveTrafficAppsForReboot(){
 
 		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_REBOOT, Context.MODE_PRIVATE);
@@ -884,98 +800,84 @@ public class TrafficService extends Service {
 
 
 	}	//в переменные для вчерашнего запишем траффик до перезагрузки
-	public void initSettings() {
-
-		// создаем объект для данных
-		ContentValues cv = new ContentValues();
-
-		// подключаемся к БД
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		// делаем запрос всех данных из таблицы mytable, получаем Cursor
-		Cursor c = db.query(idsim, null, null, null, null, null, null);
-
-		cv.put("period", TrafficService.PERIOD_DAY);
-		cv.put("periodChartOffset", 29);
-		cv.put("stopLevel", 98);
-		cv.put("allertLevel", 80);
-		cv.put("disable_internet", 0);
-		cv.put("show_allert", 1);
-		cv.put("day", 15);
-		cv.put("month", 9);
-		cv.put("year", 2017);
-
-
-		// вставляем запись и получаем ее ID
-		rowID = db.insert("" + "set" + idsim + "", null, cv);
-		Log.d(LOG_TAG, "row inserted, ID = " + rowID);
-
-		newDay = true;
-
-		// закрываем подключение к БД
-	//	db.close();
-		c.close();
-	}		//настройки старіе в бд(не используется)
 	public void initAppTrafficList() {
 
 		int count = 0;
+
+		appListLocal.clear();
+		appList.clear();
+
+		//clearMobileTrafficApps();
+		clearMobileTrafficAppsForReboot();
+	//	clearWiFiTrafficApps();
+		clearWiFiTrafficAppsForReboot();
 
 		for (ApplicationInfo app : getBaseContext().getPackageManager().getInstalledApplications(0)) {
 
 				ApplicationItem item = ApplicationItem.create(app, getBaseContext());
 				if (item != null) {
-					appList.add(item);
+					appListLocal.add(item);
 					count++;
 				}
 		}
-		Log.d(LOG_TAG, "initAppTrafficList table count " +  count);
+
+
+		//Log.d(LOG_TAG, "initAppTrafficList table count " +  count);
+
 	}
+	public void clearMobileTrafficAppsForReboot(){		//очистить сохраненный мобильный траффик приложений
+		Log.i(LOG_TAG,  "Очищаем траффик  мобильный по окончанию учетного периода ");
+		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_REBOOT, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = mySharedPreferences.edit();
 
-	public void updateInitAppTrafficList() {
-
-		int count = 1;
-		PackageManager pm = getBaseContext().getPackageManager();
-
-		List<ApplicationInfo> list = pm.getInstalledApplications(PackageManager.GET_META_DATA);
-		Log.d(LOG_TAG, "count instal app = " + list.size() );
-		Log.d(LOG_TAG, "count list app = " + appList.size() );
-
-
-		Log.d(LOG_TAG, "initAppTrafficList table. count = " + count );
-		for (ApplicationInfo app : pm.getInstalledApplications(0)) {
-
-			if(isNewApp(app,pm)){
-				ApplicationItem item = ApplicationItem.create(app, getBaseContext());
-				if (item != null) {
-					appList.add(item);
-					count++;
-				}
+		if(appList != null) {
+			for (int i = 0; i < appList.size(); i++) {
+				ApplicationItem item = appList.get(i);
+				editor.putFloat(item.getApplicationLabel(getBaseContext().getPackageManager()),0);
 			}
 		}
-
-
+		editor.apply();
 	}
-	public boolean isNewApp(ApplicationInfo app, PackageManager pm){
+	public void clearWiFiTrafficAppsForReboot(){		//очистить сохраненный WiFi траффик приложений
+		Log.i(LOG_TAG,  "Очищаем WiFi траффик по окончанию учетного периода ");
 
-		for(int i = 0; i < appList.size() + 1; i ++){
-			if(!appList.get(i).getApplicationLabel(pm).equals(pm.getApplicationLabel(app)))
-				return true;
-			else
-				return false;
+		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_REBOOT_WIFI, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = mySharedPreferences.edit();
+
+		if(appList != null) {
+			for (int i = 0; i < appList.size(); i++) {
+				ApplicationItem item = appList.get(i);
+				editor.putFloat(item.getApplicationLabel(getBaseContext().getPackageManager()),0);
+			}
 		}
-		return false;
+		editor.apply();
 	}
 	public void updateAppTrafficList() {
+
 			updateNetworkState();
-			for (int i = 0; i < appList.size(); i++) {
+		    Log.d(LOG_TAG, "updateAppTrafficList  appListLocal.size()" + appListLocal.size());
 
-				appList.get(i).setMobilTraffic(isMobilEnabled);
-				appList.get(i).update();
+			PackageManager pm = getBaseContext().getPackageManager();
 
-				/*ApplicationItem app = appList.get(i);
-				app.setMobilTraffic(isMobilEnabled);
-				app.update();*/
+			for (int i = 0; i < appListLocal.size(); i++) {
+
+				ApplicationItem appInfolocal = appListLocal.get(i);
+				Log.d(LOG_TAG, "appInfolocal.getApplicationLabel " + appInfolocal.getApplicationLabel(pm));
+				Log.d(LOG_TAG, "appInfolocal.getMobileUsageMb " + appInfolocal.getMobileUsageMb());
+
+
+				appInfolocal.setMobilTraffic(isMobilEnabled);
+				appInfolocal.setWiFiTraffic(isWifiEnabled);
+				appInfolocal.update();
+
+				if(appInfolocal.getWiFiUsageMb() > 0 || appInfolocal.getMobileUsageMb() > 0){
+
+					if(!appList.contains(appInfolocal)) {
+						appList.add(appListLocal.get(i));
+						Log.d(LOG_TAG, "Добавили приложение в список для вывода на экран. Размер массисва  для вывода " + appList.size());
+					}
+				}
 			}
-
 	}
 	private void updateNetworkState() {
 		isWifiEnabled = isConnectedWifi();
@@ -1004,33 +906,10 @@ public class TrafficService extends Service {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		// делаем запрос всех данных из таблицы mytable, получаем Cursor
 		Cursor c = db.query(idsim, null, null, null, null, null, null);
-		/*
-		// ставим позицию курсора на первую строку выборки
-		// если в выборке нет строк, вернется false
-		if (c.moveToLast()) {
-			int mobile_trafficTXYesterdayColIndex = c.getColumnIndex("mobile_trafficTXYesterday");
-			int mobile_trafficRXYesterdayColIndex = c.getColumnIndex("mobile_trafficRXYesterday");
 
-			Log.d(LOG_TAG, "mobile_trafficTXYesterday = " + c.getLong(mobile_trafficTXYesterdayColIndex) +
-					" mobile_trafficRXYesterday = " + c.getLong(mobile_trafficRXYesterdayColIndex));
-
-			Log.d(LOG_TAG, "TrafficStats.getMobileTxBytes() = " + TrafficStats.getMobileTxBytes() +
-					" TrafficStats.getMobileRxBytes() = " + TrafficStats.getMobileRxBytes());
-
-			mobile_trafficTXToday = TrafficStats.getMobileTxBytes() - c.getLong(mobile_trafficTXYesterdayColIndex); //Переданные через мобильный интерфейс
-			mobile_trafficRXToday = TrafficStats.getMobileRxBytes() - c.getLong(mobile_trafficRXYesterdayColIndex); //Принятые через мобильный интерфейс
-
-			mobile_trafficTXYesterday = c.getLong(mobile_trafficTXYesterdayColIndex);
-			mobile_trafficRXYesterday = c.getLong(mobile_trafficRXYesterdayColIndex);
-
-			Log.d(LOG_TAG, "mobile_trafficTXToday = " + mobile_trafficTXToday +
-					" mobile_trafficRXToday = " + mobile_trafficRXToday);
-
-		}*/
 		allTrafficMobile = mobile_trafficTXToday + mobile_trafficRXToday;
 		allTrafficMobile = allTrafficMobile / 1024;       //для Кб
 
-		//Log.d(LOG_TAG, "allTrafficMobile = " + allTrafficMobile);
 
 		if (allTrafficMobile > 0 || firstWriteDB) {
 
@@ -1050,8 +929,6 @@ public class TrafficService extends Service {
 
 			firstWriteDB = false;
 		}
-		// закрываем подключение к БД
-		//db.close();
 		c.close();
 
 

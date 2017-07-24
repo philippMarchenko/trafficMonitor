@@ -40,19 +40,27 @@
         android:textSize="18sp"
         android:layout_marginTop="5dp"
         android:layout_marginLeft="5dp" />
-
-    <ListView
-        android:id="@+id/lvInstallApplication"
+    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="10dp"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="4dp"
-        android:drawSelectorOnTop="false"
-        android:textColor="@color/colorTest"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/tvUsedWiFi" />
+        android:layout_below="@+id/tvUsedWiFi">
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/lvInstallApplication"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="4dp"
+            android:drawSelectorOnTop="false"
+            android:textColor="@color/colorTest">
+
+        </ListView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <TextView
         android:text="0 Mb"

@@ -31,6 +31,7 @@ public class ApplicationItem {
     private transient ApplicationInfo app;
 
     private boolean isMobil = false;
+    private boolean isWiFi = false;
 
     static Context mContex;
 
@@ -55,17 +56,12 @@ public class ApplicationItem {
         if(isMobil == true) {
             mobil_tx = mobil_tx + delta_tx;
             mobil_rx = mobil_rx + delta_rx;
-        } else {
+        } else if(isWiFi) {
             wifi_tx = wifi_tx + delta_tx;
             wifi_rx = wifi_rx + delta_rx;
         }
 
         String label = getApplicationLabel(mContex.getPackageManager());
-        /*Log.i("appTrafficLogs", "delta_tx " + delta_tx + " delta_rx " + delta_rx);
-        Log.i("appTrafficLogs", "tx " + tx + " rx " + rx);
-        Log.i("appTrafficLogs", "labelApp " + label);
-        Log.i("appTrafficLogs", "mobil_rx " + mobil_rx + " mobil_tx " + mobil_tx);
-        Log.i("appTrafficLogs", "wifi_rx " + wifi_rx + " wifi_tx " + wifi_tx);*/
 
     }
 
@@ -74,14 +70,22 @@ public class ApplicationItem {
         long _rx = TrafficStats.getUidRxBytes(_app.uid);
         mContex = context;
 
-        //if((_tx + _rx) > 0)
-            return new ApplicationItem(_app);
-        //return null;
+        ApplicationItem applicationItem = new ApplicationItem(_app);
+
+        if((_tx + _rx) > 0) {
+            PackageManager pm = mContex.getPackageManager();
+
+            Log.i("appTrafficLogs","Create app item. AppLabel = " + pm.getApplicationLabel(_app).toString());
+            Log.i("appTrafficLogs","_tx + _rx = " + (_tx + _rx));
+            return applicationItem;
+        }
+            else
+            return null;
+
     }
     public int getRebootAction() {
 
         SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
-      // Log.i("appTrafficLogs", "getRebootAction " + mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION, 0));
         return mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION, 0);
     }
     public int getTotalUsageKb() {
@@ -98,22 +102,12 @@ public class ApplicationItem {
 
         if(getRebootAction() == 1){
             traffic = (float) (mobil_tx + mobil_rx) / ((float)1024*(float)1024) + getTrafficAppsForReboot();
-            //Log.i("appTrafficLogs","getRebootAction() = 1 " + getTrafficAppsForReboot());
             return Math.round(traffic * (float) 10.0) / (float) 10.0;
         }
         else{
             traffic = ((float) (mobil_tx + mobil_rx) / ((float)1024*(float)1024));
-          //  Log.i("appTrafficLogs","traffic" + traffic);
-
-           // Log.i("appTrafficLogs","traffic" + traffic);
-            traffic = traffic - getTrafficApps();
-           // Log.i("appTrafficLogs","traffic" + traffic);
+            //traffic = traffic - getTrafficApps();
             traffic = Math.round(traffic * (float) 10.0) / (float) 10.0;
-           // Log.i("appTrafficLogs","getTrafficApps. appLabel = " + getApplicationLabel(mContex.getPackageManager()) +
-             //       " traffic last = " + getTrafficApps());
-          //  Log.i("appTrafficLogs","getTrafficApps. appLabel = " + getApplicationLabel(mContex.getPackageManager()) +
-               //     " allTrafficApp = " +  ((float) (mobil_tx + mobil_rx) / ((float)1024*(float)1024)));
-
 
             if(traffic >= 0)
               return traffic;
@@ -122,28 +116,17 @@ public class ApplicationItem {
     }
     public float getWiFiUsageMb() {
 
-
         float traffic;
 
         if(getRebootAction() == 1){
             traffic = (float) (wifi_rx + wifi_tx) / ((float)1024*(float)1024) + getTrafficAppsForRebootWiFi();
-            //Log.i("appTrafficLogs","getRebootAction() = 1 " + getTrafficAppsForReboot());
             return Math.round(traffic * (float) 10.0) / (float) 10.0;
         }
         else{
             traffic = ((float) ((float) (wifi_rx + wifi_tx)) / ((float)1024*(float)1024));
-            //  Log.i("appTrafficLogs","traffic" + traffic);
+           // traffic = traffic - getTrafficAppsWiFi();
 
-            // Log.i("appTrafficLogs","traffic" + traffic);
-            traffic = traffic - getTrafficAppsWiFi();
-            // Log.i("appTrafficLogs","traffic" + traffic);
             traffic = Math.round(traffic * (float) 10.0) / (float) 10.0;
-
-             Log.i("appTrafficLogs","getTrafficApps. appLabel = " + getApplicationLabel(mContex.getPackageManager()) +
-                   " traffic last = " + getTrafficAppsWiFi());
-              Log.i("appTrafficLogs","getTrafficApps. appLabel = " + getApplicationLabel(mContex.getPackageManager()) +
-                 " allTrafficApp = " +  ((float) (wifi_rx + wifi_tx) / ((float)1024*(float)1024)));
-
 
             if(traffic >= 0)
                 return traffic;
@@ -157,19 +140,14 @@ public class ApplicationItem {
     }
     public float getTrafficApps(){        //достаем траффик приложения по окончанию учетного периода
         SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
-
         return mySharedPreferences.getFloat(mContex.getPackageManager().getApplicationLabel(app).toString(),0);
-
-    }
+    }   //??
     public float getTrafficAppsWiFi(){        //достаем траффик приложения по окончанию учетного периода
         SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_WIFI, Context.MODE_PRIVATE);
-
         return mySharedPreferences.getFloat(mContex.getPackageManager().getApplicationLabel(app).toString(),0);
-
-    }
+    }  //??
     public float getTrafficAppsForReboot(){ //достаем траффик приложения если была перезагрузка
         SharedPreferences mySharedPreferences = mContex.getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_REBOOT, Context.MODE_PRIVATE);
-
         return mySharedPreferences.getFloat(mContex.getPackageManager().getApplicationLabel(app).toString(),0);
 
     }
@@ -190,6 +168,9 @@ public class ApplicationItem {
     }
     public void setMobilTraffic(boolean _isMobil) {
         isMobil = _isMobil;
+    }
+    public void setWiFiTraffic(boolean _iswifi) {
+        isWiFi = _iswifi;
     }
 
 

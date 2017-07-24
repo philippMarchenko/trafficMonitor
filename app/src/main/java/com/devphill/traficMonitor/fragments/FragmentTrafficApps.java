@@ -24,6 +24,7 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.support.design.internal.ParcelableSparseArray;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -41,19 +42,11 @@ import android.widget.Toast;
 import com.devphill.traficMonitor.ApplicationItem;
 import com.devphill.traficMonitor.DBHelper;
 import com.devphill.traficMonitor.R;
-import com.devphill.traficMonitor.StateSavingArrayAdapter;
 import com.devphill.traficMonitor.TrafficService;
-import com.google.gson.Gson;
-
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
-//implements CompoundButton.OnCheckedChangeListener
-public class FragmentTrafficApps extends Fragment {
+public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
 
 
     public  String LOG_TAG = "fragmentTrafficApps";
@@ -63,7 +56,6 @@ public class FragmentTrafficApps extends Fragment {
     ContentValues cv = new ContentValues();
     Timer myTimer = new Timer(); // Создаем таймер
 
-    TextView three_g_kb;
     TextView tvDataUsageWiFi;
     TextView tvDataUsageMobile;
     TextView tvDataUsageTotal;
@@ -71,6 +63,7 @@ public class FragmentTrafficApps extends Fragment {
 
 
     static ArrayAdapter<ApplicationItem> adapterApplications ;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public static BroadcastReceiver brAppsTrafficFragment;
     public static final String UPDATE_TRAFFIC_APPS = "update_traffic_apps";
@@ -95,13 +88,17 @@ public class FragmentTrafficApps extends Fragment {
         tvDataUsageTotal = (TextView) view.findViewById(R.id.tvDataUsageTotal);
 
         lvApplications = (ListView) view.findViewById(R.id.lvInstallApplication);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setColorSchemeColors(R.color.accent);
 
+
+        swipeRefreshLayout.setOnRefreshListener(this);
         if (TrafficStats.getTotalRxBytes() != TrafficStats.UNSUPPORTED && TrafficStats.getTotalTxBytes() != TrafficStats.UNSUPPORTED) {
 
             lvApplications.setAdapter(adapterApplications);
 
         } else {
-            //  tvSupported.setVisibility(View.VISIBLE);
+
         }
         brAppsTrafficFragment = new BroadcastReceiver() {
             @Override
@@ -118,20 +115,13 @@ public class FragmentTrafficApps extends Fragment {
                 tvDataUsageMobile.setText(trafficMobileFloat + " Mb");
 
 
-
-                //if(adapterApplications != null) {
-                    //if (adapterApplications.getItem(1).getRebootAction() == 1) {
-                    //    trafficTotal = (TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes()) + getTotalTraffic();
-                  //  } else {
-
                 if(getRebootAction() == 1) {
                     trafficTotal = (TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes()) + getAllTrafficReboot();
                 }
                 else{
                     trafficTotal = (TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes()) - getTotalTraffic();
                 }
-                    // }
-               // }
+
                 float trafficTotalFloat = ((float)trafficTotal) / ((float)1024*(float)1024);
                 trafficTotalFloat = Math.round(trafficTotalFloat * (float) 10.0) / (float) 10.0;
                 tvDataUsageTotal.setText(Float.toString(trafficTotalFloat) + " Mb");
@@ -147,7 +137,6 @@ public class FragmentTrafficApps extends Fragment {
             }
         };
 
-
         Log.i(LOG_TAG, "onCreateView fragment2 ");
 
         return view;
@@ -155,7 +144,6 @@ public class FragmentTrafficApps extends Fragment {
     }
     public long getAllTrafficReboot(){ //достаем траффик приложения если была перезагрузка
         SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TOTAL_TRAFFIC_REBOOT, Context.MODE_PRIVATE);
-
         return mySharedPreferences.getLong(TrafficService.APP_PREFERENCES_TOTAL_TRAFFIC,0);
 
     }
@@ -251,39 +239,15 @@ public class FragmentTrafficApps extends Fragment {
     public void initAppList() {
 
                 int count = 0;
+        Log.i(LOG_TAG, "TrafficService.appList.size() " + TrafficService.appList.size());
                 for (int i = 0; i < TrafficService.appList.size(); i++) {
                     ApplicationItem app = TrafficService.appList.get(i);
                     if(app != null) {
                         adapterApplications.add(app);
                     }
-                    Log.i(LOG_TAG, "count = " + count++);
+                    Log.i(LOG_TAG, "count = " + ++count);
                 }
         Log.i(LOG_TAG, "Fragment2 initAppList");
-    }
-    public void updateAllList(){
-
-        TrafficService.appList.clear();
-        adapterApplications.clear();
-
-
-        int c = 0;
-
-        PackageManager pm = getContext().getPackageManager();
-        List<ApplicationInfo> list = getContext().getPackageManager().getInstalledApplications(0);
-        Log.i(LOG_TAG, " Count list " + list.size() );
-
-        for (int i = 0; i < list.size(); i ++) {
-
-            ApplicationItem item = ApplicationItem.create(list.get(i), getContext());
-            if (item != null) {
-                TrafficService.appList.add(item);
-                adapterApplications.add(item);
-                c++;
-                Log.i(LOG_TAG, " add app " + item.getApplicationLabel(pm) );
-            }
-        }
-        updateAdapter();
-        Log.i(LOG_TAG, " updateAllList " + c );
     }
     public void updateAdapter() {
 
@@ -312,10 +276,6 @@ public class FragmentTrafficApps extends Fragment {
 
         adapterApplications.notifyDataSetChanged();
 
-    }
-    private void updateNetworkState() {
-        isWifiEnabled = isConnectedWifi();
-        isMobilEnabled = isConnectedMobile();
     }
     public boolean isConnectedWifi(){
         ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -372,5 +332,14 @@ public class FragmentTrafficApps extends Fragment {
         super.onDestroy();
         //saveAppTraffic();
         Log.i(LOG_TAG, "Fragment2 onDestroy");
+    }
+    @Override
+    public void onRefresh() {
+        swipeRefreshLayout.setRefreshing(true);
+
+        adapterApplications.clear();
+        initAppList();
+
+        swipeRefreshLayout.setRefreshing(false);
     }
 }

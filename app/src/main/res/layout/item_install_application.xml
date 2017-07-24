@@ -5,17 +5,6 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Title"
-        android:id="@+id/tvAppName"
-        android:gravity="center"
-        android:layout_marginStart="5dp"
-        android:layout_alignTop="@+id/imageApp"
-        android:layout_toRightOf="@+id/imageApp" />
-
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -41,7 +30,8 @@
         android:layout_height="25dp"
         android:layout_alignTop="@+id/imageWiFi"
         android:layout_toRightOf="@+id/imageWiFi"
-        android:layout_marginLeft="10dp" />
+        android:layout_marginLeft="10dp"
+        android:textColor="@color/accent" />
 
     <ImageView
         android:layout_width="25dp"
@@ -62,6 +52,19 @@
         android:layout_height="25dp"
         android:layout_alignTop="@+id/imageMobileDataApp"
         android:layout_toRightOf="@+id/imageMobileDataApp"
-        android:layout_marginStart="10dp" />
+        android:layout_marginStart="10dp"
+        android:textColor="@color/accent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Title"
+        android:id="@+id/tvAppName"
+        android:gravity="center"
+        android:layout_marginStart="5dp"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/imageApp"
+        android:textColor="@color/cardview_light_background" />
 
 </RelativeLayout>
