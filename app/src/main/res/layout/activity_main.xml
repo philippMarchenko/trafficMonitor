@@ -24,7 +24,7 @@
             app:tabGravity="fill"/>
     </android.support.design.widget.AppBarLayout>
 
-    <com.devphill.traficMonitor.fragments.CustomViewPager
+    <com.devphill.traficMonitor.helper.CustomViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
