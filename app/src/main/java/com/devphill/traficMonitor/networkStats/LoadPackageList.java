@@ -25,6 +25,7 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
 
     public interface ILoadPackageListListener {
         public void onGetPackage(Package p);
+        public void onFinishLoadpackage();
     }
 
     public LoadPackageList (Context context,ILoadPackageListListener iLoadPackageListListener){
@@ -42,7 +43,7 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
 
         PackageManager packageManager = mContext.getPackageManager();
 
-        List<PackageInfo> packageInfoList = getListApp(packageManager);
+        List<PackageInfo> packageInfoList = getListApp(packageManager);     //получаем список приложений с интернетом
 
       //  List<Package> packageList = new ArrayList<>(packageInfoList.size());
         NetworkStatsManager networkStatsManager = (NetworkStatsManager) mContext.getSystemService(Context.NETWORK_STATS_SERVICE);
@@ -62,8 +63,6 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
 
             packageItem.setVersion(packageInfo.versionName);
             packageItem.setPackageName(packageInfo.packageName);    //1240 мс
-
-
 
 
             ApplicationInfo ai = null;
@@ -89,23 +88,34 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
             }
             packageItem.setIcon(bitmapIcon);                //4079 мс
 
-            packageItem.setWiFiRx(networkStatsHelper.getPackageRxBytesWifi());
-        //    packageItem.setWiFiTx(networkStatsHelper.getPackageTxBytesWifi());
+            //packageItem.setWiFiRx(networkStatsHelper.getPackageRxBytesWifi());
+            //packageItem.setWiFiTx(networkStatsHelper.getPackageTxBytesWifi());
 
-          //  packageItem.setMobileRx(networkStatsHelper.getPackageRxBytesMobile(mContext));
-            //packageItem.setMobileTx(networkStatsHelper.getPackageTxBytesMobile(mContext));  //47000
+            float trafficWiFi = ((float) (networkStatsHelper.getPackageRxBytesWifi() + networkStatsHelper.getPackageTxBytesWifi()) / ((float)1024*(float)1024));
+            trafficWiFi = Math.round(trafficWiFi * (float) 10.0) / (float) 10.0;
+
+            packageItem.setWiFiData(Float.toString(trafficWiFi));
 
 
+            float trafficMobile = ((float) (networkStatsHelper.getPackageRxBytesMobile(mContext) + networkStatsHelper.getPackageTxBytesMobile(mContext)) / ((float)1024*(float)1024));
+            trafficMobile = Math.round(trafficMobile * (float) 10.0) / (float) 10.0;
+
+           // packageItem.setMobileRx(networkStatsHelper.getPackageRxBytesMobile(mContext));
+          //  packageItem.setMobileTx(networkStatsHelper.getPackageTxBytesMobile(mContext));  //47000
+            packageItem.setMobileData(Float.toString(trafficMobile));
+
+            Log.i(LOG_TAG, "setWiFiData  " + Float.toString(trafficWiFi));
+            Log.i(LOG_TAG, "setMobileData  " + Float.toString(trafficMobile));
 
             Log.i(LOG_TAG, "packageName  " + packageInfo.packageName);
-            Log.i(LOG_TAG, "MobileRx  " + networkStatsHelper.getPackageRxBytesMobile(mContext));
+          //  Log.i(LOG_TAG, "MobileRx  " + networkStatsHelper.getPackageRxBytesMobile(mContext));
 
             publishProgress(packageItem);
 
          //   packageList.add(packageItem);
 
         }
-
+        mILoadPackageListListener.onFinishLoadpackage();
         //Log.i(LOG_TAG, "size " + packageList.size());
 
         return null;
