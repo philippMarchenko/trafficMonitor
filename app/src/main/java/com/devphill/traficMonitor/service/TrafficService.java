@@ -19,6 +19,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -28,6 +29,8 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.devphill.traficMonitor.R;
+import com.devphill.traficMonitor.service.helper.TrafficHelper;
+import com.devphill.traficMonitor.service.helper.TrafficMHelper;
 import com.devphill.traficMonitor.ui.fragments.FragmentTrafficApps;
 import com.devphill.traficMonitor.adapter.MainFragmentAdapter;
 import com.devphill.traficMonitor.helper.DBHelper;
@@ -60,16 +63,13 @@ public class TrafficService extends Service {
 
 	static public boolean newDay = false;
 	static public boolean newMonth = false;
-	boolean firstWriteDB = true;
+	public static boolean firstWriteDB = true;
 
-	private boolean isWifiEnabled = false;
-	private boolean isMobilEnabled = false;
+
 
 	DBHelper dbHelper;
 	Timer myTimerService = new Timer(); // Создаем таймер
-//	Timer myTimer2Service = new Timer(); // Создаем таймер
-	public static ArrayList<ApplicationItem> appList = new ArrayList<ApplicationItem>();	//список приложений для вівода на дисплей
-	public  ArrayList<ApplicationItem> appListLocal = new ArrayList<ApplicationItem>();	//список приложений для отслеживания траффика
+
 
 	public static int CLEAN_TABLE = 1;
 	public static int SET_REBOOT_ACTION = 2;
@@ -113,8 +113,6 @@ public class TrafficService extends Service {
 	public static final String APP_PREFERENCES_REBOOT_ACTION = "reboot_action";
 	public static final String APP_PREFERENCES_HAS_VISITED = "has_visited";
 
-	Widget widget = new Widget();
-
 	public static boolean brRegistered = false;
 
 	public void onCreate() {
@@ -148,7 +146,7 @@ public class TrafficService extends Service {
 	//	showListTables();
 		recoverSettings();
 
-		initAppTrafficList();
+
 
 		setTimer();
 
@@ -170,9 +168,11 @@ public class TrafficService extends Service {
 
 		}//очистим ее
 		else if (task == SET_REBOOT_ACTION){
-			setRebootAction(1);
-			resetTrafficReboot();
-			Log.d(LOG_TAG, "SET_REBOOT_ACTION");
+			if(Build.VERSION.SDK_INT < 23) {
+				setRebootAction(1);
+				TrafficHelper.resetTrafficReboot(getBaseContext(),idsim);
+				Log.d(LOG_TAG, "SET_REBOOT_ACTION");
+			}
 		}
 		else if (task == ALARM_ACTION){
 			setTimer();
@@ -212,9 +212,6 @@ public class TrafficService extends Service {
 	catch (RuntimeException e){
 		Log.d(LOG_TAG, "RuntimeException " + e.getMessage());
 	}
-
-
-
 
 		// закрываем подключение к БД
 		db.close();
@@ -261,17 +258,20 @@ public class TrafficService extends Service {
 		Log.d(LOG_TAG, "--- onCreating database ---" + id_sim);
 
 	}
+
 	void showListTables() {
 		for (int i = 0; i < MAX_SIM; i++) {
 			Log.d(LOG_TAG, "Table " + i + " " + list_table[i] + "\n");
 		}
 	}
+
 	public void getSerialSim() {
 		TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);//доступ к данным о телефоне, sim и сотовой сети
 		idsim = "n" + tm.getSimSerialNumber();//Получения id sim
 		networkstate = tm.getDataState();//Получение значения состояния мобильного интернет подключения (0 отключено, 1 подключается, 2 подключено, 3 ожидание. 0x0000000*)
 		Log.d(LOG_TAG, "idsim " + idsim);
 	}
+
 	public void getlistTable(SQLiteDatabase db) {
 
 		Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
@@ -287,6 +287,7 @@ public class TrafficService extends Service {
 		}
 
 	}
+
 	public boolean isAllertLevel(){
 
 		if((allTrafficMobile/1024) >= allertLevel)
@@ -294,12 +295,14 @@ public class TrafficService extends Service {
 		else
 			return  false;
 	}
+
 	public boolean isStopLevel(){
 		if(allTrafficMobile/1024 >= stopLevel)
 			return true;
 		else
 			return false;
 	}
+
 	public void setRebootAction(int reboot){
 
 		Log.d(LOG_TAG, "setRebootAction" );
@@ -310,6 +313,7 @@ public class TrafficService extends Service {
 
 		editor.apply();
 	}
+
 	public int getRebootAction(){
 
 		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
@@ -317,67 +321,8 @@ public class TrafficService extends Service {
 		return mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION,0);
 
 	}
-	public void updateNoty (){
-
-		RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.noty);
-		NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(getBaseContext());
-		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification notification;
-
-		float trafficFloat = (float)allTrafficMobile/1024;
-		trafficFloat = Math.round(trafficFloat*(float)10.0)/(float)10.0;
-
-		float trafficTxFloat = (float)mobile_trafficTXToday/1048576;
-		trafficTxFloat = Math.round(trafficTxFloat*(float)10.0)/(float)10.0;  //округляем до сотых
 
 
-		float trafficRxFloat = (float)mobile_trafficRXToday/1048576;
-		trafficRxFloat = Math.round(trafficRxFloat*(float)10.0)/(float)10.0;  //округляем до сотых
-
-		float procent = trafficFloat /  (float)stopLevel*100;
-		procent = Math.round(procent*(float)10.0/(float)10.0);
-
-		contentView.setImageViewResource(R.id.image, R.drawable.bittorrent);
-		contentView.setProgressBar(R.id.usageData, stopLevel, (int) (allTrafficMobile / 1024), false);
-		contentView.setImageViewResource(R.id.imSendData, R.drawable.arrowup);
-		contentView.setImageViewResource(R.id.imDownloadData, R.drawable.arrowdown);
-		if((int)trafficFloat < 100) {
-			contentView.setTextViewText(R.id.title, "Использовано " + trafficFloat + " Мб");
-			contentView.setTextViewText(R.id.tvDownloadData,Float.toString(trafficRxFloat));
-			contentView.setTextViewText(R.id.tvSendData,Float.toString(trafficTxFloat));
-		}
-		else {
-			contentView.setTextViewText(R.id.title, "Использовано " + (int)trafficFloat + " Мб");
-			contentView.setTextViewText(R.id.tvDownloadData,"" + (int)trafficRxFloat);
-			contentView.setTextViewText(R.id.tvSendData,"" + (int)trafficTxFloat);
-		}
-
-		contentView.setTextViewText(R.id.procentData,(int)procent + " %");
-
-		Intent notificationIntent = new Intent(getBaseContext(), MainActivity.class);
-
-		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-				| Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-		PendingIntent intent = PendingIntent.getActivity(getBaseContext(), 0,
-				notificationIntent, 0);
-
-		mBuilder.setContentIntent(intent);
-
-
-		mBuilder.setSmallIcon(R.drawable.bittorrent);
-		mBuilder.setContent(contentView);
-
-
-
-		notification = mBuilder.build();
-		notification.flags |= Notification.FLAG_AUTO_CANCEL;
-
-		//notification.defaults |= Notification.DEFAULT_SOUND;
-		//notification.defaults |= Notification.DEFAULT_VIBRATE;
-		mNotificationManager.notify(1, notification);
-
-	}
 	public void initNoty(){
 		RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.noty);
 		NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(getBaseContext());
@@ -405,6 +350,7 @@ public class TrafficService extends Service {
 		//mNotificationManager.notify(1, notification);
 		startForeground(1, notification);
 	}
+
 	public void sendNotyAllert(){
 		String text = getResources().getString(R.string.notyAllert1) + TrafficService.allertLevel + getResources().getString(R.string.notyAllert2);
 
@@ -437,6 +383,7 @@ public class TrafficService extends Service {
 		showNotyAllert = true;
 		Log.d(LOG_TAG, "Показали уведомление об предупреждении");
 	}
+
 	public void sendNotyStop(){
 		String text = getResources().getString(R.string.notyStop);
 
@@ -468,76 +415,7 @@ public class TrafficService extends Service {
 		showNotyStop = true;
 		Log.d(LOG_TAG, "Показали уведомление о лимите и отключении ");
 	}
-	private void refreshWidget() {
 
-		// подключаемся к БД
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		// делаем запрос всех данных из таблицы mytable, получаем Cursor
-		Cursor c = db.query(idsim, null, null, null, null, null, null);
-		// ставим позицию курсора на первую строку выборки
-		// если в выборке нет строк, вернется false
-		if (c.moveToLast()) {
-			int mobile_trafficTXYesterdayColIndex = c.getColumnIndex("mobile_trafficTXYesterday");
-			int mobile_trafficRXYesterdayColIndex = c.getColumnIndex("mobile_trafficRXYesterday");
-			int mobile_trafficTXTodayColIndex = c.getColumnIndex("mobile_trafficTXToday");
-			int mobile_trafficRXTodayColIndex = c.getColumnIndex("mobile_trafficRXToday");
-			int reboot_deviceColIndex = c.getColumnIndex("reboot_device");
-
-			if(getRebootAction() == 1){
-				mobile_trafficTXToday = TrafficStats.getMobileTxBytes() + c.getLong(mobile_trafficTXYesterdayColIndex); //Переданные через мобильный интерфейс
-				mobile_trafficRXToday = TrafficStats.getMobileRxBytes() + c.getLong(mobile_trafficRXYesterdayColIndex); //Принятые через мобильный интерфейс
-			//	Log.d(LOG_TAG, "mobile_trafficTXToday = " + mobile_trafficTXToday +
-				//		" mobile_trafficRXToday = " + mobile_trafficRXToday);
-			}
-			else{
-				mobile_trafficTXToday = TrafficStats.getMobileTxBytes() - c.getLong(mobile_trafficTXYesterdayColIndex); //Переданные через мобильный интерфейс
-				mobile_trafficRXToday = TrafficStats.getMobileRxBytes() - c.getLong(mobile_trafficRXYesterdayColIndex); //Принятые через мобильный интерфейс
-
-			//	Log.d(LOG_TAG, "mobile_trafficTXToday = " + mobile_trafficTXToday +
-				//		" mobile_trafficRXToday = " + mobile_trafficRXToday);
-			}
-
-
-		}
-
-		allTrafficMobile = mobile_trafficTXToday + mobile_trafficRXToday;
-		if(allTrafficMobile >= 0 && mobile_trafficTXToday >= 0 && mobile_trafficRXToday >= 0) {
-			//Log.d(LOG_TAG, "Update Widget.");
-			//Log.d(LOG_TAG, "\n allTrafficMobile " + allTrafficMobile + " \n mobile_trafficTXToday " + mobile_trafficTXToday + "\n mobile_trafficRXToday " + mobile_trafficRXToday);
-			allTrafficMobile = allTrafficMobile / 1024;       //для Кб
-		}
-		else {
-			//Log.d(LOG_TAG, "Update Widget.ошибка подсчета траффика. \n Отрицательный траффик.");
-			///Log.d(LOG_TAG, "\n allTrafficMobile " + allTrafficMobile + " \n mobile_trafficTXToday " + mobile_trafficTXToday + "\n mobile_trafficRXToday " + mobile_trafficRXToday);
-			mobile_trafficTXToday = 0;
-			mobile_trafficRXToday = 0;
-			allTrafficMobile = 0;
-		}
-		float trafficFloat = (float)allTrafficMobile/1024;
-		trafficFloat = Math.round(trafficFloat*(float)100.0)/(float)100.0;
-
-		float trafficTxFloat = (float)mobile_trafficTXToday/1048576;
-		trafficTxFloat = Math.round(trafficTxFloat*(float)100.0)/(float)100.0;  //округляем до сотых
-
-		float trafficRxFloat = (float)mobile_trafficRXToday/1048576;
-		trafficRxFloat = Math.round(trafficRxFloat*(float)100.0)/(float)100.0;  //округляем до сотых
-
-		Intent i = new Intent(getBaseContext(),Widget.class);
-		i.setAction(Widget.FORCE_WIDGET_UPDATE);
-
-		i.putExtra("trafficFloat",trafficFloat);
-		i.putExtra("trafficTxFloat",trafficTxFloat);
-		i.putExtra("trafficRxFloat",trafficRxFloat);
-		i.putExtra("stopLevel",stopLevel);
-
-		widget.onReceive(getBaseContext(),i);
-
-
-	//	db.close();
-		c.close();
-
-
-	}
 	public void task() {
 		final Intent intent = new Intent(MainFragmentAdapter.BROADCAST_ACTION);
 		final Handler uiHandler = new Handler();
@@ -546,67 +424,73 @@ public class TrafficService extends Service {
 			public void run() {//функция для длительных задач(например работа с сетью)
 					//if(runTimer) {
 
+				if(Build.VERSION.SDK_INT < 23){
 
-						if (isNewDay() || isNewMonth()) {
-							Log.d(LOG_TAG, "Конец учетного периода");
-							//saveAppTraffic();					   //сохраним значения траффика для приложений при обнулении статистики
-						//	saveAppTrafficWiFi();
-							saveTotalTraffic();
-							resetTraffic();                        //считали значения сегоднашнего траффика, записали его в переменные вчерашнего
-							cleanTable(idsim);                    //очистили таблицу
-							setRebootAction(0);
+					if (isNewDay() || isNewMonth()) {
+						Log.d(LOG_TAG, "Конец учетного периода");
 
-							initAppTrafficList();
-							initAppTrafficList();
+						TrafficHelper.saveTotalTraffic(getBaseContext());
+						TrafficHelper.resetTraffic();                        //считали значения сегоднашнего траффика, записали его в переменные вчерашнего
+						cleanTable(idsim);                    //очистили таблицу
+						setRebootAction(0);
 
-							intent.putExtra(MainFragmentAdapter.UPDATE_CHART, 1);    //обновили граффик,
+						TrafficHelper.initAppTrafficList(getBaseContext());
+						TrafficHelper.initAppTrafficList(getBaseContext());
+
+						intent.putExtra(MainFragmentAdapter.UPDATE_CHART, 1);    //обновили граффик,
 
 
-							try {
-								sendBroadcast(intent);            //послали интент фрагменту
-								Log.d(LOG_TAG, "Интент отправлен");
-							} catch (Error e) {
-								Log.d(LOG_TAG, "Error send br" + e.getMessage());
-								e.printStackTrace();
-							}
-						} else
-						//	Log.d(LOG_TAG, "Спим дальше");
-
-						refreshWidget();
-
-						updateNoty();
-						updateData();
-
-						//refreshService();
-
-						dbWriteTraffic();
-
-					//	updateAppTrafficList();
-						if(getRebootAction() == 0) {
-							saveTrafficAppsForReboot();
-							saveTrafficAppsForRebootWiFi();
-							saveTotalTrafficReboot();
+						try {
+							sendBroadcast(intent);            //послали интент фрагменту
+							Log.d(LOG_TAG, "Интент отправлен");
+						} catch (Error e) {
+							Log.d(LOG_TAG, "Error send br" + e.getMessage());
+							e.printStackTrace();
 						}
-						if (isAllertLevel() && !showNotyStop && !showNotyAllert)
-							sendNotyAllert();
-						if (isStopLevel() && !showNotyStop) {
-							try {
-								setMobileDataEnabled(getBaseContext(), false);
-								sendNotyStop();
-							} catch (InvocationTargetException e) {
-								e.printStackTrace();
-							} catch (IllegalAccessException e) {
-								e.printStackTrace();
-							} catch (ClassNotFoundException e) {
-								e.printStackTrace();
-							} catch (NoSuchFieldException e) {
-								e.printStackTrace();
-							} catch (NoSuchMethodException e) {
-								e.printStackTrace();
-							}
-						}
+					} else {
 
-				//	}
+						TrafficHelper.updateAppTrafficList(getBaseContext());
+
+						if (getRebootAction() == 0) {
+							TrafficHelper.saveTrafficAppsForReboot(getBaseContext());
+							TrafficHelper.saveTrafficAppsForRebootWiFi(getBaseContext());
+							TrafficHelper.saveTotalTrafficReboot(getBaseContext());
+						}
+					}
+
+					allTrafficMobile = TrafficHelper.getAllTrafficMobile();
+
+				}
+				else{
+					TrafficMHelper.refreshWidget(getBaseContext());
+					TrafficMHelper.dbWriteTraffic(getBaseContext(),idsim);
+					TrafficMHelper.updateNoty(getBaseContext(),getPackageName());
+					TrafficMHelper.updateData(getBaseContext());
+
+					allTrafficMobile = TrafficMHelper.getAllTrafficMobile();
+
+					Log.d(LOG_TAG, " Update all services on M " );
+
+				}
+
+				if (isAllertLevel() && !showNotyStop && !showNotyAllert)
+					sendNotyAllert();
+				if (isStopLevel() && !showNotyStop) {
+					try {
+						setMobileDataEnabled(getBaseContext(), false);
+						sendNotyStop();
+					} catch (InvocationTargetException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					} catch (NoSuchFieldException e) {
+						e.printStackTrace();
+					} catch (NoSuchMethodException e) {
+						e.printStackTrace();
+					}
+				}
 
 				uiHandler.post(new Runnable() { //здесь можна выводить на экран и работать с основным потоком
 					@Override
@@ -624,21 +508,7 @@ public class TrafficService extends Service {
 
 		}, 0L, 3L * 1000); // интервал - 3000 миллисекунд, 0 миллисекунд до первого запуска.
 	}
-	public String getNetworkType(Context context) {
-		ConnectivityManager cm =
-				(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-		if (activeNetwork != null) {
-			return activeNetwork.getTypeName();
-		}
-		return null;
-	}			//получим тип сети
-	public boolean isNetworkConnected(Context context) {
-		ConnectivityManager cm =
-				(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-		return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-	}		//есть ли инет
+
 	boolean isNewDay() {
 
 		if ( newDay && period == PERIOD_DAY) {
@@ -649,6 +519,7 @@ public class TrafficService extends Service {
 
 		return false;
 	}			//наступил новый день?
+
 	boolean isNewMonth() {
 
 			Date d = new Date();
@@ -668,6 +539,7 @@ public class TrafficService extends Service {
 			}
 		return false;
 	}			//наступил новый месяц?
+
 	private void setMobileDataEnabled(Context context, boolean enabled) throws InvocationTargetException, IllegalAccessException, ClassNotFoundException, NoSuchFieldException, NoSuchMethodException {
 		final ConnectivityManager conman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		final Class conmanClass = Class.forName(conman.getClass().getName());
@@ -680,6 +552,7 @@ public class TrafficService extends Service {
 
 		setMobileDataEnabledMethod.invoke(iConnectivityManager, enabled);
 	}
+
 	public void setTimer(){
 
 		Calendar calNow = Calendar.getInstance();
@@ -698,6 +571,7 @@ public class TrafficService extends Service {
 
 		setAlarm(calSet);
 	}
+
 	public void setAlarm(Calendar calendar){
 
 		Log.d(LOG_TAG, "\n\n***\n"
@@ -711,273 +585,11 @@ public class TrafficService extends Service {
 		alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 
 	}
-	public void saveTrafficAppsForReboot(){
 
-		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_REBOOT, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = mySharedPreferences.edit();
 
-		if(appList != null) {
-			for (int i = 0; i < appList.size(); i++) {
-				ApplicationItem item = appList.get(i);
-				//Log.i(LOG_TAG, " saveTrafficAppsForReboot app = " + item.getApplicationLabel(getBaseContext().getPackageManager()) + "\n " +
-					//	item.getMobileUsageKb());
-				editor.putFloat(item.getApplicationLabel(getBaseContext().getPackageManager()),item.getMobileMb());
-			}
-		}
 
-		editor.apply();
 
 
-	} //ложим траффик приложения если была перезагрузка
-	public void saveTrafficAppsForRebootWiFi(){
-
-		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_REBOOT_WIFI, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = mySharedPreferences.edit();
-
-		if(appList != null) {
-			for (int i = 0; i < appList.size(); i++) {
-				ApplicationItem item = appList.get(i);
-				//Log.i(LOG_TAG, " saveTrafficAppsForReboot app = " + item.getApplicationLabel(getBaseContext().getPackageManager()) + "\n " +
-				//	item.getMobileUsageKb());
-				editor.putFloat(item.getApplicationLabel(getBaseContext().getPackageManager()),item.getWiFiMb());
-			}
-		}
-
-		editor.apply();
-
-
-	} //ложим траффик приложения если была перезагрузка
-	public void saveTotalTraffic() {
-
-		Log.d(LOG_TAG, "saveTotalTraffic" );
-		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = mySharedPreferences.edit();
-
-		long totalTraffic = TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
-
-		editor.putLong(APP_PREFERENCES_TOTAL_TRAFFIC, totalTraffic);
-
-		editor.apply();
-	}
-	public void saveTotalTrafficReboot() {
-
-		Log.d(LOG_TAG, "saveTotalTrafficReboot" );
-		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TOTAL_TRAFFIC_REBOOT, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = mySharedPreferences.edit();
-
-		long totalTraffic = TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
-
-		editor.putLong(APP_PREFERENCES_TOTAL_TRAFFIC, totalTraffic);
-
-		editor.apply();
-	}
-	public void resetTraffic() {
-
-		mobile_trafficTXYesterday = TrafficStats.getMobileTxBytes();
-		mobile_trafficRXYesterday = TrafficStats.getMobileRxBytes();
-
-		mobile_trafficTXToday = 0;
-		mobile_trafficRXToday = 0;
-
-	}	//перезаписываем теперешний траффик в переменные для вчерашнего
-	public void resetTrafficReboot() {
-
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		ContentValues cv = new ContentValues();
-		Cursor c = db.query(idsim, null, null, null, null, null, null);
-
-		long realtime = System.currentTimeMillis();
-		Date date = new Date(realtime);
-
-		if (c.moveToLast()) {
-			int mobile_trafficTXYesterdayColIndex = c.getColumnIndex("mobile_trafficTXYesterday");
-			int mobile_trafficRXYesterdayColIndex = c.getColumnIndex("mobile_trafficRXYesterday");
-			int mobile_trafficTXTodayColIndex = c.getColumnIndex("mobile_trafficTXToday");
-			int mobile_trafficRXTodayColIndex = c.getColumnIndex("mobile_trafficRXToday");
-
-
-			mobile_trafficTXYesterday = c.getLong(mobile_trafficTXTodayColIndex); //Переданные через мобильный интерфейс
-			mobile_trafficRXYesterday = c.getLong(mobile_trafficRXTodayColIndex); //Принятые через мобильный интерфейс
-
-			}
-
-		cv.put("mobile_trafficTXToday", mobile_trafficTXToday);
-		cv.put("mobile_trafficRXToday", mobile_trafficRXToday);
-		cv.put("mobile_trafficTXYesterday", mobile_trafficTXYesterday);
-		cv.put("mobile_trafficRXYesterday", mobile_trafficRXYesterday);
-		//cv.put("time", realtime);
-		cv.put("allTrafficMobile", allTrafficMobile);
-		cv.put("lastDay", date.getDate());
-		cv.put("reboot_device", 1);
-
-
-		// вставляем запись и получаем ее ID
-		rowID = db.insert("" + idsim + "", null, cv);
-		Log.d(LOG_TAG, "row inserted in resetTrafiic reboot, ID = " + rowID);
-
-		c.close();
-
-
-	}	//в переменные для вчерашнего запишем траффик до перезагрузки
-	public void initAppTrafficList() {
-
-		int count = 0;
-
-		appListLocal.clear();
-		appList.clear();
-
-		//clearMobileTrafficApps();
-		clearMobileTrafficAppsForReboot();
-		//	clearWiFiTrafficApps();
-		clearWiFiTrafficAppsForReboot();
-
-		for (ApplicationInfo app : getBaseContext().getPackageManager().getInstalledApplications(0)) {
-
-			ApplicationItem item = ApplicationItem.create(app, getBaseContext());
-			if (item != null) {
-				appListLocal.add(item);
-				count++;
-			}
-		}
-		Log.d(LOG_TAG, "initAppTrafficList table count " +  count);
-
-	}
-	public void clearMobileTrafficAppsForReboot(){		//очистить сохраненный мобильный траффик приложений
-		Log.i(LOG_TAG,  "Очищаем траффик  мобильный по окончанию учетного периода ");
-		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_REBOOT, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = mySharedPreferences.edit();
-
-		if(appList != null) {
-			for (int i = 0; i < appList.size(); i++) {
-				ApplicationItem item = appList.get(i);
-				editor.putFloat(item.getApplicationLabel(getBaseContext().getPackageManager()),0);
-			}
-		}
-		editor.apply();
-	}
-	public void clearWiFiTrafficAppsForReboot(){		//очистить сохраненный WiFi траффик приложений
-		Log.i(LOG_TAG,  "Очищаем WiFi траффик по окончанию учетного периода ");
-
-		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TRAFFIC_APPS_REBOOT_WIFI, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = mySharedPreferences.edit();
-
-		if(appList != null) {
-			for (int i = 0; i < appList.size(); i++) {
-				ApplicationItem item = appList.get(i);
-				editor.putFloat(item.getApplicationLabel(getBaseContext().getPackageManager()),0);
-			}
-		}
-		editor.apply();
-	}
-	public void updateAppTrafficList() {
-
-			updateNetworkState();
-		    Log.d(LOG_TAG, "updateAppTrafficList  appListLocal.size()" + appListLocal.size());
-
-			PackageManager pm = getBaseContext().getPackageManager();
-
-			for (int i = 0; i < appListLocal.size(); i++) {
-
-				ApplicationItem appInfolocal = appListLocal.get(i);
-				Log.d(LOG_TAG, "appInfolocal.getApplicationLabel " + appInfolocal.getApplicationLabel(pm));
-				Log.d(LOG_TAG, "appInfolocal.getMobileUsageMb " + appInfolocal.getMobileUsageMb());
-
-
-				appInfolocal.setMobilTraffic(isMobilEnabled);
-				appInfolocal.setWiFiTraffic(isWifiEnabled);
-				appInfolocal.update();
-
-				if(appInfolocal.getWiFiUsageMb() > 0 || appInfolocal.getMobileUsageMb() > 0){
-
-					if(!appList.contains(appInfolocal)) {
-						appList.add(appListLocal.get(i));
-						Log.d(LOG_TAG, "Добавили приложение в список для вывода на экран. Размер массисва  для вывода " + appList.size());
-					}
-				}
-			}
-	}
-	private void updateNetworkState() {
-		isWifiEnabled = isConnectedWifi();
-		isMobilEnabled = isConnectedMobile();
-	}
-	public boolean isConnectedWifi(){
-		ConnectivityManager cm = (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo info = cm.getActiveNetworkInfo();
-		return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
-	}
-	public boolean isConnectedMobile(){
-		ConnectivityManager cm = (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo info = cm.getActiveNetworkInfo();
-		return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_MOBILE);
-	}
-	public void dbWriteTraffic() {
-		//Log.d(LOG_TAG, "--- Insert in " + idsim);
-		// подготовим данные для вставки в виде пар: наименование столбца - значение
-
-		long realtime = System.currentTimeMillis();
-		Date date = new Date(realtime);
-		// создаем объект для данных
-
-		ContentValues cv = new ContentValues();
-		// подключаемся к БД
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		// делаем запрос всех данных из таблицы mytable, получаем Cursor
-		Cursor c = db.query(idsim, null, null, null, null, null, null);
-
-		allTrafficMobile = mobile_trafficTXToday + mobile_trafficRXToday;
-		allTrafficMobile = allTrafficMobile / 1024;       //для Кб
-
-
-		if (allTrafficMobile > 0 || firstWriteDB) {
-
-			cv.put("mobile_trafficTXToday", mobile_trafficTXToday);
-			cv.put("mobile_trafficRXToday", mobile_trafficRXToday);
-			cv.put("mobile_trafficTXYesterday", mobile_trafficTXYesterday);
-			cv.put("mobile_trafficRXYesterday", mobile_trafficRXYesterday);
-			cv.put("time", realtime);
-			cv.put("allTrafficMobile", allTrafficMobile);
-			cv.put("lastDay", date.getDate());
-		//	cv.put("reboot_device", 1);
-
-
-			// вставляем запись и получаем ее ID
-			rowID = db.insert("" + idsim + "", null, cv);
-			Log.d(LOG_TAG, "row inserted, ID = " + rowID);
-
-			firstWriteDB = false;
-		}
-		c.close();
-
-
-	}		//записть данных в бд
-
-
-
-
-	public void updateData (){
-
-		final Intent intent = new Intent(MainFragmentAdapter.BROADCAST_ACTION);
-
-		intent.putExtra(MainFragmentAdapter.UPDATE_DATA,1);    //обновили граффик,
-
-		Intent intent2 = new Intent(FragmentTrafficApps.UPDATE_TRAFFIC_APPS);
-		intent2.putExtra("allTrafficMobile",allTrafficMobile);
-		sendBroadcast(intent2);
-		//fragment2.initAdapter();
-	//	fragment2.updateAdapter();
-
-	try
-	{
-		sendBroadcast(intent);            //послали интент фрагменту
-	///	Log.d(LOG_TAG, "Интент для обновленя отправлен");
-	}
-	catch(Error e)
-	{
-		Log.d(LOG_TAG, "Error send br" + e.getMessage());
-		e.printStackTrace();
-	}
-
-}			//посылем сообщения фрагментам для обновления данных
 	public void recoverSettings(){
 
 		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
@@ -1003,6 +615,7 @@ public class TrafficService extends Service {
 		}
 
 	}		//востановим настройки
+
 	public void cleanTable(String table) {
 
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -1016,16 +629,13 @@ public class TrafficService extends Service {
 		//закрываем подключение к БД
 		db.close();
 	}	//очистка таблицы с траффиком
-    public void onDestroy() {
-	    super.onDestroy();//sendBroadcast(new Intent("YouWillNeverKillMe"));
-		//runTimer = false;
-	    Log.d(LOG_TAG, "onDestroy traffic_service");
-	  }
+
 	@Override
 	public IBinder onBind(Intent arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public void onTaskRemoved(Intent rootIntent){
 		Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());

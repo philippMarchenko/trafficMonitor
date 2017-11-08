@@ -9,20 +9,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -32,7 +30,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -44,23 +41,20 @@ import com.devphill.traficMonitor.helper.DBHelper;
 import com.devphill.traficMonitor.R;
 import com.devphill.traficMonitor.model.Package;
 import com.devphill.traficMonitor.networkStats.LoadPackageList;
-import com.devphill.traficMonitor.networkStats.LoadPackageListSharedPref;
+import com.devphill.traficMonitor.networkStats.LoadPackageListDB;
 import com.devphill.traficMonitor.networkStats.NetworkStatsHelper;
-import com.devphill.traficMonitor.networkStats.PackageManagerHelper;
 import com.devphill.traficMonitor.service.TrafficService;
+import com.devphill.traficMonitor.service.helper.TrafficHelper;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.OnRefreshListener,
-        LoadPackageList.ILoadPackageListListener{
+        LoadPackageList.ILoadPackageListListener,
+        LoadPackageListDB.ILoadPackageListDB{
 
 
     public  String LOG_TAG = "fragmentTrafficApps";
@@ -89,16 +83,21 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
 
     private boolean sortMobile = true;
 
-    public static final String APP_PREFERENCES_TRAFFIC_APPS_M = "TrafficAppsM";
-   // public static final String APP_PREFERENCES_TRAFFIC_APPS_WIFI_M = "TrafficAppsWiFiM";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_app_traff, container, false);
 
-        initAdapterM();
-
         dbHelper = new DBHelper(getContext());  // создаем объект для создания и управления версиями БД
+
+        if(Build.VERSION.SDK_INT < 23) {
+
+            initAdapter();
+        }
+        else{
+            initAdapterM();
+        }
+
 
 
         tvDataUsageMobile = (TextView) view.findViewById(R.id.tvDataUsageMobile);
@@ -120,27 +119,37 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
         } else {
 
         }
-        brAppsTrafficFragment = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                //   Log.i(LOG_TAG, "onReceive brAppsTrafficFragment ");
-               // updateAdapterM();
 
-                long trafficMobile = intent.getLongExtra("allTrafficMobile", 0);
-               // getAllTraffic(trafficMobile);
-                showAllTrafficM();
+        if(Build.VERSION.SDK_INT < 23) {
 
-            }
-        };
+            brAppsTrafficFragment = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                     Log.i(LOG_TAG, "onReceive brAppsTrafficFragment ");
+                     updateAdapter();
 
-        startUpdateAppTraffic();
+                    long trafficMobile = intent.getLongExtra("allTrafficMobile", 0);
+                    showAllTraffic(trafficMobile);
+
+
+                }
+            };
+        }
+        else{
+
+            showAllTrafficM();
+            startUpdateAppTraffic();
+
+        }
+
+
+
 
         Log.i(LOG_TAG, "onCreateView FragmentTrafficApps ");
 
         return view;
 
     }
-
 
     public void showAllTraffic(long traffic){
 
@@ -208,16 +217,6 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
         SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES_TOTAL_TRAFFIC_REBOOT, Context.MODE_PRIVATE);
         return mySharedPreferences.getLong(TrafficService.APP_PREFERENCES_TOTAL_TRAFFIC,0);
 
-    }
-
-    public boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public void initAdapter() {
@@ -305,9 +304,9 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
 
         int count = 0;
 
-        Log.i(LOG_TAG, "TrafficService.appList.size() " + TrafficService.appList.size());
-                for (int i = 0; i < TrafficService.appList.size(); i++) {
-                    ApplicationItem app = TrafficService.appList.get(i);
+        Log.i(LOG_TAG, "TrafficService.appList.size() " + TrafficHelper.appList.size());
+                for (int i = 0; i < TrafficHelper.appList.size(); i++) {
+                    ApplicationItem app = TrafficHelper.appList.get(i);
                     if(app != null) {
                         adapterApplications.add(app);
                     }
@@ -419,20 +418,27 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
         };
 
 
-        initAppListM();
-
-
+        initAppListMFromDB();       //достаем приложения с страфиком с БД
 
     }
+
+    public void initAppListMFromDB(){
+
+        Log.i(LOG_TAG, "initAppListMFromDB  ");
+
+        LoadPackageListDB loadPackageListSharedPref = new LoadPackageListDB(getContext(),this);
+        loadPackageListSharedPref.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+    } //достаем приложения с страфиком с БД
 
     public void initAppListM(){
 
         Log.i(LOG_TAG, "initAppListM  ");
 
         LoadPackageList loadPackageList = new LoadPackageList(getContext(),this);
-        loadPackageList.execute();
+        loadPackageList.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-    }
+    } //обновляем траффик в БД по приложениям
 
     public void startUpdateAppTraffic() {
 
@@ -443,6 +449,7 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
                 if(TrafficService.runTimer) {
 
                     initAppListM();
+
                 }
                 uiHandler.post(new Runnable() { //здесь можна выводить на экран и работать с основным потоком
                     @Override
@@ -455,7 +462,7 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
                 });
 
             }
-        }, 0L, 15L * 1000); // интервал - 3000 миллисекунд, 0 миллисекунд до первого запуска.
+        }, 0L, 180L * 1000); // интервал - 3 мин, 0 миллисекунд до первого запуска.
     }
 
     public void updateAdapterM(){
@@ -520,56 +527,61 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
 
     }
 
-    public void saveTrafficAppsMobile(){
+    public void saveTrafficAppsMobile(List<Package> packageList){
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
         Cursor c = db.query("traffic_app", null, null, null, null, null, null);
 
-        if(adapterApplicationsM != null) {
-            for (int i = 0; i < adapterApplicationsM.getCount(); i++) {
-                Package item = adapterApplicationsM.getItem(i);
+        if(packageList != null) {
+            for (int i = 0; i < packageList.size(); i++) {
+                Package item = packageList.get(i);
 
-                if(!doesStationExist(db,item.getPackageName())){
+                if(item.isUseTraffic()){
 
-                    cv.put("package_name", item.getPackageName());
-                    cv.put("mobile_traffic", item.getMobileData());
-                    cv.put("wifi_traffic", item.getWiFiData());
+                    if(!doesRowExist(db,item.getPackageName())){
 
-                    long rowID = db.insert("traffic_app", null, cv);
-                    Log.d(LOG_TAG, "row inserted in traffic_app, ID = " + rowID);
-                }
-                else{
+                        cv.put("package_name", item.getPackageName());
+                        cv.put("mobile_traffic", item.getMobileData());
+                        cv.put("wifi_traffic", item.getWiFiData());
 
-                    String strSQLupdate = "UPDATE traffic_app SET mobile_traffic = " + item.getMobileData() + " WHERE package_name = " +
-                            "'" + item.getPackageName() + "'";
-
-                    db.execSQL(strSQLupdate);
-                }
-
-                if (c.moveToFirst()) {
-
-                    int package_nameColIndex = c.getColumnIndex("package_name");
-                    int mobile_trafficColIndex = c.getColumnIndex("mobile_traffic");
-                    int wifi_trafficColIndex = c.getColumnIndex("wifi_traffic");
-
-                    do {
-
-                        Log.d(LOG_TAG,"package_name = " + c.getString(package_nameColIndex) +
-                                    ", mobile_traffic = " + c.getString(mobile_trafficColIndex) +
-                                    ", wifi_traffic = " + c.getString(wifi_trafficColIndex));
+                        long rowID = db.insert("traffic_app", null, cv);
+                        Log.d(LOG_TAG, "row inserted in traffic_app, ID = " + rowID);
+                    }
+                    else{
+                        Log.d(LOG_TAG, "UPDATE traffic_app ");
 
 
-                    } while (c.moveToNext());
+                        String strSQLupdate = "UPDATE traffic_app SET mobile_traffic = " + item.getMobileData() + " WHERE package_name = " +
+                                "'" + item.getPackageName() + "'";
+
+                        db.execSQL(strSQLupdate);
+                    }
                 }
             }
+
+       /*     if (c.moveToFirst()) {
+
+                int package_nameColIndex = c.getColumnIndex("package_name");
+                int mobile_trafficColIndex = c.getColumnIndex("mobile_traffic");
+                int wifi_trafficColIndex = c.getColumnIndex("wifi_traffic");
+
+                do {
+
+                    Log.d(LOG_TAG,"package_name = " + c.getString(package_nameColIndex) +
+                            ", mobile_traffic = " + c.getString(mobile_trafficColIndex) +
+                            ", wifi_traffic = " + c.getString(wifi_trafficColIndex));
+
+
+                } while (c.moveToNext());
+            }*/
         }
 
         c.close();
 
     } //сохраним траффик приложения
 
-    public boolean doesStationExist(SQLiteDatabase db,String packageName){
+    public boolean doesRowExist(SQLiteDatabase db,String packageName){
       /*  final String query = "SELECT stationName FROM traffic_app WHERE packageName='"+packageName + "'";
 
             Cursor c = db.rawQuery(query, null);
@@ -582,29 +594,6 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
             cursor.close();
             return exists;
 
-    }
-
-    public List<PackageInfo> getListApp (){
-
-        ArrayList<PackageInfo> packageInfos = new ArrayList<PackageInfo>();
-
-
-        final List<PackageInfo> apps = getContext().getPackageManager().getInstalledPackages(PackageManager.GET_PERMISSIONS);
-
-        for (PackageInfo packageInfo : apps) {
-
-            if (packageInfo.requestedPermissions == null)
-                continue;
-
-            for (String permission : packageInfo.requestedPermissions) {
-
-                if (TextUtils.equals(permission, android.Manifest.permission.INTERNET)) {
-                    packageInfos.add(packageInfo);
-                    break;
-                }
-            }
-        }
-        return packageInfos;
     }
 
     public void onResume() {
@@ -638,7 +627,8 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
         swipeRefreshLayout.setRefreshing(true);
 
         adapterApplicationsM.clear();
-        initAppListM();
+        initAppListMFromDB();
+        showAllTrafficM();
 
         swipeRefreshLayout.setRefreshing(false);
     }
@@ -646,28 +636,39 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
     @Override
     public void onGetPackage(Package p) {
 
+        //Log.i(LOG_TAG, "onGetPackage " +  p.getPackageName());
+       // Log.i(LOG_TAG, "getMobileData " +  p.getMobileData());
 
-        if(p.isUseTraffic()){
-            Log.i(LOG_TAG, "onGetPackage " +  p.getPackageName());
-
-            adapterApplicationsM.add(p);
-           // adapterApplicationsM.notifyDataSetChanged();
-            updateAdapterM();
-        }
 
     }
 
     @Override
-    public void onFinishLoadpackage() {
+    public void onFinishLoadpackage(List<Package> packageList) {
 
         Log.i(LOG_TAG, "onFinishLoadpackage ");
 
 
-        saveTrafficAppsMobile();
+        saveTrafficAppsMobile(packageList);
+
+    }       //когда обновим весь список приложений, передадим в функцию. которая проверит по базе и если есть обновит, если нет добавит
+
+
+    @Override
+    public void onGetPackageDB(Package p) {
+
+       // if(p.isUseTraffic()){
+            Log.i(LOG_TAG, "onGetPackageDB " +  p.getPackageName());
+
+            adapterApplicationsM.add(p);
+            // adapterApplicationsM.notifyDataSetChanged();
+            updateAdapterM();
+       // }
+    }       //читаем с базы приложения
+
+    @Override
+    public void onFinishLoadpackageDB() {
+
+        Log.i(LOG_TAG, "onFinishLoadpackageDB ");
 
     }
-
-
-
-
 }

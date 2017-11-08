@@ -22,10 +22,11 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
     public  String LOG_TAG = "LoadPackageListTag";
     private Context mContext;
     private ILoadPackageListListener mILoadPackageListListener;
+    List<Package> packageList = new ArrayList<>();
 
     public interface ILoadPackageListListener {
         public void onGetPackage(Package p);
-        public void onFinishLoadpackage();
+        public void onFinishLoadpackage(List<Package> packageList);
     }
 
     public LoadPackageList (Context context,ILoadPackageListListener iLoadPackageListListener){
@@ -37,86 +38,75 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
     @Override
     protected Void doInBackground(Void... voids) {
 
-        Bitmap bitmapIcon;
-        Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
-        bitmapIcon =  Bitmap.createBitmap(100, 100, conf); // this creates a MUTABLE bitmap;
+        try{
 
-        PackageManager packageManager = mContext.getPackageManager();
+            PackageManager packageManager = mContext.getPackageManager();
 
-        List<PackageInfo> packageInfoList = getListApp(packageManager);     //получаем список приложений с интернетом
+            List<PackageInfo> packageInfoList = getListApp(packageManager);     //получаем список приложений с интернетом
 
-      //  List<Package> packageList = new ArrayList<>(packageInfoList.size());
-        NetworkStatsManager networkStatsManager = (NetworkStatsManager) mContext.getSystemService(Context.NETWORK_STATS_SERVICE);
+            NetworkStatsManager networkStatsManager = (NetworkStatsManager) mContext.getSystemService(Context.NETWORK_STATS_SERVICE);
 
-        NetworkStatsHelper networkStatsHelper;
+            NetworkStatsHelper networkStatsHelper;
 
-        for (int i = 0;  i < packageInfoList.size(); i++) {
+            for (int i = 0;  i < packageInfoList.size(); i++) {
 
-            Package packageItem = new Package();
-            PackageInfo packageInfo = packageInfoList.get(i);
+                Package packageItem = new Package();
+                PackageInfo packageInfo = packageInfoList.get(i);
 
-            int uid = PackageManagerHelper.getPackageUid(mContext, packageInfo.packageName);
-            networkStatsHelper = new NetworkStatsHelper(networkStatsManager, uid);
+                int uid = PackageManagerHelper.getPackageUid(mContext, packageInfo.packageName);
+                networkStatsHelper = new NetworkStatsHelper(networkStatsManager, uid);
 
-            Log.i(LOG_TAG, "add  packageItem");             // 253 мс
+                Log.i(LOG_TAG, "add  packageItem");             // 253 мс
 
+                packageItem.setVersion(packageInfo.versionName);
+                packageItem.setPackageName(packageInfo.packageName);    //1240 мс
 
-            packageItem.setVersion(packageInfo.versionName);
-            packageItem.setPackageName(packageInfo.packageName);    //1240 мс
+                ApplicationInfo ai = null;
+                try {
+                    ai = packageManager.getApplicationInfo(packageInfo.packageName, PackageManager.GET_META_DATA);
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+                if (ai == null) {
+                    continue;
+                }
+                CharSequence appName = packageManager.getApplicationLabel(ai);
+                if (appName != null) {
+                    packageItem.setName(appName.toString());
+                }                                                               //2950 мс
 
+                try {
 
-            ApplicationInfo ai = null;
-            try {
-                ai = packageManager.getApplicationInfo(packageInfo.packageName, PackageManager.GET_META_DATA);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
+                    packageItem.setIcon(((BitmapDrawable)packageManager.getApplicationIcon(packageInfo.packageName)).getBitmap());
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                float trafficWiFi = ((float) (networkStatsHelper.getPackageRxBytesWifi() + networkStatsHelper.getPackageTxBytesWifi()) / ((float)1024*(float)1024));
+                trafficWiFi = Math.round(trafficWiFi * (float) 10.0) / (float) 10.0;
+
+                packageItem.setWiFiData(Float.toString(trafficWiFi));
+
+                float trafficMobile = ((float) (networkStatsHelper.getPackageRxBytesMobile(mContext) + networkStatsHelper.getPackageTxBytesMobile(mContext)) / ((float)1024*(float)1024));
+                trafficMobile = Math.round(trafficMobile * (float) 10.0) / (float) 10.0;
+
+                packageItem.setMobileData(Float.toString(trafficMobile));
+
+                Log.i(LOG_TAG, "setWiFiData  " + Float.toString(trafficWiFi));
+                Log.i(LOG_TAG, "setMobileData  " + Float.toString(trafficMobile));
+                Log.i(LOG_TAG, "packageName  " + packageInfo.packageName);
+
+                publishProgress(packageItem);
+
+                packageList.add(packageItem);
+
             }
-            if (ai == null) {
-                continue;
-            }
-            CharSequence appName = packageManager.getApplicationLabel(ai);
-            if (appName != null) {
-                packageItem.setName(appName.toString());
-            }                                                               //2950 мс
-
-
-            try {
-                bitmapIcon = ((BitmapDrawable)packageManager.getApplicationIcon(packageInfo.packageName)).getBitmap();
-
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
-            packageItem.setIcon(bitmapIcon);                //4079 мс
-
-            //packageItem.setWiFiRx(networkStatsHelper.getPackageRxBytesWifi());
-            //packageItem.setWiFiTx(networkStatsHelper.getPackageTxBytesWifi());
-
-            float trafficWiFi = ((float) (networkStatsHelper.getPackageRxBytesWifi() + networkStatsHelper.getPackageTxBytesWifi()) / ((float)1024*(float)1024));
-            trafficWiFi = Math.round(trafficWiFi * (float) 10.0) / (float) 10.0;
-
-            packageItem.setWiFiData(Float.toString(trafficWiFi));
-
-
-            float trafficMobile = ((float) (networkStatsHelper.getPackageRxBytesMobile(mContext) + networkStatsHelper.getPackageTxBytesMobile(mContext)) / ((float)1024*(float)1024));
-            trafficMobile = Math.round(trafficMobile * (float) 10.0) / (float) 10.0;
-
-           // packageItem.setMobileRx(networkStatsHelper.getPackageRxBytesMobile(mContext));
-          //  packageItem.setMobileTx(networkStatsHelper.getPackageTxBytesMobile(mContext));  //47000
-            packageItem.setMobileData(Float.toString(trafficMobile));
-
-            Log.i(LOG_TAG, "setWiFiData  " + Float.toString(trafficWiFi));
-            Log.i(LOG_TAG, "setMobileData  " + Float.toString(trafficMobile));
-
-            Log.i(LOG_TAG, "packageName  " + packageInfo.packageName);
-          //  Log.i(LOG_TAG, "MobileRx  " + networkStatsHelper.getPackageRxBytesMobile(mContext));
-
-            publishProgress(packageItem);
-
-         //   packageList.add(packageItem);
+            mILoadPackageListListener.onFinishLoadpackage(packageList);
 
         }
-        mILoadPackageListListener.onFinishLoadpackage();
-        //Log.i(LOG_TAG, "size " + packageList.size());
+        catch (Exception e){
+
+        }
 
         return null;
     }

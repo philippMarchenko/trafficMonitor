@@ -3,7 +3,7 @@
 
     <!-- Navigation Drawer-->
     <string name="info_fr1">Общий</string>
-    <string name="info_fr2">По приложениям</string>
+    <string name="info_fr2">Приложения</string>
     <string name="info_fr3">Графики</string>
     <string name="info_fr4">Настройки</string>
 

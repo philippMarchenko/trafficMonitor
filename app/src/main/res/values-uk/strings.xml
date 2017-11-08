@@ -2,10 +2,10 @@
     <string name="app_name">TraficMonitor</string>
 
     <!-- Navigation Drawer-->
-    <string name="info_fr1">Общий</string>
-    <string name="info_fr2">По приложениям</string>
-    <string name="info_fr3">Графики</string>
-    <string name="info_fr4">Настройки</string>
+    <string name="info_fr1">Загальний</string>
+    <string name="info_fr2">Додатки</string>
+    <string name="info_fr3">Графіки</string>
+    <string name="info_fr4">Налаштування</string>
 
 
     <string name="title_activity_main">DateTimePicker Example</string>

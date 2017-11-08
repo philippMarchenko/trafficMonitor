@@ -38,7 +38,7 @@ public class Widget extends AppWidgetProvider {
         final int N = appWidgetIds.length;
         for (int i = 0; i < N; i++) {
             int appWidgetId = appWidgetIds[i];
-            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
+            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.noty);
 
             float traffic = intent.getFloatExtra("trafficFloat",0);
             float trafficTxFloat = intent.getFloatExtra("trafficTxFloat",0);
@@ -46,19 +46,19 @@ public class Widget extends AppWidgetProvider {
 
 
             if(traffic < 100){
-                views.setTextViewText(R.id.titleW, "Использовано " + traffic + " Мб");
-                views.setTextViewText(R.id.tvSendDataW, Float.toString(trafficTxFloat));
-                views.setTextViewText(R.id.tvDownloadDataW, Float.toString(trafficRxFloat));
+                views.setTextViewText(R.id.title, "Использовано " + traffic);
+                views.setTextViewText(R.id.tvSendData, Float.toString(trafficTxFloat));
+                views.setTextViewText(R.id.tvDownloadData, Float.toString(trafficRxFloat));
             }
             else{
-                views.setTextViewText(R.id.titleW, "Использовано " + (int)traffic + " Мб");
-                views.setTextViewText(R.id.tvSendDataW, "" + (int)trafficTxFloat);
-                views.setTextViewText(R.id.tvDownloadDataW, "" + (int)trafficRxFloat);
+                views.setTextViewText(R.id.title, "Использовано " + (int)traffic);
+                views.setTextViewText(R.id.tvSendData, "" + (int)trafficTxFloat);
+                views.setTextViewText(R.id.tvDownloadData, "" + (int)trafficRxFloat);
             }
 
-            views.setProgressBar(R.id.usageDataW, intent.getIntExtra("stopLevel",0),(int)traffic,false);
-            views.setImageViewResource(R.id.imSendDataW,R.drawable.arrowup);
-            views.setImageViewResource(R.id.imDownloadDataW,R.drawable.arrowdown);
+            views.setProgressBar(R.id.usageData, intent.getIntExtra("stopLevel",0),(int)traffic,false);
+            views.setImageViewResource(R.id.imSendData,R.drawable.arrowup);
+            views.setImageViewResource(R.id.imDownloadData,R.drawable.arrowdown);
 
             appWidgetManager.updateAppWidget(appWidgetId, views);
         }

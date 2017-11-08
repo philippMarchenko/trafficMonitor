@@ -23,13 +23,14 @@ public class NetworkStatsHelper {
     int packageUid;
     public  String LOG_TAG = "NetworkStatsHelperTag";
 
-    Date currentdate = new Date();
-    Date date = new Date();
+    Date date;
+    Date currentdate;
 
     public NetworkStatsHelper(NetworkStatsManager networkStatsManager) {
 
         this.networkStatsManager = networkStatsManager;
-
+        currentdate = new Date();
+        date = new Date();
         date.setDate(currentdate.getDate());
         date.setMonth(currentdate.getMonth());
         date.setYear(currentdate.getYear());
@@ -41,7 +42,8 @@ public class NetworkStatsHelper {
 
         this.networkStatsManager = networkStatsManager;
         this.packageUid = packageUid;
-
+        currentdate = new Date();
+        date = new Date();
         date.setDate(currentdate.getDate());
         date.setMonth(currentdate.getMonth());
         date.setYear(currentdate.getYear());
@@ -106,7 +108,16 @@ public class NetworkStatsHelper {
 
     public long getPackageRxBytesMobile(Context context) {
 
+        Date currentdate = new Date(System.currentTimeMillis());
 
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+
+        String strTime = simpleDateFormat.format(date.getTime());
+        Log.i(LOG_TAG, "start date " +  strTime);
+        Log.i(LOG_TAG, "start ms " +  date.getTime());
+        strTime = simpleDateFormat.format(currentdate.getTime());
+        Log.i(LOG_TAG, "end date " + strTime);
+        Log.i(LOG_TAG, "end ms " + currentdate.getTime());
         NetworkStats networkStats = null;
         try {
             networkStats = networkStatsManager.queryDetailsForUid(
@@ -120,7 +131,12 @@ public class NetworkStatsHelper {
         }
         NetworkStats.Bucket bucket = new NetworkStats.Bucket();
         networkStats.getNextBucket(bucket);
-        networkStats.getNextBucket(bucket);
+
+        strTime = simpleDateFormat.format(bucket.getStartTimeStamp());
+        Log.i(LOG_TAG, "getStartTimeStamp " +  strTime);
+        strTime = simpleDateFormat.format(bucket.getEndTimeStamp());
+
+        Log.i(LOG_TAG, "getEndTimeStamp " + strTime);
         return bucket.getRxBytes();
     }
 
@@ -160,12 +176,6 @@ public class NetworkStatsHelper {
     }
 
     public long getPackageTxBytesWifi() {
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm-dd-yyyy HH:mm");
-        String strTime = simpleDateFormat.format(new Date(date.getTime()));
-
-        Log.i(LOG_TAG, "strTime  " + strTime);
-
 
         NetworkStats networkStats = null;
         try {
