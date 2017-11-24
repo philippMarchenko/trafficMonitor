@@ -10,9 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.TrafficStats;
-import android.nfc.tech.Ndef;
-import android.support.v7.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -23,7 +21,7 @@ import com.devphill.traficMonitor.networkStats.NetworkStatsHelper;
 import com.devphill.traficMonitor.service.TrafficService;
 import com.devphill.traficMonitor.ui.MainActivity;
 import com.devphill.traficMonitor.ui.Widget;
-import com.devphill.traficMonitor.ui.fragments.FragmentTrafficApps;
+import com.devphill.traficMonitor.ui.fragments.main.MainFragment;
 
 import java.util.Date;
 
@@ -31,6 +29,10 @@ public class TrafficMHelper{
 
 
     final String LOG_TAG = "TrafficMHelper";
+
+    float trafficFloat;
+    float trafficTxFloat;
+    float trafficRxFloat ;
 
     public static long getAllTrafficMobile() {
         return allTrafficMobile;
@@ -54,42 +56,40 @@ public class TrafficMHelper{
 
     public static void dbWriteTraffic(Context context,String idsim) {
 
-        DBHelper dbHelper = new DBHelper(context);
+        try{
+            DBHelper dbHelper = new DBHelper(context);
 
-        long realtime = System.currentTimeMillis();
-        Date date = new Date(realtime);
-        // создаем объект для данных
+            long realtime = System.currentTimeMillis();
+            Date date = new Date(realtime);
+            // создаем объект для данных
 
-        ContentValues cv = new ContentValues();
-        // подключаемся к БД
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        // делаем запрос всех данных из таблицы mytable, получаем Cursor
-        Cursor c = db.query(idsim, null, null, null, null, null, null);
+            ContentValues cv = new ContentValues();
+            // подключаемся к БД
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            // делаем запрос всех данных из таблицы mytable, получаем Cursor
+            Cursor c = db.query(idsim, null, null, null, null, null, null);
 
-    /*    allTrafficMobile = mobile_trafficTXToday + mobile_trafficRXToday;
-        allTrafficMobile = allTrafficMobile / 1024;       //для Кб*/
+            if (allTrafficMobile > 0 || TrafficService.firstWriteDB) {
 
+                cv.put("mobile_trafficTXToday", mobile_trafficTXToday);
+                cv.put("mobile_trafficRXToday", mobile_trafficRXToday);
+                cv.put("mobile_trafficTXYesterday", mobile_trafficTXYesterday);
+                cv.put("mobile_trafficRXYesterday", mobile_trafficRXYesterday);
+                cv.put("time", realtime);
+                cv.put("allTrafficMobile", allTrafficMobile);
+                cv.put("lastDay", date.getDate());
 
-        if (allTrafficMobile > 0 || TrafficService.firstWriteDB) {
+                // вставляем запись и получаем ее ID
+                long rowID = db.insert("" + idsim + "", null, cv);
+                Log.d("TrafficMHelper", "row inserted, ID = " + rowID);
 
-            cv.put("mobile_trafficTXToday", mobile_trafficTXToday);
-            cv.put("mobile_trafficRXToday", mobile_trafficRXToday);
-            cv.put("mobile_trafficTXYesterday", mobile_trafficTXYesterday);
-            cv.put("mobile_trafficRXYesterday", mobile_trafficRXYesterday);
-            cv.put("time", realtime);
-            cv.put("allTrafficMobile", allTrafficMobile);
-            cv.put("lastDay", date.getDate());
-            //	cv.put("reboot_device", 1);
-
-
-            // вставляем запись и получаем ее ID
-            long rowID = db.insert("" + idsim + "", null, cv);
-            Log.d("TrafficMHelper", "row inserted, ID = " + rowID);
-
-            TrafficService.firstWriteDB = false;
+                TrafficService.firstWriteDB = false;
+            }
+            c.close();
         }
-        c.close();
+        catch(Exception e){
 
+        }
 
     }		//записть данных в бд
 
@@ -186,13 +186,13 @@ public class TrafficMHelper{
 
         widget.onReceive(context,i);
 
-    }
 
-    public static void updateData (Context context){
-
-        final Intent intent = new Intent(MainFragmentAdapter.BROADCAST_ACTION);
+        Intent intent = new Intent(MainFragment.UPDATE_DATA_ACTION);
 
         intent.putExtra(MainFragmentAdapter.UPDATE_DATA,1);    //обновили граффик,
+        intent.putExtra("trafficFloat",trafficFloat);
+        intent.putExtra("trafficTxFloat",trafficTxFloat);
+        intent.putExtra("trafficRxFloat",trafficRxFloat);
 
         try
         {
@@ -203,6 +203,12 @@ public class TrafficMHelper{
         {
             e.printStackTrace();
         }
+
+    }
+
+    public static void updateData (Context context){
+
+
 
     }			//посылем сообщения фрагментам для обновления данных
 

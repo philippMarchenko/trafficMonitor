@@ -9,35 +9,30 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.TrafficStats;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.support.v7.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.devphill.traficMonitor.R;
+import com.devphill.traficMonitor.model.Package;
+import com.devphill.traficMonitor.networkStats.LoadPackageList;
 import com.devphill.traficMonitor.service.helper.TrafficHelper;
 import com.devphill.traficMonitor.service.helper.TrafficMHelper;
-import com.devphill.traficMonitor.ui.fragments.FragmentTrafficApps;
 import com.devphill.traficMonitor.adapter.MainFragmentAdapter;
 import com.devphill.traficMonitor.helper.DBHelper;
-import com.devphill.traficMonitor.model.ApplicationItem;
 import com.devphill.traficMonitor.reciver.AlarmReceiver;
 import com.devphill.traficMonitor.ui.MainActivity;
-import com.devphill.traficMonitor.ui.Widget;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -49,7 +44,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class TrafficService extends Service {
+public class TrafficService extends Service implements LoadPackageList.ILoadPackageListListener{
 
 	final String LOG_TAG = "serviceTag";
 	final int MAX_SIM = 10;
@@ -69,7 +64,7 @@ public class TrafficService extends Service {
 
 	DBHelper dbHelper;
 	Timer myTimerService = new Timer(); // Создаем таймер
-
+	Timer timerAppsUpdate = new Timer();
 
 	public static int CLEAN_TABLE = 1;
 	public static int SET_REBOOT_ACTION = 2;
@@ -90,9 +85,7 @@ public class TrafficService extends Service {
 	public static int month = 1;
 	public static int mYear = 2017;
 
-	int min = 0;
-	int hours = 0;
-	int sec = 0;
+	public static List<Package> packageList = new ArrayList<>();
 
 	public static final String APP_PREFERENCES = "settingsTrafficMonitor";
 	public static final String APP_PREFERENCES_TRAFFIC_APPS = "TrafficApps";
@@ -146,13 +139,21 @@ public class TrafficService extends Service {
 	//	showListTables();
 		recoverSettings();
 
-
-
 		setTimer();
 
-
 		initNoty();
+
 		task();
+
+		if(Build.VERSION.SDK_INT < 23) {
+
+		}
+		else{
+
+			startUpdateAppTraffic();
+
+		}
+
 	}
 
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -322,7 +323,6 @@ public class TrafficService extends Service {
 
 	}
 
-
 	public void initNoty(){
 		RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.noty);
 		NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(getBaseContext());
@@ -462,10 +462,16 @@ public class TrafficService extends Service {
 
 				}
 				else{
+
+					if (isNewDay()){
+						//cleanTable("traffic_app");
+						cleanTable(idsim);                    //очистили таблицу
+						packageList.clear();
+					}
 					TrafficMHelper.refreshWidget(getBaseContext());
 					TrafficMHelper.dbWriteTraffic(getBaseContext(),idsim);
 					TrafficMHelper.updateNoty(getBaseContext(),getPackageName());
-					TrafficMHelper.updateData(getBaseContext());
+					//TrafficMHelper.updateData(getBaseContext());
 
 					allTrafficMobile = TrafficMHelper.getAllTrafficMobile();
 
@@ -558,9 +564,9 @@ public class TrafficService extends Service {
 		Calendar calNow = Calendar.getInstance();
 		Calendar calSet = (Calendar) calNow.clone();
 
-		calSet.set(Calendar.HOUR_OF_DAY,16);
-		calSet.set(Calendar.MINUTE, 11);
-		calSet.set(Calendar.SECOND, sec);
+		calSet.set(Calendar.HOUR_OF_DAY,0);
+		calSet.set(Calendar.MINUTE, 0);
+		calSet.set(Calendar.SECOND, 0);
 		calSet.set(Calendar.MILLISECOND, 0);
 
 		if(calSet.compareTo(calNow) <= 0){
@@ -586,9 +592,41 @@ public class TrafficService extends Service {
 
 	}
 
+	public void startUpdateAppTraffic() {
+
+		initAppListM();
+
+		final Handler uiHandler = new Handler();
+		timerAppsUpdate.schedule(new TimerTask() { // Определяем задачу
+			@Override
+			public void run() {//функция для длительных задач(например работа с сетью)
+				if(TrafficService.runTimer) {
+
+					initAppListM();
+
+				}
+				uiHandler.post(new Runnable() { //здесь можна выводить на экран и работать с основным потоком
+					@Override
+					public void run() {
+						if (TrafficService.runTimer) {
 
 
+						}
+					}
+				});
 
+			}
+		}, 0L, 600L * 1000); // интервал - 10 мин, 0 миллисекунд до первого запуска.
+	}//каждые 3 мин обновляем список траффика по приложениям
+
+	public void initAppListM(){
+
+		Log.i(LOG_TAG, "initAppListM");
+		packageList.clear();
+		LoadPackageList loadPackageList = new LoadPackageList(getBaseContext(),this);
+		loadPackageList.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+	} //обновляем траффик в БД по приложениям
 
 	public void recoverSettings(){
 
@@ -620,10 +658,10 @@ public class TrafficService extends Service {
 
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-		Log.d(LOG_TAG, "--- Clear table " + idsim);
+		Log.d(LOG_TAG, "--- Clear table " + table);
 		// удаляем все записи
-		int clearCount = db.delete(idsim, null, null);
-		db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + idsim + "'");     //очищаем ID
+		int clearCount = db.delete(table, null, null);
+		db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + table + "'");     //очищаем ID
 		//Toast.makeText(this, "Таблица очищена.Удалено " + clearCount + " строк.", Toast.LENGTH_SHORT).show();
 		Log.d(LOG_TAG, "deleted rows count = " + clearCount);
 		//закрываем подключение к БД
@@ -650,5 +688,17 @@ public class TrafficService extends Service {
 
 		super.onTaskRemoved(rootIntent);
 		Log.d(LOG_TAG, "onTaskRemoved traffic_service");
+	}
+
+
+	@Override
+	public void onGetPackage(Package p) {
+		//&& !packageList.contains(p)
+		if(p.isUseTraffic()){
+
+			packageList.add(p);
+			Log.i(LOG_TAG, "packageList.add ");
+
+		}
 	}
 }

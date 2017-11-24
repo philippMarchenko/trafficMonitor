@@ -9,13 +9,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
-import android.support.v7.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -25,7 +24,7 @@ import com.devphill.traficMonitor.helper.DBHelper;
 import com.devphill.traficMonitor.model.ApplicationItem;
 import com.devphill.traficMonitor.service.TrafficService;
 import com.devphill.traficMonitor.ui.MainActivity;
-import com.devphill.traficMonitor.ui.fragments.FragmentTrafficApps;
+import com.devphill.traficMonitor.ui.fragments.app_traffic.FragmentTrafficApps;
 
 import java.util.ArrayList;
 import java.util.Date;

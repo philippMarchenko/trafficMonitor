@@ -26,7 +26,7 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
 
     public interface ILoadPackageListListener {
         public void onGetPackage(Package p);
-        public void onFinishLoadpackage(List<Package> packageList);
+       // public void onFinishLoadpackage(List<Package> packageList);
     }
 
     public LoadPackageList (Context context,ILoadPackageListListener iLoadPackageListListener){
@@ -54,7 +54,7 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
                 PackageInfo packageInfo = packageInfoList.get(i);
 
                 int uid = PackageManagerHelper.getPackageUid(mContext, packageInfo.packageName);
-                networkStatsHelper = new NetworkStatsHelper(networkStatsManager, uid);
+                networkStatsHelper = new NetworkStatsHelper(networkStatsManager, uid,packageInfo.packageName);
 
                 Log.i(LOG_TAG, "add  packageItem");             // 253 мс
 
@@ -82,18 +82,19 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
                     e.printStackTrace();
                 }
 
-                float trafficWiFi = ((float) (networkStatsHelper.getPackageRxBytesWifi() + networkStatsHelper.getPackageTxBytesWifi()) / ((float)1024*(float)1024));
+                float trafficWiFi = (float) (networkStatsHelper.getDataWiFi(mContext) / ((float)1024*(float)1024));
                 trafficWiFi = Math.round(trafficWiFi * (float) 10.0) / (float) 10.0;
 
                 packageItem.setWiFiData(Float.toString(trafficWiFi));
 
-                float trafficMobile = ((float) (networkStatsHelper.getPackageRxBytesMobile(mContext) + networkStatsHelper.getPackageTxBytesMobile(mContext)) / ((float)1024*(float)1024));
+                float trafficMobile = (float) (networkStatsHelper.getDataMobile(mContext) /((float)1024*(float)1024)) ;
                 trafficMobile = Math.round(trafficMobile * (float) 10.0) / (float) 10.0;
 
                 packageItem.setMobileData(Float.toString(trafficMobile));
+               //  packageItem.setMobileData("1458");
 
                 Log.i(LOG_TAG, "setWiFiData  " + Float.toString(trafficWiFi));
-                Log.i(LOG_TAG, "setMobileData  " + Float.toString(trafficMobile));
+               // Log.i(LOG_TAG, "setMobileData  " + Float.toString(trafficMobile));
                 Log.i(LOG_TAG, "packageName  " + packageInfo.packageName);
 
                 publishProgress(packageItem);
@@ -101,7 +102,7 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
                 packageList.add(packageItem);
 
             }
-            mILoadPackageListListener.onFinishLoadpackage(packageList);
+          //  mILoadPackageListListener.onFinishLoadpackage(packageList);
 
         }
         catch (Exception e){

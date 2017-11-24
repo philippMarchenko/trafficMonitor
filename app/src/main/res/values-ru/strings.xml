@@ -70,6 +70,6 @@
     <string name="notyStop">"Внимание!Достиигнут лимит!</string>
 
     <string name="used_all">Использовано всего</string>
-    <string name="app_data">По приложениям</string>
+    <string name="app_data">Приложения</string>
 
 </resources>

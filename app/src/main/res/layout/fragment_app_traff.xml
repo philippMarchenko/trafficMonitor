@@ -49,16 +49,16 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/tvUsedWiFi">
 
-        <ListView
+        <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/lvInstallApplication"
+            android:id="@+id/rvInstallApplication"
             android:divider="@android:color/transparent"
             android:dividerHeight="4dp"
             android:drawSelectorOnTop="false"
             android:textColor="@color/colorTest">
 
-        </ListView>
+        </android.support.v7.widget.RecyclerView>
 
     </android.support.v4.widget.SwipeRefreshLayout>
 

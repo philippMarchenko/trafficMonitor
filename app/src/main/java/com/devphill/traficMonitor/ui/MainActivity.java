@@ -2,29 +2,34 @@ package com.devphill.traficMonitor.ui;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import com.devphill.traficMonitor.R;
 import com.devphill.traficMonitor.service.TrafficService;
 import com.devphill.traficMonitor.helper.CustomViewPager;
-import com.devphill.traficMonitor.ui.fragments.FragmentTestSpeed;
-import com.devphill.traficMonitor.ui.fragments.FragmentTrafficApps;
-import com.devphill.traficMonitor.ui.fragments.FragmentSettings;
-import com.devphill.traficMonitor.ui.fragments.MainFragment;
+import com.devphill.traficMonitor.ui.fragments.test_speed.FragmentTestSpeed;
+import com.devphill.traficMonitor.ui.fragments.app_traffic.FragmentTrafficApps;
+import com.devphill.traficMonitor.ui.fragments.settings.FragmentSettings;
+import com.devphill.traficMonitor.ui.fragments.main.MainFragment;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.accountswitcher.AccountHeader;
 
@@ -32,7 +37,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
+
+    public  String LOG_TAG = "MainActivity";
+
 
     private Drawer.Result drawerResult = null;
     private AccountHeader.Result headerResult = null;
@@ -44,6 +52,8 @@ public class MainActivity extends ActionBarActivity {
 
     private static final int READ_PHONE_STATE_REQUEST = 37;
 
+    AlertDialog dialog;
+    AlertDialog.Builder builder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -51,7 +61,7 @@ public class MainActivity extends ActionBarActivity {
         // для Activity без бокового меню ставьте тему AppThemeNonDrawer (она прописана по умолчанию в манифесте кстати)
         // иначе будет "сползать" ActionBar
         // Темы находятся в styles.xml
-        setTheme(R.style.AppThemeNonDrawer);
+      //  setTheme(R.style.AppThemeNonDrawer);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -65,29 +75,81 @@ public class MainActivity extends ActionBarActivity {
         getSupportActionBar().hide();
 
         viewPager = (CustomViewPager) findViewById(R.id.viewpager);
-        setupViewPager(viewPager);
-
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
-        if(!isMyServiceRunning(TrafficService.class)) {
-            Intent intent = new Intent(this, TrafficService.class);
-            startService(intent);
-        }
+
+        Log.i(LOG_TAG, "onCreate " );
+
+    }
+    public void showQueryPremission(){
+
+        builder = new AlertDialog.Builder(this,R.style.MyDialogTheme);
+        builder.setTitle("Необходимо разрешение!");
+        builder.setMessage("Этому приложению необходимо предоставить разрешение на просмотр данных сети");
+
+        builder.setPositiveButton("Предоставить!",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        requestReadNetworkHistoryAccess();
+                    }
+                });
+
+        builder.setNegativeButton("Отмена!",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        finish();
+                    }
+                });
+
+
+            dialog = builder.create();
+            dialog.show();
+        Log.i(LOG_TAG, "showQueryPremission" );
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        Log.i(LOG_TAG, "onStart " );
+
         requestPermissions();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i(LOG_TAG, "onPause " );
     }
 
     @Override
     @TargetApi(Build.VERSION_CODES.M)
     protected void onResume() {
+        Log.i(LOG_TAG, "onResume " );
+
         super.onResume();
         if (!hasPermissions()) {
+            Log.i(LOG_TAG, "return " );
             return;
+
+        }
+
+      //  if(dialog != null) {
+        //    dialog.dismiss();
+
+        //}
+
+
+        setupViewPager(viewPager);
+
+        if(!isMyServiceRunning(TrafficService.class)) {
+            Intent intent = new Intent(this, TrafficService.class);
+            startService(intent);
         }
 
     }
@@ -151,7 +213,14 @@ public class MainActivity extends ActionBarActivity {
                     }
                 });*/
 
-        requestReadNetworkHistoryAccess();
+        if (dialog == null) {
+            showQueryPremission();
+        }
+        else{
+           // finish();
+        }
+
+
         return false;
     }
 

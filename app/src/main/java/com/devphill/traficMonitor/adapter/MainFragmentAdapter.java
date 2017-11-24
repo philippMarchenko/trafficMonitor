@@ -101,13 +101,15 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
         DBHelper dbHelper = new DBHelper(mContext);
 
         LineChart lineChart;
-        ArrayList<Entry> entriesLineChart = new ArrayList<>();           //список для точек
+        ArrayList<Entry> entriesLineChart = new ArrayList<>();          //список для точек
         ArrayList<String> labelsLineChart = new ArrayList<>();          //список для информации о времени на оси x
         ArrayList<String> labelsLineChartDate = new ArrayList<>();      //список для даты времени на графике в точке
         LineData dataLineChart;
         Spinner selectPeriod;                                           //период,месяц или день
 
         String[] dataspiner = {mContext.getResources().getString(R.string.day), mContext.getResources().getString(R.string.month)};
+
+
 
         public LineChartHolder(View v) {
             super(v);
@@ -339,7 +341,7 @@ public class MainFragmentAdapter extends RecyclerView.Adapter<MainFragmentAdapte
 
                                 data.addEntry(new Entry(trafficFloat, countEntrys), 0);  // добавляем значение трафика по оси Y, по Х id из таблицы
 
-                                lineChart.setDescription(mContext.getResources().getString(R.string.used) + " " + trafficFloat + mContext.getResources().getString(R.string.mb));
+                                lineChart.setDescription(mContext.getResources().getString(R.string.used) + " " + trafficFloat + " " + mContext.getResources().getString(R.string.mb));
                                 countEntrys++;
                             }
                         }

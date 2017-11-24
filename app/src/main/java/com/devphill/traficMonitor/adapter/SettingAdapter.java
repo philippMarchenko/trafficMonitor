@@ -46,6 +46,7 @@ public class SettingAdapter extends RecyclerView.Adapter<SettingAdapter.ViewHold
     private Activity myActivity;
 
 
+
     public static final int SET_1 = 0;
     public static final int SET_2 = 1;
     public static final int SET_3 = 2;

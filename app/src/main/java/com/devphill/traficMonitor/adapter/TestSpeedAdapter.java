@@ -206,7 +206,7 @@ public class TestSpeedAdapter extends RecyclerView.Adapter<TestSpeedAdapter.View
             };
 
             // add a listener to wait for speedtest completion and progress
-            speedTestSocket.addSpeedTestListener(new ISpeedTestListener() {
+           /* speedTestSocket.addSpeedTestListener(new ISpeedTestListener() {
 
                 @Override
                 public void onDownloadFinished(SpeedTestReport report) {
@@ -299,7 +299,7 @@ public class TestSpeedAdapter extends RecyclerView.Adapter<TestSpeedAdapter.View
                 public void onInterruption() {
                     // triggered when forceStopTask is called
                 }
-            });
+            });*/
         }
         private class StartTestPing extends AsyncTask<Void, Void, Integer> {
 
@@ -307,7 +307,7 @@ public class TestSpeedAdapter extends RecyclerView.Adapter<TestSpeedAdapter.View
             protected Integer doInBackground(Void... params) {
                 try {
 
-                    ping =  ping(new URL("https://www.google.com:443/"), mContext);
+                    //ping =  (new URL("https://www.google.com:443/"), mContext);
                     Log.i(LOG_TAG, " Ping Test \n Host " + ping.host +
                             " Net " + ping.net +
                             " DNS " + ping.dns +
@@ -336,29 +336,7 @@ public class TestSpeedAdapter extends RecyclerView.Adapter<TestSpeedAdapter.View
             public int dns = Integer.MAX_VALUE;
             public int cnt = Integer.MAX_VALUE;
         }
-        public  Ping ping(URL url, Context ctx) {
-            Ping r = new Ping();
-            if (isNetworkConnected(ctx)) {
-                r.net = getNetworkType(ctx);
-                try {
-                    String hostAddress;
-                    long start = System.currentTimeMillis();
-                    hostAddress = InetAddress.getByName(url.getHost()).getHostAddress();
-                    long dnsResolved = System.currentTimeMillis();
-                    Socket socket = new Socket(hostAddress, url.getPort());
-                    socket.close();
-                    long probeFinish = System.currentTimeMillis();
-                    r.dns = (int) (dnsResolved - start);
-                    r.cnt = (int) (probeFinish - dnsResolved);
-                    r.host = url.getHost();
-                    r.ip = hostAddress;
-                }
-                catch (Exception e) {
-                    Log.i(LOG_TAG, "Exception ping = " + e.getMessage());
-                }
-            }
-            return r;
-        }
+
         public boolean isNetworkConnected(Context context) {
             ConnectivityManager cm =
                     (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -380,7 +358,7 @@ public class TestSpeedAdapter extends RecyclerView.Adapter<TestSpeedAdapter.View
             protected Integer doInBackground(Void... params) {
                 try {
 
-                    speedTestSocket.startDownload("2.testdebit.info", "/fichiers/1Mo.dat");
+                   // speedTestSocket.startDownload("2.testdebit.info", "/fichiers/1Mo.dat");
 
                 } catch (Exception e) {
                     Log.i(LOG_TAG, "ошибка запроса на загрузку файла " + e.getMessage());
@@ -395,7 +373,7 @@ public class TestSpeedAdapter extends RecyclerView.Adapter<TestSpeedAdapter.View
             protected Integer doInBackground(Void... params) {
                 try {
 
-                    speedTestSocket.startUpload("2.testdebit.info", "/", 1000000);
+                 //   speedTestSocket.startUpload("2.testdebit.info", "/", 1000000);
 
                 } catch (Exception e) {
                     Log.i(LOG_TAG, "ошибка запроса на выгрузку файла " + e.getMessage());

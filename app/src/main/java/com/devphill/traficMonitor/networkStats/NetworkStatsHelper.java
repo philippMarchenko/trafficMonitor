@@ -10,7 +10,10 @@ import android.os.RemoteException;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import org.apache.http.conn.ConnectTimeoutException;
+
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -25,6 +28,9 @@ public class NetworkStatsHelper {
 
     Date date;
     Date currentdate;
+    Calendar night = Calendar.getInstance();
+
+    String packageName;
 
     public NetworkStatsHelper(NetworkStatsManager networkStatsManager) {
 
@@ -36,9 +42,10 @@ public class NetworkStatsHelper {
         date.setYear(currentdate.getYear());
         date.setHours(0);
         date.setMinutes(0);
+
     }
 
-    public NetworkStatsHelper(NetworkStatsManager networkStatsManager, int packageUid) {
+    public NetworkStatsHelper(NetworkStatsManager networkStatsManager, int packageUid,String packageName) {
 
         this.networkStatsManager = networkStatsManager;
         this.packageUid = packageUid;
@@ -49,6 +56,10 @@ public class NetworkStatsHelper {
         date.setYear(currentdate.getYear());
         date.setHours(0);
         date.setMinutes(0);
+
+        night.setTime(date);
+
+        this.packageName = packageName;
     }
 
     public long getAllRxBytesMobile(Context context) {
@@ -123,7 +134,7 @@ public class NetworkStatsHelper {
             networkStats = networkStatsManager.queryDetailsForUid(
                     ConnectivityManager.TYPE_MOBILE,
                     getSubscriberId(context, ConnectivityManager.TYPE_MOBILE),
-                    date.getTime(),
+                    night.getTimeInMillis(),
                     System.currentTimeMillis(),
                     packageUid);
         } catch (RemoteException e) {
@@ -146,7 +157,7 @@ public class NetworkStatsHelper {
             networkStats = networkStatsManager.queryDetailsForUid(
                     ConnectivityManager.TYPE_MOBILE,
                     getSubscriberId(context, ConnectivityManager.TYPE_MOBILE),
-                    date.getTime(),
+                    night.getTimeInMillis(),
                     System.currentTimeMillis(),
                     packageUid);
         } catch (RemoteException e) {
@@ -159,12 +170,28 @@ public class NetworkStatsHelper {
 
     public long getPackageRxBytesWifi() {
 
+        Date currentdate = new Date(System.currentTimeMillis());
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+
+        Log.i(LOG_TAG, "getPackageRxBytesWifi  ");
+        Log.i(LOG_TAG, "packageName " +  packageName);
+
+
+        String strTime = simpleDateFormat.format( night.getTimeInMillis());
+        Log.i(LOG_TAG, "start date " +  strTime);
+        Log.i(LOG_TAG, "start ms " +   night.getTimeInMillis());
+        strTime = simpleDateFormat.format(currentdate.getTime());
+        Log.i(LOG_TAG, "end date " + strTime);
+        Log.i(LOG_TAG, "end ms " + currentdate.getTime());
+
         NetworkStats networkStats = null;
+
         try {
             networkStats = networkStatsManager.queryDetailsForUid(
                     ConnectivityManager.TYPE_WIFI,
                     "",
-                    date.getTime(),
+                    night.getTimeInMillis(),
                     System.currentTimeMillis(),
                     packageUid);
         } catch (RemoteException e) {
@@ -172,6 +199,8 @@ public class NetworkStatsHelper {
         }
         NetworkStats.Bucket bucket = new NetworkStats.Bucket();
         networkStats.getNextBucket(bucket);
+
+        Log.i(LOG_TAG, "getRxBytes " + bucket.getRxBytes());
         return bucket.getRxBytes();
     }
 
@@ -182,7 +211,7 @@ public class NetworkStatsHelper {
             networkStats = networkStatsManager.queryDetailsForUid(
                     ConnectivityManager.TYPE_WIFI,
                     "",
-                    date.getTime(),
+                    night.getTimeInMillis(),
                     System.currentTimeMillis(),
                     packageUid);
         } catch (RemoteException e) {
@@ -201,5 +230,54 @@ public class NetworkStatsHelper {
         return "";
     }
 
+    public long getDataMobile(Context context){
+
+        return getMobileUsage(ConnectivityManager.TYPE_MOBILE,getSubscriberId(context,ConnectivityManager.TYPE_MOBILE));
+    }
+
+    private long getMobileUsage(int networkType, String subScriberId) {
+        NetworkStats networkStatsByApp;
+        long currentUsage = 0L;
+        try {
+            networkStatsByApp = networkStatsManager.querySummary(networkType, subScriberId, date.getTime(), System.currentTimeMillis());
+            do {
+                NetworkStats.Bucket bucket = new NetworkStats.Bucket();
+                networkStatsByApp.getNextBucket(bucket);
+                if (bucket.getUid() == packageUid) {
+                    currentUsage = (bucket.getRxBytes() + bucket.getTxBytes());
+                }
+            } while (networkStatsByApp.hasNextBucket());
+
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+        return currentUsage;
+    }
+
+    public long getDataWiFi(Context context){
+
+        return getWiFiUsage(ConnectivityManager.TYPE_WIFI,getSubscriberId(context,ConnectivityManager.TYPE_MOBILE));
+    }
+
+    private long getWiFiUsage(int networkType, String subScriberId) {
+        NetworkStats networkStatsByApp;
+        long currentUsage = 0L;
+        try {
+            networkStatsByApp = networkStatsManager.querySummary(networkType, subScriberId, date.getTime(), System.currentTimeMillis());
+            do {
+                NetworkStats.Bucket bucket = new NetworkStats.Bucket();
+                networkStatsByApp.getNextBucket(bucket);
+                if (bucket.getUid() == packageUid) {
+                    currentUsage = (bucket.getRxBytes() + bucket.getTxBytes());
+                }
+            } while (networkStatsByApp.hasNextBucket());
+
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+        return currentUsage;
+    }
 
 }
