@@ -17,7 +17,7 @@ import com.devphill.traficMonitor.R;
 import com.devphill.traficMonitor.helper.DBHelper;
 import com.devphill.traficMonitor.service.TrafficService;
 import com.devphill.traficMonitor.adapter.MainFragmentAdapter;
-import com.devphill.traficMonitor.ui.fragments.main.helper.FileChartHelper;
+import com.devphill.traficMonitor.ui.fragments.main.helper.LineChartHelper;
 import com.devphill.traficMonitor.ui.fragments.main.helper.PieChartHelper;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
@@ -51,7 +51,7 @@ public class MainFragment extends Fragment {
 
     DBHelper dbHelper;
 
-    FileChartHelper fileChartHelper;
+    LineChartHelper lineChartHelper;
     PieChartHelper pieChartHelper;
 
     private static BroadcastReceiver br;
@@ -64,22 +64,23 @@ public class MainFragment extends Fragment {
 
 
         dbHelper = new DBHelper(getContext());
-        fileChartHelper = new FileChartHelper(lineChart,selectPeriod,dbHelper,getContext());
+        lineChartHelper = new LineChartHelper(lineChart,selectPeriod,dbHelper,getContext());
         pieChartHelper = new PieChartHelper(pieChart,getContext());
 
-        fileChartHelper.initChart();
+        lineChartHelper.initChart();
+        lineChartHelper.init_spiner();
         pieChartHelper.initPieChart();
         pieChartHelper.updateDataPie(0);
 
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                fileChartHelper.getDataInTable();
+                lineChartHelper.getDataInTable();
                 // getDataTestTable();
             }
         });t.start();
 
-        fileChartHelper.updateChart();
+        lineChartHelper.updateChart();
 
         br = new BroadcastReceiver() {
             // действия при получении сообщений
@@ -87,15 +88,15 @@ public class MainFragment extends Fragment {
                 if (intent.getIntExtra(UPDATE_CHART, 0) == 1) {
                     Log.i(LOG_TAG, "Сообщение из сервиса");
 
-                    fileChartHelper.clearChart();
-                    fileChartHelper.getDataInTable();
-                    fileChartHelper.updateChart();
+                    lineChartHelper.clearChart();
+                    lineChartHelper.getDataInTable();
+                    lineChartHelper.updateChart();
 
                 }
                 if (intent.getIntExtra(UPDATE_DATA, 0) == 1) {
                     Log.i(LOG_TAG, "Сообщение для обновления");
-                    fileChartHelper.getDataInTable();
-                    fileChartHelper.updateChart();
+                    lineChartHelper.getDataInTable();
+                    lineChartHelper.updateChart();
 
                     uploadData.setText(Float.toString(intent.getFloatExtra("trafficTxFloat",0)) + " Мб");
                     download_data.setText(Float.toString(intent.getFloatExtra("trafficRxFloat",0)) + " Мб");

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -22,8 +23,11 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.widget.TextView;
 
 import com.devphill.traficMonitor.R;
+import com.devphill.traficMonitor.premmision.Premission;
 import com.devphill.traficMonitor.service.TrafficService;
 import com.devphill.traficMonitor.helper.CustomViewPager;
 import com.devphill.traficMonitor.ui.fragments.test_speed.FragmentTestSpeed;
@@ -50,10 +54,11 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     public static CustomViewPager viewPager;
 
-    private static final int READ_PHONE_STATE_REQUEST = 37;
 
     AlertDialog dialog;
     AlertDialog.Builder builder;
+    Premission premission;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -66,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        premission = new Premission(getBaseContext(),this);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -78,7 +84,15 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            //noinspection ConstantConditions
+            TextView tv=(TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab_tv,null);
+            Typeface typefaceR = Typeface.createFromAsset(getBaseContext().getAssets(),
+                    "fonts/UbuntuMono-R.ttf");
+            tv.setTypeface(typefaceR);
+            tabLayout.getTabAt(i).setCustomView(tv);
 
+        }
         Log.i(LOG_TAG, "onCreate " );
 
     }
@@ -93,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
-                        requestReadNetworkHistoryAccess();
+                        premission.requestReadNetworkHistoryAccess();
                     }
                 });
 
@@ -118,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         Log.i(LOG_TAG, "onStart " );
 
-        requestPermissions();
+        premission.requestPermissions();
     }
 
     @Override
@@ -133,18 +147,16 @@ public class MainActivity extends AppCompatActivity {
         Log.i(LOG_TAG, "onResume " );
 
         super.onResume();
-        if (!hasPermissions()) {
+        if (!premission.hasPermissions()) {
             Log.i(LOG_TAG, "return " );
+
+            if (dialog == null) {
+                showQueryPremission();
+            }
+
             return;
-
         }
-
-      //  if(dialog != null) {
-        //    dialog.dismiss();
-
-        //}
-
-
+        
         setupViewPager(viewPager);
 
         if(!isMyServiceRunning(TrafficService.class)) {
@@ -153,83 +165,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
-    private void requestPermissions() {
-        if (!hasPermissionToReadNetworkHistory()) {
-            return;
-        }
-        if (!hasPermissionToReadPhoneStats()) {
-            requestPhoneStateStats();
-            return;
-        }
-    }
-
-    private boolean hasPermissions() {
-        return hasPermissionToReadNetworkHistory() && hasPermissionToReadPhoneStats();
-    }
-
-    private void requestPhoneStateStats() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, READ_PHONE_STATE_REQUEST);
-    }
-
-    private boolean hasPermissionToReadPhoneStats() {
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    private boolean hasPermissionToReadNetworkHistory() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
-        }
-        final AppOpsManager appOps = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
-        int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
-                android.os.Process.myUid(), getPackageName());
-        if (mode == AppOpsManager.MODE_ALLOWED) {
-            return true;
-        }
-        /*
-        appOps.startWatchingMode(AppOpsManager.OPSTR_GET_USAGE_STATS,
-                getApplicationContext().getPackageName(),
-                new AppOpsManager.OnOpChangedListener() {
-                    @Override
-                    @TargetApi(Build.VERSION_CODES.M)
-                    public void onOpChanged(String op, String packageName) {
-                        int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
-                                android.os.Process.myUid(), getPackageName());
-                        if (mode != AppOpsManager.MODE_ALLOWED) {
-                            return;
-                        }
-                        appOps.stopWatchingMode(this);
-                        Intent intent = new Intent(StatsActivity.this, StatsActivity.class);
-                        if (getIntent().getExtras() != null) {
-                            intent.putExtras(getIntent().getExtras());
-                        }
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        getApplicationContext().startActivity(intent);
-                    }
-                });*/
-
-        if (dialog == null) {
-            showQueryPremission();
-        }
-        else{
-           // finish();
-        }
-
-
-        return false;
-    }
-
-    private void requestReadNetworkHistoryAccess() {
-
-        Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
-        startActivity(intent);
-    }
-
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {

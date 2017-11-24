@@ -31,7 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class FileChartHelper{
+public class LineChartHelper{
 
     public  String LOG_TAG = "FileChartHelper";
 
@@ -61,7 +61,7 @@ public class FileChartHelper{
     private boolean firstRunSpiner = true;
 
 
-    public FileChartHelper(LineChart lineChart, Spinner selectPeriod,DBHelper dbHelper,Context context){
+    public LineChartHelper(LineChart lineChart, Spinner selectPeriod,DBHelper dbHelper,Context context){
 
         this.lineChart = lineChart;
         this.dbHelper = dbHelper;
@@ -106,10 +106,6 @@ public class FileChartHelper{
         lineChart.setBackgroundColor(Color.rgb(201,124,223));
         lineChart.setBackgroundColor(context.getResources().getColor(R.color.cardview_color));
         lineChart.setGridBackgroundColor(context.getResources().getColor(R.color.accent));
-
-
-
-
 
         lineChart.getAxisRight().setEnabled(false);
         lineChart.setDoubleTapToZoomEnabled(false);

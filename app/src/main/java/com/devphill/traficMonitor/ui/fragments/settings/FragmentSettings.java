@@ -113,9 +113,12 @@ public class FragmentSettings extends Fragment {
             else
                 stopDataSwitch.setChecked(false);
 
-
             viewDate.setText(TrafficService.day + "." + TrafficService.month + "." + TrafficService.mYear);
 
+            float procentView = ((float)TrafficService.allertLevel*100)/(float)TrafficService.stopLevel;
+            procentView = Math.round(procentView);
+            procentTV.setText(procentView + "%");
+            rangebar.setSeekPinByValue(procentView);
 
             newDay.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -314,6 +317,9 @@ public class FragmentSettings extends Fragment {
 
     }
     public void updateSetValue(String key,int value){
+
+        Log.i(LOG_TAG,"updateSetValue key " + key + " value" + value);
+
 
         SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = mySharedPreferences.edit();

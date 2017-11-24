@@ -108,12 +108,14 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 
 	public static boolean brRegistered = false;
 
+	SQLiteDatabase db;
+
 	public void onCreate() {
 		super.onCreate();
 		Log.d(LOG_TAG, "onCreateService");
 		//getSerialSim();    //получаем айди симки
 		dbHelper = new DBHelper(getBaseContext());  // создаем объект для создания и управления версиями БД
-		SQLiteDatabase db = dbHelper.getWritableDatabase(); // подключаемся к БД
+		db = dbHelper.getWritableDatabase(); // подключаемся к БД
 
 		getlistTable(db);            //получаем список созданых таблиц
 
@@ -127,7 +129,7 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 			if (i == MAX_SIM - 1) {                                            //нет такой таблицы
 				Log.d(LOG_TAG, "Не найдено такой таблицы!Создаем новую!");
 
-				db = dbHelper.getWritableDatabase(); // подключаемся к БД
+				//db = dbHelper.getWritableDatabase(); // подключаемся к БД
 
 				createTableSim(db, idsim);
 			}
@@ -697,7 +699,7 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 		if(p.isUseTraffic()){
 
 			packageList.add(p);
-			Log.i(LOG_TAG, "packageList.add ");
+			Log.i(LOG_TAG, "packageListM.add ");
 
 		}
 	}
