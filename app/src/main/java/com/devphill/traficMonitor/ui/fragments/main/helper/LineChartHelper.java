@@ -163,105 +163,111 @@ public class LineChartHelper{
 
     public void getDataInTable() {
 
-        if (Util.isMyServiceRunning(TrafficService.class,context) && TrafficService.idsim != null) {
+        try{
+            if (Util.isMyServiceRunning(TrafficService.class,context) && TrafficService.idsim != null) {
 
-            // подключаемся к БД
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            Cursor c = db.query(TrafficService.idsim, null, null, null, null, null, null);
+                // подключаемся к БД
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                Cursor c = db.query(TrafficService.idsim, null, null, null, null, null, null);
 
-            if (c.moveToFirst()) {
-                // определяем номера столбцов по имени в выборке
-                int timeColIndex = c.getColumnIndex("time");
-                int mobile_trafficTXTodayColIndex = c.getColumnIndex("mobile_trafficTXToday");
-                int mobile_trafficRXTodayColIndex = c.getColumnIndex("mobile_trafficRXToday");
-                int mobile_trafficTXYesterdayColIndex = c.getColumnIndex("mobile_trafficTXYesterday");
-                int mobile_trafficRXYesterdayColIndex = c.getColumnIndex("mobile_trafficRXYesterday");
-                int allTrafficMobileColIndex = c.getColumnIndex("allTrafficMobile");
-                int lastDayColIndex = c.getColumnIndex("lastDay");
-                int idColIndex = c.getColumnIndex("id");
+                if (c.moveToFirst()) {
+                    // определяем номера столбцов по имени в выборке
+                    int timeColIndex = c.getColumnIndex("time");
+                    int mobile_trafficTXTodayColIndex = c.getColumnIndex("mobile_trafficTXToday");
+                    int mobile_trafficRXTodayColIndex = c.getColumnIndex("mobile_trafficRXToday");
+                    int mobile_trafficTXYesterdayColIndex = c.getColumnIndex("mobile_trafficTXYesterday");
+                    int mobile_trafficRXYesterdayColIndex = c.getColumnIndex("mobile_trafficRXYesterday");
+                    int allTrafficMobileColIndex = c.getColumnIndex("allTrafficMobile");
+                    int lastDayColIndex = c.getColumnIndex("lastDay");
+                    int idColIndex = c.getColumnIndex("id");
 
-                do {
-                    currentTime = c.getLong(timeColIndex);
+                    do {
+                        currentTime = c.getLong(timeColIndex);
 
-                    if (currentTime > lastTime || firstStartGraph) { // получаем значения по номерам столбцов и пишем все в лог
-
-
-                        firstStartGraph = false;
-                        Log.d(LOG_TAG, " \n Есть новые запси в базе! " + c.getLong(timeColIndex) +
-                                ", id = " + c.getInt(idColIndex) +
-                                ", mobile_trafficTXToday = " + c.getLong(mobile_trafficTXTodayColIndex) +
-                                ", mobile_trafficRXToday = " + c.getLong(mobile_trafficRXTodayColIndex) +
-                                ", mobile_trafficTXYesterday = " + c.getLong(mobile_trafficTXYesterdayColIndex) +
-                                ", mobile_trafficRXYesterday = " + c.getLong(mobile_trafficRXYesterdayColIndex) +
-                                ", allTrafficMobile = " + c.getLong(allTrafficMobileColIndex) +
-                                " lastDay = " + c.getInt(lastDayColIndex));
-
-                        float trafficFloat = (float) c.getLong(allTrafficMobileColIndex) / 1024;
-                        trafficFloat = Math.round(trafficFloat * (float) 100.0) / (float) 100.0;  //округляем до сотых
-
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-                        String strTime = simpleDateFormat.format(new Date(currentTime));
-
-                        SimpleDateFormat simpleDateFormatDate = new SimpleDateFormat("yyyy.MM.dd HH:mm");
-                        String strTimeDate = simpleDateFormatDate.format(new Date(currentTime));
-                        labelsLineChartDate.add(countEntrys, strTimeDate);
+                        if (currentTime > lastTime || firstStartGraph) { // получаем значения по номерам столбцов и пишем все в лог
 
 
-                        LineData data = lineChart.getData();
-                        if (data != null) {
+                            firstStartGraph = false;
+                            Log.d(LOG_TAG, " \n Есть новые запси в базе! " + c.getLong(timeColIndex) +
+                                    ", id = " + c.getInt(idColIndex) +
+                                    ", mobile_trafficTXToday = " + c.getLong(mobile_trafficTXTodayColIndex) +
+                                    ", mobile_trafficRXToday = " + c.getLong(mobile_trafficRXTodayColIndex) +
+                                    ", mobile_trafficTXYesterday = " + c.getLong(mobile_trafficTXYesterdayColIndex) +
+                                    ", mobile_trafficRXYesterday = " + c.getLong(mobile_trafficRXYesterdayColIndex) +
+                                    ", allTrafficMobile = " + c.getLong(allTrafficMobileColIndex) +
+                                    " lastDay = " + c.getInt(lastDayColIndex));
 
-                            data.addXValue(strTime);
+                            float trafficFloat = (float) c.getLong(allTrafficMobileColIndex) / 1024;
+                            trafficFloat = Math.round(trafficFloat * (float) 100.0) / (float) 100.0;  //округляем до сотых
 
-                            data.addEntry(new Entry(trafficFloat, countEntrys), 0);  // добавляем значение трафика по оси Y, по Х id из таблицы
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+                            String strTime = simpleDateFormat.format(new Date(currentTime));
 
-                            lineChart.setDescription(context.getResources().getString(R.string.used) + " " + trafficFloat + " " + context.getResources().getString(R.string.mb));
-                            countEntrys++;
+                            SimpleDateFormat simpleDateFormatDate = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+                            String strTimeDate = simpleDateFormatDate.format(new Date(currentTime));
+                            labelsLineChartDate.add(countEntrys, strTimeDate);
+
+
+                            LineData data = lineChart.getData();
+                            if (data != null) {
+
+                                data.addXValue(strTime);
+
+                                data.addEntry(new Entry(trafficFloat, countEntrys), 0);  // добавляем значение трафика по оси Y, по Х id из таблицы
+
+                                lineChart.setDescription(context.getResources().getString(R.string.used) + " " + trafficFloat + " " + context.getResources().getString(R.string.mb));
+                                countEntrys++;
+                            }
                         }
-                    }
 
-                    // переход на следующую строку
-                    // а если следующей нет (текущая - последняя), то false - выходим из цикла
-                } while (c.move(periodChartOffset));
-            }
-
-            float y = c.getCount() / (float) periodChartOffset;
-            if (y % 1 != 0) { //не целое
-
-                labelsLineChart.remove(countEntrys - 1);  //удаляем последнюю точку
-                entriesLineChart.remove(countEntrys - 1);
-                labelsLineChartDate.remove(countEntrys - 1);
-
-                countEntrys--;
-                Log.d(LOG_TAG, " Не целое значание, y = " + y);
-
-                c.moveToLast();                         //курсор на послнднюю
-
-                int allTrafficMobileColIndex = c.getColumnIndex("allTrafficMobile");
-                int timeColIndex = c.getColumnIndex("time");
-                float trafficFloat = (float) c.getLong(allTrafficMobileColIndex) / 1024;
-                trafficFloat = Math.round(trafficFloat * (float) 100.0) / (float) 100.0;  //округляем до сотых
-
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-                String strTime = simpleDateFormat.format(new Date((c.getLong(timeColIndex))));
-
-                SimpleDateFormat simpleDateFormatDate = new SimpleDateFormat("yyyy.MM.dd HH:mm");
-                String strTimeDate = simpleDateFormatDate.format(new Date(c.getLong(timeColIndex)));
-                labelsLineChartDate.add(countEntrys, strTimeDate);
-
-
-                LineData data = lineChart.getData();
-                if (data != null) {
-
-                    data.addXValue(strTime);
-                    data.addEntry(new Entry(trafficFloat, countEntrys), 0);  // добавляем значение трафика по оси Y, по Х id из таблицы
-                    lineChart.setDescription(context.getResources().getString(R.string.used) + " " + trafficFloat + context.getResources().getString(R.string.mb));
-                    countEntrys++;
+                        // переход на следующую строку
+                        // а если следующей нет (текущая - последняя), то false - выходим из цикла
+                    } while (c.move(periodChartOffset));
                 }
+
+                float y = c.getCount() / (float) periodChartOffset;
+                if (y % 1 != 0) { //не целое
+
+                    labelsLineChart.remove(countEntrys - 1);  //удаляем последнюю точку
+                    entriesLineChart.remove(countEntrys - 1);
+                    labelsLineChartDate.remove(countEntrys - 1);
+
+                    countEntrys--;
+                    Log.d(LOG_TAG, " Не целое значание, y = " + y);
+
+                    c.moveToLast();                         //курсор на послнднюю
+
+                    int allTrafficMobileColIndex = c.getColumnIndex("allTrafficMobile");
+                    int timeColIndex = c.getColumnIndex("time");
+                    float trafficFloat = (float) c.getLong(allTrafficMobileColIndex) / 1024;
+                    trafficFloat = Math.round(trafficFloat * (float) 100.0) / (float) 100.0;  //округляем до сотых
+
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+                    String strTime = simpleDateFormat.format(new Date((c.getLong(timeColIndex))));
+
+                    SimpleDateFormat simpleDateFormatDate = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+                    String strTimeDate = simpleDateFormatDate.format(new Date(c.getLong(timeColIndex)));
+                    labelsLineChartDate.add(countEntrys, strTimeDate);
+
+
+                    LineData data = lineChart.getData();
+                    if (data != null) {
+
+                        data.addXValue(strTime);
+                        data.addEntry(new Entry(trafficFloat, countEntrys), 0);  // добавляем значение трафика по оси Y, по Х id из таблицы
+                        lineChart.setDescription(context.getResources().getString(R.string.used) + " " + trafficFloat + context.getResources().getString(R.string.mb));
+                        countEntrys++;
+                    }
+                }
+
+                c.close();
+
+                lastTime = currentTime;
             }
+        }
+        catch (Exception e){
+            Log.d(LOG_TAG, " Не удалось прочитать значение из базы " + e.getMessage());
 
-            c.close();
-
-            lastTime = currentTime;
         }
     }
 

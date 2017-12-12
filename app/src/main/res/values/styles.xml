@@ -30,7 +30,7 @@
     <style name="MyButton" parent="Theme.AppCompat.Light">
         <item name="colorControlHighlight">@color/primary_dynamic</item>
         <item name="colorButtonNormal">@color/accent</item>
-        <item name="android:radius">@dimen/cardview_corner__radius</item>
+        <item name="android:radius">8dp</item>
     </style>
 
     <style name="MyRadioButton" parent="Theme.AppCompat.Light">

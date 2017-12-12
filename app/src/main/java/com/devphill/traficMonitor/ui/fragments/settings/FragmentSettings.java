@@ -118,7 +118,13 @@ public class FragmentSettings extends Fragment {
             float procentView = ((float)TrafficService.allertLevel*100)/(float)TrafficService.stopLevel;
             procentView = Math.round(procentView);
             procentTV.setText(procentView + "%");
+
+        try{
             rangebar.setSeekPinByValue(procentView);
+        }
+        catch(IllegalArgumentException e){
+
+        }
 
             newDay.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -144,7 +150,7 @@ public class FragmentSettings extends Fragment {
                         //Toast.makeText(mContext, "Нихуя", Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.button_day:
-                        Toast.makeText(getContext(), "Выбран день", Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(getContext(), "Выбран день", Toast.LENGTH_SHORT).show();
                         TrafficService.period = TrafficService.PERIOD_DAY;
                         break;
                     case R.id.button_month:
@@ -316,6 +322,7 @@ public class FragmentSettings extends Fragment {
 
 
     }
+
     public void updateSetValue(String key,int value){
 
         Log.i(LOG_TAG,"updateSetValue key " + key + " value" + value);

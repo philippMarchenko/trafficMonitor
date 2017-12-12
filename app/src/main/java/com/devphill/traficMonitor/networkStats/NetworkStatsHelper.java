@@ -63,7 +63,7 @@ public class NetworkStatsHelper {
     }
 
     public long getAllRxBytesMobile(Context context) {
-        NetworkStats.Bucket bucket;
+        NetworkStats.Bucket bucket = null;
         try {
             bucket = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_MOBILE,
                     getSubscriberId(context, ConnectivityManager.TYPE_MOBILE),
@@ -72,11 +72,14 @@ public class NetworkStatsHelper {
         } catch (RemoteException e) {
             return -1;
         }
+        catch(NullPointerException e){
+            Log.i(LOG_TAG, "Не удалось получить данные траффика " +  e.getMessage());
+        }
         return bucket.getRxBytes();
     }
 
     public long getAllTxBytesMobile(Context context) {
-        NetworkStats.Bucket bucket;
+        NetworkStats.Bucket bucket = null;
         try {
             bucket = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_MOBILE,
                     getSubscriberId(context, ConnectivityManager.TYPE_MOBILE),
@@ -84,6 +87,9 @@ public class NetworkStatsHelper {
                     System.currentTimeMillis());
         } catch (RemoteException e) {
             return -1;
+        }
+        catch(NullPointerException e){
+            Log.i(LOG_TAG, "Не удалось получить данные траффика " +  e.getMessage());
         }
         return bucket.getTxBytes();
     }
@@ -91,7 +97,7 @@ public class NetworkStatsHelper {
     public long getAllRxBytesWifi() {
 
 
-        NetworkStats.Bucket bucket;
+        NetworkStats.Bucket bucket = null;
         try {
             bucket = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_WIFI,
                     "",
@@ -99,13 +105,16 @@ public class NetworkStatsHelper {
                     System.currentTimeMillis());
         } catch (RemoteException e) {
             return -1;
+        }
+        catch(NullPointerException e){
+            Log.i(LOG_TAG, "Не удалось получить данные траффика " +  e.getMessage());
         }
         return bucket.getRxBytes();
     }
 
     public long getAllTxBytesWifi() {
 
-        NetworkStats.Bucket bucket;
+        NetworkStats.Bucket bucket = null;
         try {
             bucket = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_WIFI,
                     "",
@@ -114,10 +123,13 @@ public class NetworkStatsHelper {
         } catch (RemoteException e) {
             return -1;
         }
+        catch(NullPointerException e){
+            Log.i(LOG_TAG, "Не удалось получить данные траффика " +  e.getMessage());
+        }
         return bucket.getTxBytes();
     }
 
-    public long getPackageRxBytesMobile(Context context) {
+ /*   public long getPackageRxBytesMobile(Context context) {
 
         Date currentdate = new Date(System.currentTimeMillis());
 
@@ -140,6 +152,9 @@ public class NetworkStatsHelper {
         } catch (RemoteException e) {
             return -1;
         }
+        catch(NullPointerException e){
+            Log.i(LOG_TAG, "Не удалось получить данные траффика " +  e.getMessage());
+        }
         NetworkStats.Bucket bucket = new NetworkStats.Bucket();
         networkStats.getNextBucket(bucket);
 
@@ -149,8 +164,8 @@ public class NetworkStatsHelper {
 
         Log.i(LOG_TAG, "getEndTimeStamp " + strTime);
         return bucket.getRxBytes();
-    }
-
+    }*/
+/*
     public long getPackageTxBytesMobile(Context context) {
         NetworkStats networkStats = null;
         try {
@@ -166,9 +181,9 @@ public class NetworkStatsHelper {
         NetworkStats.Bucket bucket = new NetworkStats.Bucket();
         networkStats.getNextBucket(bucket);
         return bucket.getTxBytes();
-    }
+    }*/
 
-    public long getPackageRxBytesWifi() {
+   /* public long getPackageRxBytesWifi() {
 
         Date currentdate = new Date(System.currentTimeMillis());
 
@@ -202,9 +217,9 @@ public class NetworkStatsHelper {
 
         Log.i(LOG_TAG, "getRxBytes " + bucket.getRxBytes());
         return bucket.getRxBytes();
-    }
+    }*/
 
-    public long getPackageTxBytesWifi() {
+/*    public long getPackageTxBytesWifi() {
 
         NetworkStats networkStats = null;
         try {
@@ -220,7 +235,7 @@ public class NetworkStatsHelper {
         NetworkStats.Bucket bucket = new NetworkStats.Bucket();
         networkStats.getNextBucket(bucket);
         return bucket.getTxBytes();
-    }
+    }*/
 
     private String getSubscriberId(Context context, int networkType) {
         if (ConnectivityManager.TYPE_MOBILE == networkType) {
@@ -251,6 +266,9 @@ public class NetworkStatsHelper {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
+        catch(NullPointerException e){
+            Log.i(LOG_TAG, "Не удалось получить данные траффика " +  e.getMessage());
+        }
 
         return currentUsage;
     }
@@ -275,6 +293,9 @@ public class NetworkStatsHelper {
 
         } catch (RemoteException e) {
             e.printStackTrace();
+        }
+        catch(NullPointerException e){
+            Log.i(LOG_TAG, "Не удалось получить данные траффика " +  e.getMessage());
         }
 
         return currentUsage;

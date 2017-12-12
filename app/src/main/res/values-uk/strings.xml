@@ -70,6 +70,8 @@
     <string name="notyStop">Увага!Був досягнутий ліміт!</string>
 
     <string name="used_all">Використано всього</string>
+    <string name="used_3G">Використано 3G</string>
+    <string name="used_WIFI">Використано WiFi </string>
     <string name="app_data">Додатки</string>
 
 

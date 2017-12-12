@@ -139,6 +139,7 @@ public class AppsTrafficHelper{
         }
         Log.i(LOG_TAG, "Fragment2 initAppList");
     }
+
     public void updateAdapter() {
 
         for (int i = 0, l = adapterApplications.getCount(); i < l; i++) {

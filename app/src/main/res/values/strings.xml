@@ -72,5 +72,8 @@
     <string name="notyStop">Attention! The limit is reached!</string>
 
     <string name="used_all">All used data</string>
+    <string name="used_3G">Mobile data</string>
+    <string name="used_WIFI">WiFi data</string>
+
     <string name="app_data">App data</string>
 </resources>
