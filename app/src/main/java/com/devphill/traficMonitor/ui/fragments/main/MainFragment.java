@@ -16,7 +16,6 @@ import android.widget.TextView;
 import com.devphill.traficMonitor.R;
 import com.devphill.traficMonitor.helper.DBHelper;
 import com.devphill.traficMonitor.service.TrafficService;
-import com.devphill.traficMonitor.adapter.MainFragmentAdapter;
 import com.devphill.traficMonitor.ui.fragments.main.helper.LineChartHelper;
 import com.devphill.traficMonitor.ui.fragments.main.helper.PieChartHelper;
 import com.github.mikephil.charting.charts.LineChart;
@@ -146,12 +145,12 @@ public class MainFragment extends Fragment {
         Log.i(LOG_TAG, "MainFragment onPause");
 
         if( TrafficService.brRegistered){
-               try {
-           getActivity().unregisterReceiver(br);
-           TrafficService.brRegistered = false;
-        }catch (IllegalArgumentException e){
-            Log.d(LOG_TAG, "Error unregisterReceiver in MainFragment" + e.getMessage());
-        }
+            try {
+                getActivity().unregisterReceiver(br);
+                TrafficService.brRegistered = false;
+            }catch (IllegalArgumentException e){
+                Log.d(LOG_TAG, "Error unregisterReceiver in MainFragment" + e.getMessage());
+            }
         }
 
     }
@@ -161,7 +160,7 @@ public class MainFragment extends Fragment {
         Log.i(LOG_TAG, "MainFragment onDestroy");
         if (TrafficService.brRegistered == true) {
             try {
-                getActivity().unregisterReceiver(MainFragmentAdapter.br);
+                //   getActivity().unregisterReceiver(MainFragmentAdapter.br);
                 TrafficService.brRegistered = false;
             } catch (IllegalArgumentException e) {
                 Log.d(LOG_TAG, "Error unregisterReceiver" + e.getMessage());

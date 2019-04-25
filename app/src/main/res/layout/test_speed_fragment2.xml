@@ -1,328 +1,333 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.v4.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/window_background">
+    android:background="@color/window_background"
+    android:fillViewport="true">
 
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:id="@+id/rl"
-        >
-
-        <android.support.v7.widget.CardView
-            android:layout_gravity="center"
-            android:elevation="8dp"
-            card_view:cardCornerRadius="@dimen/cardview_corner__radius"
-            card_view:cardBackgroundColor="@color/cardview_color"
-            android:layout_height="70dp"
+        android:layout_height="wrap_content">
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp">
+            android:layout_height="wrap_content"
+            android:weightSum="1"
+            android:id="@+id/rl"
+            >
 
-            <RelativeLayout android:layout_width="match_parent"
-                android:layout_height="70dp">
-
-
-                <ImageView
-                    android:rotation="-90"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentStart="true"
-                    android:id="@+id/sync"
-                    card_view:srcCompat="@drawable/sync"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="174dp"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginTop="5dp" />
-
-                <TextView
-                    android:text="@string/ms"
-                    android:textColor="@color/md_white_1000"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/downloadData"
-                    android:textSize="12dp"
-                    android:layout_below="@+id/sync"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginRight="5dp" />
-
-                <TextView
-                    android:text="000"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/pingView"
-                    android:layout_marginRight="3dp"
-                    android:textColor="@color/color_white"
-                    android:textSize="40dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_toStartOf="@+id/downloadData"
-                    android:textStyle="normal|bold" />
-
-                <TextView
-                    android:text="@string/ping"
-                    android:textColor="@color/md_white_1000"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/textViewPing"
-                    android:textSize="18dp"
-
-                    android:layout_marginStart="50dp"
-                    android:layout_marginTop="15dp" />
-            </RelativeLayout>
-
-
-        </android.support.v7.widget.CardView>
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:id="@+id/rl2"
-        android:layout_below="@+id/rl">
-
-        <android.support.v7.widget.CardView
-            android:id="@+id/card_view"
-            android:layout_gravity="center"
-            android:elevation="8dp"
-            card_view:cardCornerRadius="@dimen/cardview_corner__radius"
-            card_view:cardBackgroundColor="@color/cardview_color"
-            android:layout_height="70dp"
-            android:layout_width="match_parent"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp">
-
-            <RelativeLayout android:layout_width="match_parent"
-                android:layout_height="70dp">
-
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    card_view:srcCompat="@drawable/arrow"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentStart="true"
-                    android:id="@+id/imageView3" />
-
-                <TextView
-                    android:text="@string/download_speed"
-                    android:textColor="@color/md_white_1000"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="18sp"
-                    android:layout_marginBottom="12dp"
-                    android:layout_alignBottom="@+id/imageView3"
-                    android:layout_toEndOf="@+id/imageView3"
-                    android:layout_marginStart="5dp" />
-
-                <TextView
-                    android:text="@string/mbps"
-                    android:textColor="@color/md_white_1000"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/mbps"
-                    android:textSize="12sp"
-                    android:layout_below="@+id/imageView3"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginRight="5dp" />
-
-                <TextView
-                    android:text="00.00"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/downloadSpeed"
-                    android:layout_marginRight="3dp"
-                    android:textColor="@color/color_white"
-                    android:textSize="40sp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_toStartOf="@+id/mbps"
-                    android:textStyle="bold" />
-            </RelativeLayout>
-
-
-        </android.support.v7.widget.CardView>
-
-    </RelativeLayout>
-
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:id="@+id/rl3"
-        android:layout_below="@+id/rl2">
-
-        <android.support.v7.widget.CardView
-            android:layout_gravity="center"
-            android:elevation="8dp"
-            card_view:cardCornerRadius="@dimen/cardview_corner__radius"
-            card_view:cardBackgroundColor="@color/cardview_color"
-            android:layout_height="70dp"
-            android:layout_width="match_parent"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp">
-
-            <RelativeLayout android:layout_width="match_parent"
-                android:layout_height="70dp">
-
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:rotation="-90"
-
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentStart="true"
-                    android:id="@+id/upload_speed"
-                    card_view:srcCompat="@drawable/upload_speed" />
-
-                <TextView
-                    android:text="@string/upload_speed"
-                    android:textColor="@color/md_white_1000"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="18sp"
-                    android:layout_marginBottom="12dp"
-                    android:layout_alignBottom="@+id/upload_speed"
-                    android:layout_toEndOf="@+id/upload_speed"
-                    android:layout_marginStart="5dp" />
-
-                <TextView
-                    android:text="@string/mbps"
-                    android:textColor="@color/md_white_1000"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/mbpss"
-                    android:textSize="12sp"
-                    android:layout_below="@+id/upload_speed"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginRight="5dp" />
-
-                <TextView
-                    android:text="00.00"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/uploadSpeed"
-                    android:layout_marginRight="3dp"
-                    android:textColor="@color/color_white"
-                    android:textSize="40sp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_toStartOf="@+id/mbpss"
-                    android:textStyle="normal|bold" />
-            </RelativeLayout>
-
-
-        </android.support.v7.widget.CardView>
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:id="@+id/rl4"
-        android:layout_below="@+id/rl3">
-
-        <android.support.v7.widget.CardView
-            android:layout_gravity="center"
-            android:elevation="8dp"
-            card_view:cardCornerRadius="@dimen/cardview_corner__radius"
-            card_view:cardBackgroundColor="@color/cardview_color"
-            android:layout_width="match_parent"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_height="325dp">
-
-            <RelativeLayout
-
+            <android.support.v7.widget.CardView
+                android:layout_gravity="center"
+                android:elevation="8dp"
+                card_view:cardCornerRadius="@dimen/cardview_corner__radius"
+                card_view:cardBackgroundColor="@color/cardview_color"
+                android:layout_height="70dp"
                 android:layout_width="match_parent"
-                android:orientation="horizontal"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp">
+
+                <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="70dp">
+
+
+                    <ImageView
+                        android:rotation="-90"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentStart="true"
+                        android:id="@+id/sync"
+                        card_view:srcCompat="@drawable/sync"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="174dp"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginTop="5dp" />
+
+                    <TextView
+                        android:text="@string/ms"
+                        android:textColor="@color/md_white_1000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/downloadData"
+                        android:textSize="12dp"
+                        android:layout_below="@+id/sync"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginRight="5dp" />
+
+                    <TextView
+                        android:text="000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/pingView"
+                        android:layout_marginRight="3dp"
+                        android:textColor="@color/color_white"
+                        android:textSize="40dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_toStartOf="@+id/downloadData"
+                        android:textStyle="normal|bold" />
+
+                    <TextView
+                        android:text="@string/ping"
+                        android:textColor="@color/md_white_1000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/textViewPing"
+                        android:textSize="18dp"
+
+                        android:layout_marginStart="50dp"
+                        android:layout_marginTop="15dp" />
+                </RelativeLayout>
+
+
+            </android.support.v7.widget.CardView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1"
+            android:id="@+id/rl2"
+            android:layout_below="@+id/rl">
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/card_view"
+                android:layout_gravity="center"
+                android:elevation="8dp"
+                card_view:cardCornerRadius="@dimen/cardview_corner__radius"
+                card_view:cardBackgroundColor="@color/cardview_color"
+                android:layout_height="70dp"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp">
+
+                <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="70dp">
+
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        card_view:srcCompat="@drawable/arrow"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentStart="true"
+                        android:id="@+id/imageView3" />
+
+                    <TextView
+                        android:text="@string/download_speed"
+                        android:textColor="@color/md_white_1000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:layout_marginBottom="12dp"
+                        android:layout_alignBottom="@+id/imageView3"
+                        android:layout_toEndOf="@+id/imageView3"
+                        android:layout_marginStart="5dp" />
+
+                    <TextView
+                        android:text="@string/mbps"
+                        android:textColor="@color/md_white_1000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/mbps"
+                        android:textSize="12sp"
+                        android:layout_below="@+id/imageView3"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginRight="5dp" />
+
+                    <TextView
+                        android:text="00.00"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/downloadSpeed"
+                        android:layout_marginRight="3dp"
+                        android:textColor="@color/color_white"
+                        android:textSize="40sp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_toStartOf="@+id/mbps"
+                        android:textStyle="bold" />
+                </RelativeLayout>
+
+
+            </android.support.v7.widget.CardView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1"
+            android:id="@+id/rl3"
+            android:layout_below="@+id/rl2">
+
+            <android.support.v7.widget.CardView
+                android:layout_gravity="center"
+                android:elevation="8dp"
+                card_view:cardCornerRadius="@dimen/cardview_corner__radius"
+                card_view:cardBackgroundColor="@color/cardview_color"
+                android:layout_height="70dp"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp">
+
+                <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="70dp">
+
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:rotation="-90"
+
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentStart="true"
+                        android:id="@+id/upload_speed"
+                        card_view:srcCompat="@drawable/upload_speed" />
+
+                    <TextView
+                        android:text="@string/upload_speed"
+                        android:textColor="@color/md_white_1000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:layout_marginBottom="12dp"
+                        android:layout_alignBottom="@+id/upload_speed"
+                        android:layout_toEndOf="@+id/upload_speed"
+                        android:layout_marginStart="5dp" />
+
+                    <TextView
+                        android:text="@string/mbps"
+                        android:textColor="@color/md_white_1000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/mbpss"
+                        android:textSize="12sp"
+                        android:layout_below="@+id/upload_speed"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginRight="5dp" />
+
+                    <TextView
+                        android:text="00.00"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/uploadSpeed"
+                        android:layout_marginRight="3dp"
+                        android:textColor="@color/color_white"
+                        android:textSize="40sp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_toStartOf="@+id/mbpss"
+                        android:textStyle="normal|bold" />
+                </RelativeLayout>
+
+
+            </android.support.v7.widget.CardView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1"
+            android:id="@+id/rl4"
+            android:layout_below="@+id/rl3">
+
+            <android.support.v7.widget.CardView
+                android:layout_gravity="center"
+                android:elevation="8dp"
+                card_view:cardCornerRadius="@dimen/cardview_corner__radius"
+                card_view:cardBackgroundColor="@color/cardview_color"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
                 android:layout_height="325dp">
 
-                <TextView
-                    android:text="0"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/progressText"
-                    android:layout_above="@+id/progress"
-                    android:layout_alignEnd="@+id/progress"
-                    android:textColor="@color/cardview_light_background" />
+                <RelativeLayout
 
-                <ProgressBar
-                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                    android:progressTint="@color/accent"
-                    android:progressTintMode="multiply"
-                    android:id="@+id/progress"
-                    android:layout_height="20dp"
-                    android:progress="0"
-                    android:max="100"
-                    android:indeterminate="false"
-                    android:layout_width="330dp"
-                    android:layout_marginBottom="53dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerHorizontal="true" />
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_height="325dp">
 
-                <view
-                    class="com.github.anastr.speedviewlib.SpeedView"
-                    android:id="@+id/speedView"
-                    android:layout_height="250dp"
-                    android:layout_width="250dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignStart="@+id/start"
-                    android:layout_marginTop="2dp"
-                    card_view:sv_unit="@string/mbps"
-                    card_view:sv_unitSpeedInterval="5dp"
-                    card_view:sv_unitTextColor="@color/color_white"
-                    card_view:sv_textColor="@color/color_white"
-                    card_view:sv_speedTextColor="@color/color_white"
-                    card_view:sv_unitTextSize="18dp"
-                    card_view:sv_textSize="14dp"
-                    card_view:sv_minSpeed="0"
-                    card_view:sv_withTremble="false"
-                    card_view:sv_maxSpeed="20" />
+                    <TextView
+                        android:text="0"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/progressText"
+                        android:layout_above="@+id/progress"
+                        android:layout_alignEnd="@+id/progress"
+                        android:textColor="@color/cardview_light_background" />
 
-                <Button
-                    android:text="@string/start_test"
-                    android:theme="@style/MyButton"
-                    android:id="@+id/start"
-                    android:layout_width="250dp"
-                    android:layout_height="55dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerHorizontal="true"
-                    android:textColor="@color/cardview_light_background" />
+                    <ProgressBar
+                        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                        android:progressTint="@color/accent"
+                        android:progressTintMode="multiply"
+                        android:id="@+id/progress"
+                        android:layout_height="20dp"
+                        android:progress="0"
+                        android:max="100"
+                        android:indeterminate="false"
+                        android:layout_width="330dp"
+                        android:layout_marginBottom="53dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerHorizontal="true" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/processDU"
-                    android:layout_alignBottom="@+id/speedView"
-                    android:layout_centerHorizontal="true"
-                    android:textColor="@color/color_white" />
+                    <view
+                        class="com.github.anastr.speedviewlib.SpeedView"
+                        android:id="@+id/speedView"
+                        android:layout_height="250dp"
+                        android:layout_width="250dp"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignStart="@+id/start"
+                        android:layout_marginTop="2dp"
+                        card_view:sv_unit="@string/mbps"
+                        card_view:sv_unitSpeedInterval="5dp"
+                        card_view:sv_unitTextColor="@color/color_white"
+                        card_view:sv_textColor="@color/color_white"
+                        card_view:sv_speedTextColor="@color/color_white"
+                        card_view:sv_unitTextSize="18dp"
+                        card_view:sv_textSize="14dp"
+                        card_view:sv_minSpeed="0"
+                        card_view:sv_withTremble="false"
+                        card_view:sv_maxSpeed="20" />
 
-                <ProgressBar
-                    style="@style/Widget.AppCompat.ProgressBar"
-                    android:layout_marginStart="5dp"
-                    android:layout_alignBottom="@+id/speedView"
-                    android:layout_toEndOf="@+id/processDU"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:visibility="invisible"
-                    android:id="@+id/processTest" />
-            </RelativeLayout>
+                    <Button
+                        android:text="@string/start_test"
+                        android:theme="@style/MyButton"
+                        android:id="@+id/start"
+                        android:layout_width="250dp"
+                        android:layout_height="55dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerHorizontal="true"
+                        android:textColor="@color/cardview_light_background" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/processDU"
+                        android:layout_alignBottom="@+id/speedView"
+                        android:layout_centerHorizontal="true"
+                        android:textColor="@color/color_white" />
+
+                    <ProgressBar
+                        style="@style/Widget.AppCompat.ProgressBar"
+                        android:layout_marginStart="5dp"
+                        android:layout_alignBottom="@+id/speedView"
+                        android:layout_toEndOf="@+id/processDU"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:visibility="invisible"
+                        android:id="@+id/processTest" />
+                </RelativeLayout>
 
 
-        </android.support.v7.widget.CardView>
+            </android.support.v7.widget.CardView>
 
+        </RelativeLayout>
     </RelativeLayout>
 
-</RelativeLayout>
+
+</android.support.v4.widget.NestedScrollView>

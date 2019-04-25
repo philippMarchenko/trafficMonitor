@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_all_traffic"
+        android:enabled="true"
+        android:icon="@drawable/traffic_icon"
+        android:title="@string/tab_1"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_apps_traffic"
+        android:enabled="true"
+        android:icon="@drawable/apps_icon"
+        android:title="@string/app_data"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_speed_test"
+        android:enabled="true"
+        android:icon="@drawable/speed_test_icon"
+        android:title="@string/tab_2"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_settings"
+        android:enabled="true"
+        android:icon="@drawable/baseline_settings_20px"
+        android:title="@string/info_fr4"
+        
+        app:showAsAction="ifRoom" />
+</menu>

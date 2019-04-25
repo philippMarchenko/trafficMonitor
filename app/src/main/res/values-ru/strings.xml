@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TraficMonitor</string>
+    <string name="app_name">Traffic Monitoring</string>
 
     <!-- Navigation Drawer-->
     <string name="info_fr1">Общий</string>
@@ -73,5 +73,8 @@
     <string name="used_3G">Использовано  3G/4G</string>
     <string name="used_WIFI">Использовано WiFi</string>
     <string name="app_data">Приложения</string>
+    <string name="traffic">Tраффик</string>
+
+
 
 </resources>

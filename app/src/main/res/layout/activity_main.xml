@@ -13,21 +13,10 @@
             android:textAllCaps="false"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/cardview_color"
+            android:background="@color/primary_dark"
             app:layout_scrollFlags="scroll|enterAlwaysCollapsed"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tabs"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:tabMode="scrollable"
-            app:tabIndicatorColor="@color/colorAccent"
-            app:tabIndicatorHeight="2dp"
-            app:tabSelectedTextColor="@android:color/white"
-            app:tabTextColor="@android:color/white"
-            app:tabTextAppearance="@style/MineCustomTabText"
-            />
     </android.support.design.widget.AppBarLayout>
 
     <com.devphill.traficMonitor.helper.CustomViewPager
@@ -35,4 +24,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"  />
+
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        app:itemBackground="@color/primary_dark"
+        app:menu="@menu/bottom_navigation_main"
+        app:itemIconTint="@drawable/nav_item_color_state"
+        app:itemTextColor="@drawable/nav_item_color_state"
+        app:labelVisibilityMode="auto"/>
+
 </android.support.design.widget.CoordinatorLayout>

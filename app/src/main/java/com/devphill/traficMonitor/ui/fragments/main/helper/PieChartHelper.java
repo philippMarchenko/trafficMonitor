@@ -3,6 +3,7 @@ package com.devphill.traficMonitor.ui.fragments.main.helper;
 import android.content.Context;
 import android.graphics.Color;
 
+import com.devphill.traficMonitor.App;
 import com.devphill.traficMonitor.R;
 import com.devphill.traficMonitor.helper.MyValueFormatterPie;
 import com.devphill.traficMonitor.service.TrafficService;
@@ -37,7 +38,7 @@ public class PieChartHelper{
             entriesPie.clear();
             labelsPie.clear();
 
-            d.addEntry(new Entry((TrafficService.stopLevel - trafficFloat),0),0);
+            d.addEntry(new Entry((App.dataManager.getStopLevel() - trafficFloat),0),0);
             d.addEntry(new Entry(trafficFloat,0),0);
 
             labelsPie.add(context.getResources().getString(R.string.have_left));

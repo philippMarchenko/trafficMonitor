@@ -1,228 +1,236 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.v4.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:sample="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/window_background"
-    android:layout_marginTop="5dp">
+    android:layout_marginTop="5dp"
+    android:fillViewport="true">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:id="@+id/rl1"
-        android:layout_marginTop="5dp">
-
-        <android.support.v7.widget.CardView
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
-            android:layout_gravity="center"
-            android:elevation="8dp"
-            card_view:cardCornerRadius="@dimen/cardview_corner__radius"
-            card_view:cardBackgroundColor="@color/cardview_color"
-            android:layout_height="260dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginLeft="5dp">
+            android:layout_height="wrap_content"
+            android:weightSum="1"
+            android:id="@+id/rl1"
+            android:layout_marginTop="5dp">
 
-            <RelativeLayout
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_marginTop="5dp"
+                android:layout_gravity="center"
+                android:elevation="8dp"
+                card_view:cardCornerRadius="@dimen/cardview_corner__radius"
+                card_view:cardBackgroundColor="@color/cardview_color"
+                android:layout_height="260dp"
                 android:layout_marginRight="5dp"
-                android:layout_marginLeft="5dp"
-                android:layout_height="wrap_content">
+                android:layout_marginLeft="5dp">
 
-                <com.github.mikephil.charting.charts.LineChart
-                    android:id="@+id/linechart"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginRight="5dp"
-                    android:layout_centerHorizontal="true"
-                    android:layout_height="220dp" />
+                    android:layout_marginLeft="5dp"
+                    android:layout_height="wrap_content">
 
-                <Spinner
-                    android:id="@+id/selectPeriod"
-                    android:layout_width="wrap_content"
-                    android:layout_height="35dp"
-                    android:layout_alignEnd="@+id/linechart"
-                    android:layout_alignParentBottom="true" />
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/linechart"
+                        android:layout_width="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_centerHorizontal="true"
+                        android:layout_height="220dp" />
 
-            </RelativeLayout>
+                    <Spinner
+                        android:id="@+id/selectPeriod"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp"
+                        android:layout_alignEnd="@+id/linechart"
+                        android:layout_alignParentBottom="true" />
 
-        </android.support.v7.widget.CardView>
+                </RelativeLayout>
 
-    </RelativeLayout>
+            </android.support.v7.widget.CardView>
 
-    <RelativeLayout
-        android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:id="@+id/rl2"
-        android:layout_below="@+id/rl1"
-        android:layout_width="wrap_content">
+        </RelativeLayout>
 
-        <android.support.v7.widget.CardView
-            android:layout_gravity="center"
-            android:layout_margin="5dp"
-            android:elevation="8dp"
-            card_view:cardCornerRadius="@dimen/cardview_corner__radius"
-            card_view:cardBackgroundColor="@color/cardview_color"
-            android:layout_height="70dp"
-            android:layout_width="173dp">
+        <RelativeLayout
+            android:layout_height="wrap_content"
+            android:weightSum="1"
+            android:id="@+id/rl2"
+            android:layout_below="@+id/rl1"
+            android:layout_width="wrap_content">
 
-            <RelativeLayout android:layout_width="175dp"
-                android:layout_height="70dp">
+            <android.support.v7.widget.CardView
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:elevation="8dp"
+                card_view:cardCornerRadius="@dimen/cardview_corner__radius"
+                card_view:cardBackgroundColor="@color/cardview_color"
+                android:layout_height="70dp"
+                android:layout_width="173dp">
 
-
-                <ImageView
-                    sample:srcCompat="@drawable/bittorrent"
-                    android:layout_marginStart="5dp"
-                    android:id="@+id/imageView"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginTop="5dp"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp" />
-
-                <TextView
-                    android:text="@string/download_data"
-                    android:textColor="@color/md_white_1000"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="50dp"
-                    android:layout_marginTop="15dp"
-                    android:id="@+id/textViewPing"
-                    android:textSize="12dp"
-                    android:layout_alignParentTop="true" />
-
-                <ImageView
-                    sample:srcCompat="@drawable/calculator"
-                    android:id="@+id/imageView2"
-                    android:layout_below="@+id/imageView"
-                    android:layout_alignEnd="@+id/textViewPing"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp" />
-
-                <TextView
-                    android:text="TextView"
-                    android:textColor="@color/md_white_1000"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/downloadData"
-                    android:layout_marginStart="19dp"
-                    android:textSize="12sp"
-                    android:layout_alignBottom="@+id/imageView2"
-                    android:layout_alignStart="@+id/imageView" />
-            </RelativeLayout>
+                <RelativeLayout android:layout_width="175dp"
+                    android:layout_height="70dp">
 
 
-        </android.support.v7.widget.CardView>
+                    <ImageView
+                        sample:srcCompat="@drawable/bittorrent"
+                        android:layout_marginStart="5dp"
+                        android:id="@+id/imageView"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginTop="5dp"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp" />
 
-    </RelativeLayout>
+                    <TextView
+                        android:text="@string/download_data"
+                        android:textColor="@color/md_white_1000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="50dp"
+                        android:layout_marginTop="15dp"
+                        android:id="@+id/textViewPing"
+                        android:textSize="12dp"
+                        android:layout_alignParentTop="true" />
 
-    <RelativeLayout
-        android:layout_height="wrap_content"
-        android:id="@+id/rl3"
+                    <ImageView
+                        sample:srcCompat="@drawable/calculator"
+                        android:id="@+id/imageView2"
+                        android:layout_below="@+id/imageView"
+                        android:layout_alignEnd="@+id/textViewPing"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp" />
 
-        android:layout_below="@+id/rl1"
-        android:layout_width="wrap_content"
-        android:layout_alignParentRight="true">
-
-        <android.support.v7.widget.CardView
-            android:id="@+id/card_view"
-            android:layout_gravity="center"
-            android:layout_margin="@dimen/card_margin"
-            android:elevation="8dp"
-            card_view:cardCornerRadius="@dimen/cardview_corner__radius"
-            card_view:cardBackgroundColor="@color/cardview_color"
-            android:layout_height="70dp"
-            android:layout_width="173dp">
-
-            <RelativeLayout android:layout_height="70dp"
-                android:layout_width="175dp">
-
-
-                <ImageView
-                    sample:srcCompat="@drawable/bittorrent"
-                    android:layout_marginStart="5dp"
-                    android:id="@+id/imageView_bittorrent"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginTop="5dp"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp" />
-
-                <TextView
-                    android:text="@string/upload_data"
-                    android:textColor="@color/md_white_1000"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="50dp"
-                    android:layout_marginTop="15dp"
-                    android:id="@+id/upload_data"
-                    android:textSize="12dp"
-                    android:layout_alignParentTop="true" />
-
-                <ImageView
-                    sample:srcCompat="@drawable/up"
-                    android:layout_below="@+id/imageView_bittorrent"
-                    android:layout_alignEnd="@+id/upload_data"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:id="@+id/upload_data_drawable"
-                    />
-
-                <TextView
-                    android:text="TextView"
-                    android:textColor="@color/md_white_1000"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/uploadData"
-                    android:layout_marginStart="19dp"
-                    android:textSize="12sp"
-                    android:layout_alignBottom="@+id/upload_data_drawable"
-                    android:layout_alignStart="@+id/imageView_bittorrent" />
-            </RelativeLayout>
+                    <TextView
+                        android:text="TextView"
+                        android:textColor="@color/md_white_1000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/downloadData"
+                        android:layout_marginStart="19dp"
+                        android:textSize="12sp"
+                        android:layout_alignBottom="@+id/imageView2"
+                        android:layout_alignStart="@+id/imageView" />
+                </RelativeLayout>
 
 
-        </android.support.v7.widget.CardView>
+            </android.support.v7.widget.CardView>
 
-    </RelativeLayout>
+        </RelativeLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:id="@+id/rl4"
-        android:layout_below="@+id/rl3">
+        <RelativeLayout
+            android:layout_height="wrap_content"
+            android:id="@+id/rl3"
 
-        <android.support.v7.widget.CardView
+            android:layout_below="@+id/rl1"
+            android:layout_width="wrap_content"
+            android:layout_alignParentRight="true">
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/card_view"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/card_margin"
+                android:elevation="8dp"
+                card_view:cardCornerRadius="@dimen/cardview_corner__radius"
+                card_view:cardBackgroundColor="@color/cardview_color"
+                android:layout_height="70dp"
+                android:layout_width="173dp">
+
+                <RelativeLayout android:layout_height="70dp"
+                    android:layout_width="175dp">
+
+
+                    <ImageView
+                        sample:srcCompat="@drawable/bittorrent"
+                        android:layout_marginStart="5dp"
+                        android:id="@+id/imageView_bittorrent"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginTop="5dp"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp" />
+
+                    <TextView
+                        android:text="@string/upload_data"
+                        android:textColor="@color/md_white_1000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="50dp"
+                        android:layout_marginTop="15dp"
+                        android:id="@+id/upload_data"
+                        android:textSize="12dp"
+                        android:layout_alignParentTop="true" />
+
+                    <ImageView
+                        sample:srcCompat="@drawable/up"
+                        android:layout_below="@+id/imageView_bittorrent"
+                        android:layout_alignEnd="@+id/upload_data"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:id="@+id/upload_data_drawable"
+                        />
+
+                    <TextView
+                        android:text="TextView"
+                        android:textColor="@color/md_white_1000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/uploadData"
+                        android:layout_marginStart="19dp"
+                        android:textSize="12sp"
+                        android:layout_alignBottom="@+id/upload_data_drawable"
+                        android:layout_alignStart="@+id/imageView_bittorrent" />
+                </RelativeLayout>
+
+
+            </android.support.v7.widget.CardView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_gravity="center"
-            android:elevation="8dp"
-            card_view:cardCornerRadius="@dimen/cardview_corner__radius"
-            card_view:cardBackgroundColor="@color/cardview_color"
-            android:layout_weight="0.97"
-            android:layout_height="225dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp">
+            android:layout_height="wrap_content"
+            android:weightSum="1"
+            android:id="@+id/rl4"
+            android:layout_below="@+id/rl3">
 
-            <RelativeLayout
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="225dp">
+                android:layout_gravity="center"
+                android:elevation="8dp"
+                card_view:cardCornerRadius="@dimen/cardview_corner__radius"
+                card_view:cardBackgroundColor="@color/cardview_color"
+                android:layout_weight="0.97"
+                android:layout_height="225dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp">
 
-
-                <com.github.mikephil.charting.charts.PieChart
-                    android:id="@+id/pieChart"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_height="225dp"
-                    android:layout_marginBottom="10dp" />
+                    android:layout_height="225dp">
 
-            </RelativeLayout>
 
-        </android.support.v7.widget.CardView>
+                    <com.github.mikephil.charting.charts.PieChart
+                        android:id="@+id/pieChart"
+                        android:layout_width="match_parent"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_height="225dp"
+                        android:layout_marginBottom="10dp" />
+
+                </RelativeLayout>
+
+            </android.support.v7.widget.CardView>
+
+        </RelativeLayout>
 
     </RelativeLayout>
 
-</RelativeLayout>
+
+
+</android.support.v4.widget.NestedScrollView>

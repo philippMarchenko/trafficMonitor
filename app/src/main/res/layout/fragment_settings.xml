@@ -7,382 +7,400 @@
     android:layout_height="match_parent"
     android:background="@color/window_background">
 
-    <RelativeLayout
+
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:id="@+id/rl1">
-        <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:fillViewport="true">
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_gravity="center"
-            android:layout_margin="@dimen/card_margin"
-            android:elevation="8dp"
-            card_view:cardCornerRadius="@dimen/cardview_corner__radius"
-            card_view:cardBackgroundColor="@color/cardview_color"
-            android:layout_height="100dp">
+            android:layout_height="wrap_content">
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-
-                <RadioGroup
-                    android:id="@+id/radioGroup1"
+                android:layout_height="wrap_content"
+                android:weightSum="1"
+                android:id="@+id/rl1">
+                <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/set_period"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginTop="5dp">
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/card_margin"
+                    android:elevation="8dp"
+                    card_view:cardCornerRadius="@dimen/cardview_corner__radius"
+                    card_view:cardBackgroundColor="@color/cardview_color"
+                    android:layout_height="100dp">
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
 
-                    <RadioButton
-                        android:id="@+id/button_month"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="true"
-                        android:text="@string/month"
-                        android:theme="@style/MyRadioButton"
-                        android:layout_alignTop="@+id/radioGroup1"
-                        android:layout_alignParentStart="true"
-                        android:layout_weight="1"
-                        android:textColor="@color/color_white" />
 
-                    <RadioButton
-                        android:id="@+id/button_day"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="true"
-                        android:text="@string/day"
-                        android:theme="@style/MyRadioButton"
-                        android:layout_below="@+id/count"
-                        android:layout_alignParentStart="true"
-                        android:textColor="@color/color_white" />
+                        <RadioGroup
+                            android:id="@+id/radioGroup1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/set_period"
+                            android:layout_alignParentStart="true"
+                            android:layout_marginTop="5dp">
 
-                </RadioGroup>
+                            <RadioButton
+                                android:id="@+id/button_month"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="true"
+                                android:text="@string/month"
+                                android:theme="@style/MyRadioButton"
+                                android:layout_alignTop="@+id/radioGroup1"
+                                android:layout_alignParentStart="true"
+                                android:layout_weight="1"
+                                android:textColor="@color/color_white" />
 
-                <TextView
-                    android:id="@+id/set_period"
-                    android:text="@string/set_period"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/mdtp_done_text_color_dark_normal"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_alignParentTop="true"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="5dp" />
+                            <RadioButton
+                                android:id="@+id/button_day"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="true"
+                                android:text="@string/day"
+                                android:theme="@style/MyRadioButton"
+                                android:layout_below="@+id/count"
+                                android:layout_alignParentStart="true"
+                                android:textColor="@color/color_white" />
 
+                        </RadioGroup>
+
+                        <TextView
+                            android:id="@+id/set_period"
+                            android:text="@string/set_period"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/mdtp_done_text_color_dark_normal"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:layout_alignParentTop="true"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginTop="5dp" />
+
+                    </RelativeLayout>
+                </android.support.v7.widget.CardView>
             </RelativeLayout>
-        </android.support.v7.widget.CardView>
-    </RelativeLayout>
-
-
-    <RelativeLayout
-
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:id="@+id/rl2"
-        android:layout_below="@+id/rl1">
-
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_gravity="center"
-            android:layout_margin="@dimen/card_margin"
-            android:elevation="8dp"
-            card_view:cardCornerRadius="@dimen/cardview_corner__radius"
-            card_view:cardBackgroundColor="@color/cardview_color"
-            android:layout_height="235dp">
 
             <RelativeLayout
+
                 android:layout_width="match_parent"
-                android:layout_height="260dp">
+                android:layout_height="wrap_content"
+                android:weightSum="1"
+                android:id="@+id/rl2"
+                android:layout_below="@+id/rl1">
 
-
-                <android.support.design.widget.TextInputLayout
-                    android:id="@+id/inputDataLayout"
+                <android.support.v7.widget.CardView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:hintTextAppearance="@style/MyHintText"
-                    android:focusable="true"
-                    android:focusableInTouchMode="true"
-                    android:layout_below="@+id/textView"
-                    android:layout_marginTop="12dp"
-                    android:layout_alignEnd="@+id/textView">
-                </android.support.design.widget.TextInputLayout>
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/card_margin"
+                    android:elevation="8dp"
+                    card_view:cardCornerRadius="@dimen/cardview_corner__radius"
+                    card_view:cardBackgroundColor="@color/cardview_color"
+                    android:layout_height="235dp">
 
-                <TextView
-                    android:text="@string/set_data"
-                    android:layout_width="wrap_content"
-                    android:textColor="@color/material_drawer_dark_header_selection_text"
-                    android:id="@+id/textView"
-                    android:textSize="18sp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginTop="5dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_centerHorizontal="true"
-                    style="@android:style/Widget.TextView"
-                    android:textStyle="bold" />
-
-                <com.appyvet.rangebar.RangeBar
-                    android:id="@+id/rangebar"
-                    android:layout_marginLeft="2dp"
-                    sample:rangeBar="false"
-                    sample:tickStart="0"
-                    sample:tickEnd="100"
-                    sample:tickInterval="1"
-                    sample:barWeight="50dp"
-                    sample:pinRadius ="0dp"
-                    sample:tickColor="@color/icons"
-                    sample:pinColor="@color/icons"
-                    sample:selectorColor="@color/icons"
-                    sample:rangeBarColor="@color/cardview_color"
-                    sample:connectingLineColor="@color/icons"
-                    android:layout_width="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_height="65dp"
-                    android:layout_alignEnd="@+id/textView"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="20dp" />
-
-                <EditText
-                    android:id="@+id/inputDataStop"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:hint="Введите"
-                    android:gravity="right"
-                    android:textColor="@color/colorTest"
-                    android:theme="@style/MyEditText"
-                    android:layout_weight="1"
-
-                    android:layout_marginRight="25dp"
-                    android:layout_width="100dp"
-                    android:layout_alignBaseline="@+id/lableSetLevelStop"
-                    android:layout_alignBottom="@+id/lableSetLevelStop"
-                    android:layout_alignParentEnd="true"
-                    android:textColorHint="@color/md_blue_300" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignBottom="@+id/rangebar"
-                    android:layout_toEndOf="@+id/rangebar"
-                    android:layout_marginBottom="25dp"
-                    android:id="@+id/procent"
-                    android:layout_marginLeft="10dp"
-                    android:textColor="@color/color_white"/>
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="260dp">
 
 
+                        <android.support.design.widget.TextInputLayout
+                            android:id="@+id/inputDataLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:hintTextAppearance="@style/MyHintText"
+                            android:focusable="true"
+                            android:focusableInTouchMode="true"
+                            android:layout_below="@+id/textView"
+                            android:layout_marginTop="12dp"
+                            android:layout_alignEnd="@+id/textView">
+                        </android.support.design.widget.TextInputLayout>
 
-                <TextView
-                    android:text="@string/stopData"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/stopData"
-                    android:layout_alignBaseline="@+id/stopDataSwitch"
-                    android:layout_alignBottom="@+id/stopDataSwitch"
-                    android:layout_alignStart="@+id/setDataView"
-                    android:textColor="@color/colorTest"
-                    android:layout_marginStart="10dp" />
+                        <TextView
+                            android:text="@string/set_data"
+                            android:layout_width="wrap_content"
+                            android:textColor="@color/material_drawer_dark_header_selection_text"
+                            android:id="@+id/textView"
+                            android:textSize="18sp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginTop="5dp"
+                            android:layout_alignParentTop="true"
+                            android:layout_centerHorizontal="true"
+                            style="@android:style/Widget.TextView"
+                            android:textStyle="bold" />
 
-                <TextView
-                    android:text="@string/levelWarning"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/material_drawer_header_selection_text"
-                    android:id="@+id/setDataView"
-                    android:textSize="18sp"
-                    android:layout_marginTop="15dp"
-                    android:layout_below="@+id/stopDataSwitch"
-                    android:layout_alignStart="@+id/lableSetLevelStop" />
+                        <com.appyvet.rangebar.RangeBar
+                            android:id="@+id/rangebar"
+                            android:layout_marginLeft="2dp"
+                            sample:rangeBar="false"
+                            sample:tickStart="0"
+                            sample:tickEnd="100"
+                            sample:tickInterval="1"
+                            sample:barWeight="50dp"
+                            sample:pinRadius ="0dp"
+                            sample:tickColor="@color/icons"
+                            sample:pinColor="@color/icons"
+                            sample:selectorColor="@color/icons"
+                            sample:rangeBarColor="@color/cardview_color"
+                            sample:connectingLineColor="@color/icons"
+                            android:layout_width="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_height="65dp"
+                            android:layout_alignEnd="@+id/textView"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginBottom="20dp" />
 
-                <TextView
-                    android:text="@string/levelStop"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/material_drawer_header_selection_text"
-                    android:id="@+id/lableSetLevelStop"
-                    android:layout_marginTop="5dp"
-                    android:textSize="18sp"
-                    android:layout_marginLeft="5dp"
-                    android:layout_below="@+id/inputDataLayout"
-                    android:layout_alignStart="@+id/rangebar" />
+                        <EditText
+                            android:id="@+id/inputDataStop"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:hint="Введите"
+                            android:gravity="right"
+                            android:textColor="@color/colorTest"
+                            android:theme="@style/MyEditText"
+                            android:layout_weight="1"
 
-                <TextView
-                    android:text="@string/showMessege"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:id="@+id/setAllert"
-                    android:layout_below="@+id/setDataView"
-                    android:layout_alignStart="@+id/setDataView"
-                    android:textColor="@color/colorTest"
-                    android:layout_marginStart="10dp" />
+                            android:layout_marginRight="25dp"
+                            android:layout_width="100dp"
+                            android:layout_alignBaseline="@+id/lableSetLevelStop"
+                            android:layout_alignBottom="@+id/lableSetLevelStop"
+                            android:layout_alignParentEnd="true"
+                            android:textColorHint="@color/md_blue_300" />
 
-                <android.support.v7.widget.SwitchCompat
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:id="@+id/stopDataSwitch"
-                    android:layout_below="@+id/lableSetLevelStop"
-                    android:theme="@style/MySwitch"
-                    android:layout_alignEnd="@+id/inputDataStop" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignBottom="@+id/rangebar"
+                            android:layout_toEndOf="@+id/rangebar"
+                            android:layout_marginBottom="25dp"
+                            android:id="@+id/procent"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="@color/color_white"/>
 
 
-                <EditText
-                    android:id="@+id/inputDataAllert"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:hint="Введите"
-                    android:gravity="right"
-                    android:textColor="@color/colorTest"
-                    android:theme="@style/MyEditText"
 
-                    android:layout_weight="1"
-                    android:layout_marginRight="5dp"
-                    android:layout_width="100dp"
-                    android:textColorHint="@color/md_blue_300"
-                    android:layout_alignBaseline="@+id/setDataView"
-                    android:layout_alignBottom="@+id/setDataView"
-                    android:layout_alignStart="@+id/inputDataStop" />
+                        <TextView
+                            android:text="@string/stopData"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/stopData"
+                            android:layout_alignBaseline="@+id/stopDataSwitch"
+                            android:layout_alignBottom="@+id/stopDataSwitch"
+                            android:layout_alignStart="@+id/setDataView"
+                            android:textColor="@color/colorTest"
+                            android:layout_marginStart="10dp" />
 
-                <android.support.v7.widget.SwitchCompat
-                    android:layout_height="wrap_content"
-                    android:id="@+id/allertSwitch"
-                    android:layout_width="wrap_content"
-                    android:theme="@style/MySwitch"
-                    android:thumbTextPadding="25dp"
-                    android:switchMinWidth="56dp"
-                    android:layout_alignBaseline="@+id/setAllert"
-                    android:layout_alignBottom="@+id/setAllert"
-                    android:layout_alignEnd="@+id/inputDataAllert" />
+                        <TextView
+                            android:text="@string/levelWarning"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/material_drawer_header_selection_text"
+                            android:id="@+id/setDataView"
+                            android:textSize="18sp"
+                            android:layout_marginTop="15dp"
+                            android:layout_below="@+id/stopDataSwitch"
+                            android:layout_alignStart="@+id/lableSetLevelStop" />
 
+                        <TextView
+                            android:text="@string/levelStop"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/material_drawer_header_selection_text"
+                            android:id="@+id/lableSetLevelStop"
+                            android:layout_marginTop="5dp"
+                            android:textSize="18sp"
+                            android:layout_marginLeft="5dp"
+                            android:layout_below="@+id/inputDataLayout"
+                            android:layout_alignStart="@+id/rangebar" />
+
+                        <TextView
+                            android:text="@string/showMessege"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="24dp"
+                            android:id="@+id/setAllert"
+                            android:layout_below="@+id/setDataView"
+                            android:layout_alignStart="@+id/setDataView"
+                            android:textColor="@color/colorTest"
+                            android:layout_marginStart="10dp" />
+
+                        <android.support.v7.widget.SwitchCompat
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="15dp"
+                            android:id="@+id/stopDataSwitch"
+                            android:layout_below="@+id/lableSetLevelStop"
+                            android:theme="@style/MySwitch"
+                            android:layout_alignEnd="@+id/inputDataStop" />
+
+
+                        <EditText
+                            android:id="@+id/inputDataAllert"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:hint="Введите"
+                            android:gravity="right"
+                            android:textColor="@color/colorTest"
+                            android:theme="@style/MyEditText"
+
+                            android:layout_weight="1"
+                            android:layout_marginRight="5dp"
+                            android:layout_width="100dp"
+                            android:textColorHint="@color/md_blue_300"
+                            android:layout_alignBaseline="@+id/setDataView"
+                            android:layout_alignBottom="@+id/setDataView"
+                            android:layout_alignStart="@+id/inputDataStop" />
+
+                        <android.support.v7.widget.SwitchCompat
+                            android:layout_height="wrap_content"
+                            android:id="@+id/allertSwitch"
+                            android:layout_width="wrap_content"
+                            android:theme="@style/MySwitch"
+                            android:thumbTextPadding="25dp"
+                            android:switchMinWidth="56dp"
+                            android:layout_alignBaseline="@+id/setAllert"
+                            android:layout_alignBottom="@+id/setAllert"
+                            android:layout_alignEnd="@+id/inputDataAllert" />
+
+
+                    </RelativeLayout>
+
+
+                </android.support.v7.widget.CardView>
 
             </RelativeLayout>
-
-
-        </android.support.v7.widget.CardView>
-
-    </RelativeLayout>
-
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:id="@+id/rl3"
-        android:layout_below="@+id/rl2">
-
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_gravity="center"
-            android:layout_margin="@dimen/card_margin"
-            android:elevation="8dp"
-            card_view:cardCornerRadius="@dimen/cardview_corner__radius"
-            card_view:cardBackgroundColor="@color/cardview_color"
-            android:layout_height="120dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="150dp">
+                android:layout_height="wrap_content"
+                android:weightSum="1"
+                android:id="@+id/rl3"
+                android:layout_below="@+id/rl2">
+
+                <android.support.v7.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/card_margin"
+                    android:elevation="8dp"
+                    card_view:cardCornerRadius="@dimen/cardview_corner__radius"
+                    card_view:cardBackgroundColor="@color/cardview_color"
+                    android:layout_height="120dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="150dp">
 
 
-                <TextView
-                    android:text="@string/setDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_centerHorizontal="true"
-                    android:id="@+id/setDate"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/material_drawer_dark_primary_text"
-                    android:layout_marginTop="5dp" />
+                        <TextView
+                            android:text="@string/setDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_centerHorizontal="true"
+                            android:id="@+id/setDate"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/material_drawer_dark_primary_text"
+                            android:layout_marginTop="5dp" />
 
-                <TextView
-                    android:text="@string/currentDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/setDate"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginTop="5dp"
-                    android:textSize="18sp"
-                    android:id="@+id/setDateLabel"
-                    android:textColor="@color/material_drawer_dark_primary_text"
-                    android:layout_marginStart="5dp" />
+                        <TextView
+                            android:text="@string/currentDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/setDate"
+                            android:layout_alignParentStart="true"
+                            android:layout_marginTop="5dp"
+                            android:textSize="18sp"
+                            android:id="@+id/setDateLabel"
+                            android:textColor="@color/material_drawer_dark_primary_text"
+                            android:layout_marginStart="5dp" />
 
-                <TextView
-                    android:text="01.01.2017"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignTop="@+id/setDateLabel"
-                    android:layout_toEndOf="@+id/setDateLabel"
-                    android:layout_marginStart="35dp"
-                    android:textSize="18sp"
-                    android:id="@+id/viewDate"
-                    android:textColor="@color/material_drawer_icons"/>
+                        <TextView
+                            android:text="01.01.2017"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignTop="@+id/setDateLabel"
+                            android:layout_toEndOf="@+id/setDateLabel"
+                            android:layout_marginStart="35dp"
+                            android:textSize="18sp"
+                            android:id="@+id/viewDate"
+                            android:textColor="@color/material_drawer_icons"/>
 
-                <Button
-                    android:text="@string/setDate"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/setupDate"
-                    android:theme="@style/MyButton"
-                    android:textColor="@color/color_white"
-                    android:layout_marginTop="8dp"
-                    android:layout_below="@+id/setDateLabel"
-                    android:layout_centerHorizontal="true" />
+                        <Button
+                            android:id="@+id/setupDate"
+                            android:layout_width="200dp"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/setDateLabel"
+                            android:layout_centerHorizontal="true"
+                            android:layout_margin="8dp"
+                            android:layout_marginTop="8dp"
+                            android:text="@string/setDate"
+                            android:textColor="@color/color_white"
+                            android:theme="@style/MyButton" />
+                    </RelativeLayout>
+
+                </android.support.v7.widget.CardView>
             </RelativeLayout>
 
-        </android.support.v7.widget.CardView>
-    </RelativeLayout>
-
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:id="@+id/rl4"
-        android:layout_below="@+id/rl3">
-
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_gravity="center"
-            android:layout_margin="@dimen/card_margin"
-            android:elevation="8dp"
-            card_view:cardCornerRadius="@dimen/cardview_corner__radius"
-            card_view:cardBackgroundColor="@color/cardview_color"
-            android:layout_height="match_parent">
             <RelativeLayout
+                android:id="@+id/rl4"
                 android:layout_width="match_parent"
-                android:layout_height="79dp">
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/rl3"
+                android:layout_marginBottom="20dp"
+                android:weightSum="1">
+
+                <android.support.v7.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/card_margin"
+                    android:elevation="8dp"
+                    card_view:cardBackgroundColor="@color/cardview_color"
+                    card_view:cardCornerRadius="@dimen/cardview_corner__radius">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="79dp">
 
 
-                <Button
-                    android:text="очистить статистику"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/newDay"
-                    android:theme="@style/MyButton"
-                    android:textColor="@color/color_white"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_marginTop="5dp" />
+                        <Button
+                            android:id="@+id/newDay"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentLeft="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentRight="true"
+                            android:layout_margin="8dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_marginBottom="5dp"
+                            android:text="очистить статистику"
+                            android:textColor="@color/color_white"
+                            android:theme="@style/MyButton" />
 
-                <TextView
-                    android:text="Версия ..."
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/versionApp"
-                    android:layout_alignParentLeft="true"
-                    android:textColor="@color/cardview_light_background"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginStart="5dp" />
+                        <TextView
+                            android:id="@+id/versionApp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentLeft="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginBottom="8dp"
+                            android:text="Версия ..."
+                            android:textColor="@color/cardview_light_background" />
 
+                    </RelativeLayout>
+
+                </android.support.v7.widget.CardView>
             </RelativeLayout>
 
-        </android.support.v7.widget.CardView>
-    </RelativeLayout>
+        </RelativeLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
 
     </RelativeLayout>

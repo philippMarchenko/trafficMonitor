@@ -18,8 +18,8 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.devphill.traficMonitor.App;
 import com.devphill.traficMonitor.R;
-import com.devphill.traficMonitor.adapter.MainFragmentAdapter;
 import com.devphill.traficMonitor.helper.DBHelper;
 import com.devphill.traficMonitor.model.ApplicationItem;
 import com.devphill.traficMonitor.service.TrafficService;
@@ -82,11 +82,11 @@ public class TrafficHelper{
 
     public static void updateData (Context context) {
 
-        final Intent intent = new Intent(MainFragmentAdapter.BROADCAST_ACTION);
+       // final Intent intent = new Intent(MainFragmentAdapter.BROADCAST_ACTION);
 
-        intent.putExtra(MainFragmentAdapter.UPDATE_DATA, 1);    //обновили граффик,
+    //    intent.putExtra(MainFragmentAdapter.UPDATE_DATA, 1);    //обновили граффик,
 
-        Intent intent2 = new Intent(FragmentTrafficApps.UPDATE_TRAFFIC_APPS);
+      /*  Intent intent2 = new Intent(FragmentTrafficApps.UPDATE_TRAFFIC_APPS);
         intent2.putExtra("allTrafficMobile", allTrafficMobile);
         context.sendBroadcast(intent2);
 
@@ -94,7 +94,7 @@ public class TrafficHelper{
             context.sendBroadcast(intent);            //послали интент фрагменту
         } catch (Error e) {
             e.printStackTrace();
-        }
+        }*/
 
     }
 
@@ -154,11 +154,11 @@ public class TrafficHelper{
         float trafficRxFloat = (float)mobile_trafficRXToday/1048576;
         trafficRxFloat = Math.round(trafficRxFloat*(float)10.0)/(float)10.0;  //округляем до сотых
 
-        float procent = trafficFloat /  (float)TrafficService.stopLevel*100;
+        float procent = trafficFloat /  (float)App.dataManager.getStopLevel()*100;
         procent = Math.round(procent*(float)10.0/(float)10.0);
 
         contentView.setImageViewResource(R.id.image, R.drawable.bittorrent);
-        contentView.setProgressBar(R.id.usageData, TrafficService.stopLevel, (int) (allTrafficMobile / 1024), false);
+        contentView.setProgressBar(R.id.usageData, App.dataManager.getStopLevel(), (int) (allTrafficMobile / 1024), false);
         contentView.setImageViewResource(R.id.imSendData, R.drawable.arrowup);
         contentView.setImageViewResource(R.id.imDownloadData, R.drawable.arrowdown);
         if((int)trafficFloat < 100) {

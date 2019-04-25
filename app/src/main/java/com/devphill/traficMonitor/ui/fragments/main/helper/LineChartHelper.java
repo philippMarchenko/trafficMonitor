@@ -14,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import com.devphill.traficMonitor.App;
 import com.devphill.traficMonitor.R;
 import com.devphill.traficMonitor.helper.CustomMarkerView;
 import com.devphill.traficMonitor.helper.DBHelper;
@@ -47,7 +48,7 @@ public class LineChartHelper{
     private ArrayList<String> labelsLineChart = new ArrayList<>();          //список для информации о времени на оси x
     private ArrayList<String> labelsLineChartDate = new ArrayList<>();      //список для даты времени на графике в точке
 
-    private LineData dataLineChart;
+    private LineData dataLineChart = new LineData();
 
     private long currentTime,lastTime;
 
@@ -116,7 +117,7 @@ public class LineChartHelper{
         // customMarkerView.set
         lineChart.setMarkerView(customMarkerView);
 
-        LimitLine upper_limit = new LimitLine(TrafficService.stopLevel, "Лимит траффика");
+        LimitLine upper_limit = new LimitLine(App.dataManager.getStopLevel(), "Лимит траффика");
         upper_limit.setLineWidth(2f);
         upper_limit.enableDashedLine(10f, 0f, 0f);
         upper_limit.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
@@ -124,7 +125,7 @@ public class LineChartHelper{
         upper_limit.setTextColor(Color.WHITE);
         upper_limit.setLineColor(Color.RED);
 
-        LimitLine allert_level = new LimitLine(TrafficService.allertLevel, "Уровень предупреждения");
+        LimitLine allert_level = new LimitLine(App.dataManager.getAlertLevel(), "Уровень предупреждения");
         allert_level.setLineWidth(2f);
         allert_level.enableDashedLine(10f, 0f, 0f);
         allert_level.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);

@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.appyvet.rangebar.RangeBar;
+import com.devphill.traficMonitor.App;
 import com.devphill.traficMonitor.BuildConfig;
 import com.devphill.traficMonitor.R;
 import com.devphill.traficMonitor.service.TrafficService;
@@ -102,20 +103,24 @@ public class FragmentSettings extends Fragment {
             }
 
 
-            inputDataStop.setText(Integer.toString(TrafficService.stopLevel));
-            inputDataAllert.setText(Integer.toString(TrafficService.allertLevel));
-            if(TrafficService.disable_internet == 1)
+            inputDataStop.setText(App.dataManager.getStopLevel().toString());
+            inputDataAllert.setText(App.dataManager.getAlertLevel().toString());
+
+            allertSwitch.setChecked(App.dataManager.isShowAlert());
+            stopDataSwitch.setChecked(App.dataManager.isDisableConectionWhenLimit());
+
+          /*  if(TrafficService.show_allert == 1)
                 allertSwitch.setChecked(true);
             else
                 allertSwitch.setChecked(false);
-            if(TrafficService.show_allert == 1)
+            if(TrafficService.disable_internet == 1)
                 stopDataSwitch.setChecked(true);
             else
-                stopDataSwitch.setChecked(false);
+                stopDataSwitch.setChecked(false);*/
 
             viewDate.setText(TrafficService.day + "." + TrafficService.month + "." + TrafficService.mYear);
 
-            float procentView = ((float)TrafficService.allertLevel*100)/(float)TrafficService.stopLevel;
+            float procentView = ( (float) App.dataManager.getAlertLevel() * 100) / (float) App.dataManager.getStopLevel();
             procentView = Math.round(procentView);
             procentTV.setText(procentView + "%");
 
@@ -126,20 +131,16 @@ public class FragmentSettings extends Fragment {
 
         }
 
-            newDay.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    TrafficService.newDay = true;
-                    TrafficService.newMonth = true;
+        newDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TrafficService.newDay = true;
+                TrafficService.newMonth = true;
 
-                }
-            });
+            }
+        });
 
-            versionApp.setText("Версия приложения " + BuildConfig.VERSION_NAME);
-
-
-
-
+        versionApp.setText("Версия приложения " + BuildConfig.VERSION_NAME);
 
         radioGroup1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
@@ -164,56 +165,63 @@ public class FragmentSettings extends Fragment {
 
 
         inputDataStop.setOnKeyListener(new View.OnKeyListener()
-                                       {
-                                           public boolean onKey(View v, int keyCode, KeyEvent event)
-                                           {
-                                               if(event.getAction() == KeyEvent.ACTION_DOWN &&
-                                                       (keyCode == KeyEvent.KEYCODE_ENTER))
-                                               {
-                                                   Toast.makeText(getContext(), "Введено " +  inputDataStop.getText().toString(), Toast.LENGTH_SHORT).show();
+        {
+            public boolean onKey(View v, int keyCode, KeyEvent event)
+            {
+                if(event.getAction() == KeyEvent.ACTION_DOWN &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER))
+                {
+                   // Toast.makeText(getContext(), "Введено " +  inputDataStop.getText().toString(), Toast.LENGTH_SHORT).show();
 
-                                                   if(inputDataStop.getText().toString().length() > 0)
-                                                       TrafficService.stopLevel = Integer.parseInt(inputDataStop.getText().toString());
+                    if(inputDataStop.getText().toString().length() > 0){
+                        App.dataManager.setStopLevel(Integer.parseInt(inputDataStop.getText().toString()));
+                    }
 
-                                                   InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                                                   imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                                                   inputDataStop.clearFocus();
-                                                   //holder.rangeBar.setTickEnd(Integer.parseInt(holder.inputDataStop.getText().toString()));
-                                                   updateSet(SET_2);
-                                                   return true;
-                                               }
-                                               return false;
-                                           }
-                                       }
+                    InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                    inputDataStop.clearFocus();
+                    //holder.rangeBar.setTickEnd(Integer.parseInt(holder.inputDataStop.getText().toString()));
+                    updateSet(SET_2);
+                    return true;
+                }
+                return false;
+            }
+        }
         );
 
         inputDataAllert.setOnKeyListener(new View.OnKeyListener()
-                                                {
-                                                    public boolean onKey(View v, int keyCode, KeyEvent event)
-                                                    {
-                                                        if(event.getAction() == KeyEvent.ACTION_DOWN &&
-                                                                (keyCode == KeyEvent.KEYCODE_ENTER) && inputDataAllert.getText().toString() != null)
-                                                        {
-                                                            Toast.makeText(getContext(), "Введено " +  inputDataAllert.getText().toString(), Toast.LENGTH_SHORT).show();
+        {
+            public boolean onKey(View v, int keyCode, KeyEvent event)
+            {
+                if(event.getAction() == KeyEvent.ACTION_DOWN &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER) && inputDataAllert.getText().toString() != null)
+                {
+                 //   Toast.makeText(getContext(), "Введено " +  inputDataAllert.getText().toString(), Toast.LENGTH_SHORT).show();
 
-                                                            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                                                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                                                            inputDataAllert.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                    inputDataAllert.clearFocus();
 
-                                                            if(inputDataStop.getText().toString().length() > 0 && TrafficService.stopLevel < 1000 && TrafficService.stopLevel > 0) {
-                                                                TrafficService.allertLevel = Integer.parseInt(inputDataAllert.getText().toString());
-                                                                int procent2 = 100;
-                                                                if(TrafficService.stopLevel > TrafficService.allertLevel)
-                                                                    procent2 = TrafficService.allertLevel * 100 / TrafficService.stopLevel;
-                                                                rangebar.setSeekPinByIndex(procent2);
-                                                                Log.i("myLogs", "allertLevel " + TrafficService.allertLevel + " procent2 " + procent2);
-                                                            }
-                                                            updateSet(SET_2);
-                                                            return true;
-                                                        }
-                                                        return false;
-                                                    }
-                                                }
+                    int stopLevel = App.dataManager.getStopLevel();
+
+                    if(inputDataStop.getText().toString().length() > 0 && stopLevel < 1000 && stopLevel > 0) {
+                      //  TrafficService.allertLevel = Integer.parseInt(inputDataAllert.getText().toString());
+
+                        int alertLevel = Integer.parseInt(inputDataAllert.getText().toString());
+
+                        App.dataManager.setAlertLevel(alertLevel);
+                        int procent2 = 100;
+                        if(stopLevel > alertLevel)
+                            procent2 = alertLevel * 100 / stopLevel;
+                        rangebar.setSeekPinByIndex(procent2);
+                       // Log.i("myLogs", "allertLevel " + TrafficService.allertLevel + " procent2 " + procent2);
+                    }
+                   // updateSet(SET_2);
+                    return true;
+                }
+                return false;
+            }
+        }
         );
 
 
@@ -223,43 +231,31 @@ public class FragmentSettings extends Fragment {
                                               int rightPinIndex,
                                               String leftPinValue, String rightPinValue) {
                 procent = ((double)rightPinIndex*0.01);
-                TrafficService.allertLevel = (int)(TrafficService.stopLevel*procent);
+                int alertLevel = (int)(App.dataManager.getStopLevel() * procent);
 
-                inputDataAllert.setText(Integer.toString(TrafficService.allertLevel));
+                App.dataManager.setAlertLevel(alertLevel);
+              //  TrafficService.allertLevel = (int)(TrafficService.stopLevel*procent);
+
+                inputDataAllert.setText(Integer.toString(alertLevel));
                 procentTV.setText(rightPinIndex + "%");
+
+
                 Log.i("myLogs","procent " + procent + " rightPinIndex " + rightPinIndex);
-                updateSet(SET_2);
+               // updateSet(SET_2);
             }
         });
 
         stopDataSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                if(isChecked)
-                    TrafficService.disable_internet = 1;
-                else
-                    TrafficService.disable_internet = 0;
-
-               // updateSet(SET_2);
-                Log.i(LOG_TAG,"stopDataSwitch" + TrafficService.disable_internet);
-                updateSetValue(TrafficService.APP_PREFERENCES_DISABLE_INTERNET,TrafficService.disable_internet);
+                App.dataManager.setDisableConectionWhenLimit(isChecked);
 
             }
         });
         allertSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                if(isChecked)
-                    TrafficService.show_allert = 1;
-                else
-                    TrafficService.show_allert = 0;
-
-               // updateSet(SET_2);
-                Log.i(LOG_TAG,"allertSwitch" + TrafficService.show_allert);
-
-                updateSetValue(TrafficService.APP_PREFERENCES_SHOW_ALLERT,TrafficService.show_allert);
+                App.dataManager.setIsShowAlert(isChecked);
             }
         });
 
@@ -306,12 +302,12 @@ public class FragmentSettings extends Fragment {
         if(setId == SET_1){
             editor.putInt(TrafficService.APP_PREFERENCES_PERIOD, TrafficService.period);
         }
-        else if(setId == SET_2){
+       /* else if(setId == SET_2){
             editor.putInt(TrafficService.APP_PREFERENCES_ALLERT_LEVEL, TrafficService.allertLevel);
-            editor.putInt(TrafficService.APP_PREFERENCES_STOPL_EVEL, TrafficService.stopLevel);
+            editor.putInt(TrafficService.APP_PREFERENCES_STOP_LEVEL, TrafficService.stopLevel);
             editor.putInt(TrafficService.APP_PREFERENCES_SHOW_ALLERT, TrafficService.show_allert);
             editor.putInt(TrafficService.APP_PREFERENCES_DISABLE_INTERNET, TrafficService.disable_internet);
-        }
+        }*/
         else if(setId == SET_3){
             editor.putInt(TrafficService.APP_PREFERENCES_DAY, TrafficService.day);
             editor.putInt(TrafficService.APP_PREFERENCES_MONTH, TrafficService.month);

@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,16 +15,20 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.devphill.traficMonitor.R;
@@ -39,7 +44,6 @@ import com.mikepenz.materialdrawer.accountswitcher.AccountHeader;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -58,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     AlertDialog dialog;
     AlertDialog.Builder builder;
     Premission premission;
+    BottomNavigationView bottomNavigationView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,13 +84,15 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        getSupportActionBar().hide();
+       // getSupportActionBar().hide();
 
         viewPager = (CustomViewPager) findViewById(R.id.viewpager);
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
+        bottomNavigationView =  findViewById(R.id.bottom_navigation);
 
-        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+        //tabLayout = (TabLayout) findViewById(R.id.tabs);
+        //tabLayout.setupWithViewPager(viewPager);
+
+      /*  for (int i = 0; i < tabLayout.getTabCount(); i++) {
             //noinspection ConstantConditions
             TextView tv=(TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab_tv,null);
             Typeface typefaceR = Typeface.createFromAsset(getBaseContext().getAssets(),
@@ -92,8 +100,9 @@ public class MainActivity extends AppCompatActivity {
             tv.setTypeface(typefaceR);
             tabLayout.getTabAt(i).setCustomView(tv);
 
-        }
+        }*/
         Log.i(LOG_TAG, "onCreate " );
+
 
     }
     public void showQueryPremission(){
@@ -159,12 +168,71 @@ public class MainActivity extends AppCompatActivity {
         
         setupViewPager(viewPager);
 
+        bottomNavigationView.setOnNavigationItemSelectedListener(
+                new BottomNavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.action_all_traffic:{
+                                viewPager.setCurrentItem(0);
+                                return true;
+                            }
+
+                            case R.id.action_apps_traffic:{
+                                viewPager.setCurrentItem(1);
+                                return true;
+                            }
+
+                            case R.id.action_speed_test:{
+                                viewPager.setCurrentItem(2);
+                                return true;
+                            }
+
+                            case R.id.action_settings:{
+                                viewPager.setCurrentItem(3);
+                                return true;
+                            }
+
+                        }
+                        return true;
+                    }
+                });
+
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            public void onPageScrollStateChanged(int state) {}
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+            public void onPageSelected(int position) {
+
+                switch (position){
+                    case 0:{
+                        bottomNavigationView.getMenu().findItem(R.id.action_all_traffic).setChecked(true);
+                        break;
+                    }
+                    case 1:{
+                        bottomNavigationView.getMenu().findItem(R.id.action_apps_traffic).setChecked(true);
+                        break;
+                    }
+                    case 2:{
+                        bottomNavigationView.getMenu().findItem(R.id.action_speed_test).setChecked(true);
+                        break;
+                    }
+                    case 3:{
+                        bottomNavigationView.getMenu().findItem(R.id.action_settings).setChecked(true);
+                        break;
+                    }
+                }
+            }
+        });
+
         if(!isMyServiceRunning(TrafficService.class)) {
             Intent intent = new Intent(this, TrafficService.class);
             startService(intent);
         }
 
     }
+
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -184,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
     }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
+    class ViewPagerAdapter extends FragmentStatePagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
