@@ -35,12 +35,17 @@ import com.devphill.traficMonitor.service.helper.TrafficHelper;
 import com.devphill.traficMonitor.service.helper.TrafficMHelper;
 import com.devphill.traficMonitor.helper.DBHelper;
 import com.devphill.traficMonitor.reciver.AlarmReceiver;
+import com.devphill.traficMonitor.ui.Constants;
 import com.devphill.traficMonitor.ui.MainActivity;
+import com.devphill.traficMonitor.ui.TimeUtil;
 import com.devphill.traficMonitor.ui.fragments.main.MainFragment;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -79,14 +84,14 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 
 	public static final int PERIOD_DAY = 1;
 	public static final int PERIOD_MOUNTH = 2;
-	public static int period = PERIOD_DAY;
+	//public static int period = PERIOD_DAY;
 	//public static int stopLevel = 100;
 	//public static int allertLevel = 80;
 	//public static int disable_internet = 1;
 	//public static int show_allert = 1;
-	public static int day = 1;
-	public static int month = 1;
-	public static int mYear = 2017;
+	//public static int day = 1;
+	//public static int month = 1;
+	//public static int mYear = 2017;
 
 	public static List<Package> packageList = new ArrayList<>();
 
@@ -530,10 +535,25 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 
 	boolean isNewDay() {
 
-		if ( newDay && period == PERIOD_DAY) {
+		if ( newDay && App.dataManager.getPeriod() == PERIOD_DAY) {
 			newDay = false;
 			firstWriteDB = true;
 			return true;
+		}
+
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		Cursor c = db.query(TrafficService.idsim, null, null, null, null, null, null);
+
+		if (c.moveToLast()) {
+			int lastDayColIndex = c.getColumnIndex("lastDay");
+			int lastDay = c.getInt(lastDayColIndex);
+
+			if(Integer.parseInt(TimeUtil.Companion.getTodayByFormat("dd")) != lastDay){
+				return true;
+			}
+			else{
+				return false;
+			}
 		}
 
 		return false;
@@ -543,15 +563,15 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 
 			Date d = new Date();
 
-			SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
+		//	SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
 
-			int month = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_MONTH,TrafficService.month);
-			int day = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_DAY,TrafficService.day);
+			int month = Integer.parseInt(TimeUtil.Companion.convertFormatToFormatWithoutAnyTimezones("yyyy-MM-dd","MM",App.dataManager.getDate()));
+	  	    int day = Integer.parseInt(TimeUtil.Companion.convertFormatToFormatWithoutAnyTimezones("yyyy-MM-dd","dd",App.dataManager.getDate()));
 
 		//	Log.d(LOG_TAG, "month " + month + ", day  " + day);
 
 
-			if (((day ==  d.getDate() && month == (d.getMonth() + 1)) || newMonth) && period == PERIOD_MOUNTH) {
+			if (((day ==  d.getDate() && month == (d.getMonth() + 1)) || newMonth) && App.dataManager.getPeriod() == PERIOD_MOUNTH) {
 				newMonth = false;
 				firstWriteDB = true;
 				return true;
@@ -645,14 +665,14 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 
 		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
 
-		TrafficService.period = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_PERIOD,TrafficService.period);
+		//TrafficService.period = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_PERIOD,TrafficService.period);
 		//TrafficService.stopLevel = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_STOPL_EVEL,TrafficService.stopLevel);
 	//	TrafficService.allertLevel = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_ALLERT_LEVEL,TrafficService.allertLevel);
 		//TrafficService.disable_internet = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_DISABLE_INTERNET,TrafficService.disable_internet);
 		//TrafficService.show_allert = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_SHOW_ALLERT,TrafficService.show_allert);
-		TrafficService.day = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_DAY,TrafficService.day);
-		TrafficService.month = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_MONTH,TrafficService.month);
-		TrafficService.mYear = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_YEAR,TrafficService.mYear);
+		//TrafficService.day = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_DAY,TrafficService.day);
+		//TrafficService.month = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_MONTH,TrafficService.month);
+		//TrafficService.mYear = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_YEAR,TrafficService.mYear);
 
 
 

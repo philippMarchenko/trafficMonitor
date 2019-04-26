@@ -14,9 +14,11 @@ object Constants{
     val APP_PREFERENCES_ALLERT_LEVEL = "allertLevel"
     val APP_PREFERENCES_DISABLE_INTERNET = "disable_internet"
     val APP_PREFERENCES_SHOW_ALLERT = "show_allert"
-    val APP_PREFERENCES_DAY = "day"
-    val APP_PREFERENCES_MONTH = "month"
-    val APP_PREFERENCES_YEAR = "year"
+
     val APP_PREFERENCES_REBOOT_ACTION = "reboot_action"
     val APP_PREFERENCES_HAS_VISITED = "has_visited"
+    val APP_LAUNCH_FIRST_TIME = "is_app_launch_first_time"
+
+    val APP_DATE = "date"
+
 }

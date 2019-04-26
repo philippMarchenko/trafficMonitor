@@ -93,11 +93,12 @@ public class FragmentSettings extends Fragment {
 
            ButterKnife.bind(this,rootview);
 
-            if(TrafficService.period == TrafficService.PERIOD_DAY) {
+
+            if(App.dataManager.getPeriod() == TrafficService.PERIOD_DAY) {
                 button_month.setChecked(false);
                 button_day.setChecked(true);
             }
-            else if(TrafficService.period == TrafficService.PERIOD_MOUNTH){
+            else if(App.dataManager.getPeriod() == TrafficService.PERIOD_MOUNTH){
                 button_month.setChecked(true);
                 button_day.setChecked(false);
             }
@@ -109,16 +110,7 @@ public class FragmentSettings extends Fragment {
             allertSwitch.setChecked(App.dataManager.isShowAlert());
             stopDataSwitch.setChecked(App.dataManager.isDisableConectionWhenLimit());
 
-          /*  if(TrafficService.show_allert == 1)
-                allertSwitch.setChecked(true);
-            else
-                allertSwitch.setChecked(false);
-            if(TrafficService.disable_internet == 1)
-                stopDataSwitch.setChecked(true);
-            else
-                stopDataSwitch.setChecked(false);*/
-
-            viewDate.setText(TrafficService.day + "." + TrafficService.month + "." + TrafficService.mYear);
+            viewDate.setText(App.dataManager.getDate());
 
             float procentView = ( (float) App.dataManager.getAlertLevel() * 100) / (float) App.dataManager.getStopLevel();
             procentView = Math.round(procentView);
@@ -148,18 +140,14 @@ public class FragmentSettings extends Fragment {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId) {
                     case -1:
-                        //Toast.makeText(mContext, "Нихуя", Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.button_day:
-                       // Toast.makeText(getContext(), "Выбран день", Toast.LENGTH_SHORT).show();
-                        TrafficService.period = TrafficService.PERIOD_DAY;
+                        App.dataManager.setPeriod(TrafficService.PERIOD_DAY);
                         break;
                     case R.id.button_month:
-                        // Toast.makeText(mContext, "Выбран месяц", Toast.LENGTH_SHORT).show();
-                        TrafficService.period = TrafficService.PERIOD_MOUNTH;
+                        App.dataManager.setPeriod(TrafficService.PERIOD_MOUNTH);
                         break;
                 }
-                updateSet(SET_1);
             }
         });
 
@@ -171,8 +159,6 @@ public class FragmentSettings extends Fragment {
                 if(event.getAction() == KeyEvent.ACTION_DOWN &&
                         (keyCode == KeyEvent.KEYCODE_ENTER))
                 {
-                   // Toast.makeText(getContext(), "Введено " +  inputDataStop.getText().toString(), Toast.LENGTH_SHORT).show();
-
                     if(inputDataStop.getText().toString().length() > 0){
                         App.dataManager.setStopLevel(Integer.parseInt(inputDataStop.getText().toString()));
                     }
@@ -180,8 +166,6 @@ public class FragmentSettings extends Fragment {
                     InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                     inputDataStop.clearFocus();
-                    //holder.rangeBar.setTickEnd(Integer.parseInt(holder.inputDataStop.getText().toString()));
-                    updateSet(SET_2);
                     return true;
                 }
                 return false;
@@ -205,8 +189,6 @@ public class FragmentSettings extends Fragment {
                     int stopLevel = App.dataManager.getStopLevel();
 
                     if(inputDataStop.getText().toString().length() > 0 && stopLevel < 1000 && stopLevel > 0) {
-                      //  TrafficService.allertLevel = Integer.parseInt(inputDataAllert.getText().toString());
-
                         int alertLevel = Integer.parseInt(inputDataAllert.getText().toString());
 
                         App.dataManager.setAlertLevel(alertLevel);
@@ -216,7 +198,6 @@ public class FragmentSettings extends Fragment {
                         rangebar.setSeekPinByIndex(procent2);
                        // Log.i("myLogs", "allertLevel " + TrafficService.allertLevel + " procent2 " + procent2);
                     }
-                   // updateSet(SET_2);
                     return true;
                 }
                 return false;
@@ -234,14 +215,11 @@ public class FragmentSettings extends Fragment {
                 int alertLevel = (int)(App.dataManager.getStopLevel() * procent);
 
                 App.dataManager.setAlertLevel(alertLevel);
-              //  TrafficService.allertLevel = (int)(TrafficService.stopLevel*procent);
 
                 inputDataAllert.setText(Integer.toString(alertLevel));
                 procentTV.setText(rightPinIndex + "%");
 
-
                 Log.i("myLogs","procent " + procent + " rightPinIndex " + rightPinIndex);
-               // updateSet(SET_2);
             }
         });
 
@@ -266,11 +244,8 @@ public class FragmentSettings extends Fragment {
                 DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-                        viewDate.setText(dayOfMonth + "." + (monthOfYear + 1) + "." + year);
-                        TrafficService.day = dayOfMonth;
-                        TrafficService.month = monthOfYear + 1;
-                        TrafficService.mYear = year;
-                        updateSet(SET_3);
+                        viewDate.setText(year + "-" + (monthOfYear + 1) + dayOfMonth);
+                        App.dataManager.setDate(viewDate.getText().toString());
                     }
                 };
 
@@ -294,43 +269,5 @@ public class FragmentSettings extends Fragment {
            return  rootview;
        }
 
-    public void updateSet(int setId){
 
-        SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = mySharedPreferences.edit();
-
-        if(setId == SET_1){
-            editor.putInt(TrafficService.APP_PREFERENCES_PERIOD, TrafficService.period);
-        }
-       /* else if(setId == SET_2){
-            editor.putInt(TrafficService.APP_PREFERENCES_ALLERT_LEVEL, TrafficService.allertLevel);
-            editor.putInt(TrafficService.APP_PREFERENCES_STOP_LEVEL, TrafficService.stopLevel);
-            editor.putInt(TrafficService.APP_PREFERENCES_SHOW_ALLERT, TrafficService.show_allert);
-            editor.putInt(TrafficService.APP_PREFERENCES_DISABLE_INTERNET, TrafficService.disable_internet);
-        }*/
-        else if(setId == SET_3){
-            editor.putInt(TrafficService.APP_PREFERENCES_DAY, TrafficService.day);
-            editor.putInt(TrafficService.APP_PREFERENCES_MONTH, TrafficService.month);
-            editor.putInt(TrafficService.APP_PREFERENCES_YEAR, TrafficService.mYear);
-        }
-
-        editor.apply();
-
-
-    }
-
-    public void updateSetValue(String key,int value){
-
-        Log.i(LOG_TAG,"updateSetValue key " + key + " value" + value);
-
-
-        SharedPreferences mySharedPreferences = getContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = mySharedPreferences.edit();
-
-        editor.putInt(key, value);
-
-        editor.apply();
-
-
-    }
 }

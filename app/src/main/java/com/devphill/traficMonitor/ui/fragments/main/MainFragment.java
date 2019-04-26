@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -47,6 +48,9 @@ public class MainFragment extends Fragment {
 
     @BindView(R.id.pieChart)
     PieChart pieChart;
+
+    @BindView(R.id.progressBar)
+    ProgressBar progressBar;
 
     DBHelper dbHelper;
 
@@ -103,6 +107,8 @@ public class MainFragment extends Fragment {
                     pieChartHelper.updateDataPie(intent.getFloatExtra("trafficFloat",0));
 
                 }
+
+                progressBar.setVisibility(View.INVISIBLE);
             }
         };
 

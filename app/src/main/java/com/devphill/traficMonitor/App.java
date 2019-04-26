@@ -2,7 +2,9 @@ package com.devphill.traficMonitor;
 
 import android.app.Application;
 
+import com.devphill.traficMonitor.service.TrafficService;
 import com.devphill.traficMonitor.ui.DataManager;
+import com.devphill.traficMonitor.ui.TimeUtil;
 
 import timber.log.Timber;
 
@@ -21,6 +23,17 @@ public class App extends Application {
         } else {
          //   Timber.plant(new CrashReportingTree());
         }
+
+
+        if(dataManager.isAppLaunchFirstTime()){
+            dataManager.setStopLevel(100);
+            dataManager.setAlertLevel(80);
+            dataManager.setDate(TimeUtil.Companion.getTodayByFormat("yyyy-MM-dd"));
+
+            dataManager.setPeriod(TrafficService.PERIOD_DAY);
+            dataManager.setIsAppLaunchFirstTime(false);
+        }
+
     }
 
 
