@@ -3,6 +3,14 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('E:\\studio\\myKeyStore.jks')
+            storePassword 'mazahaka88'
+            keyAlias = 'key'
+            keyPassword 'mazahaka88'
+        }
+    }
     compileSdkVersion 28
     buildToolsVersion "28.0.3"
 
@@ -12,6 +20,7 @@ android {
         targetSdkVersion 28
         versionCode 19
         versionName "1.9"
+        signingConfig signingConfigs.release
     }
     buildTypes {
         release {

@@ -1,2 +1,2 @@
-# MaterialDwawerFragmentSample
-Sample of using MaterialDrawer library (by Mike Penz) with fragments
+# My project for monitoring mobile data on android devices
+
