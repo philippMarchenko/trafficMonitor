@@ -1,5 +1,6 @@
 package com.devphill.traficMonitor.ui.fragments.test_speed;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -95,6 +96,7 @@ public class FragmentTestSpeed extends Fragment  {
         speedTest = new SpeedTest();
 
         start.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("CheckResult")
             @Override
             public void onClick(View v) {
                 String netType;

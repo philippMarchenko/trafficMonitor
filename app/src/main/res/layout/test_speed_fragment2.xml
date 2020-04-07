@@ -21,7 +21,7 @@
             <android.support.v7.widget.CardView
                 android:layout_gravity="center"
                 android:elevation="8dp"
-                card_view:cardCornerRadius="@dimen/cardview_corner__radius"
+                card_view:cardCornerRadius="8dp"
                 card_view:cardBackgroundColor="@color/cardview_color"
                 android:layout_height="70dp"
                 android:layout_width="match_parent"
@@ -233,7 +233,8 @@
             android:layout_height="wrap_content"
             android:weightSum="1"
             android:id="@+id/rl4"
-            android:layout_below="@+id/rl3">
+            android:layout_below="@+id/rl3"
+            android:layout_marginBottom="8dp">
 
             <android.support.v7.widget.CardView
                 android:layout_gravity="center"
@@ -244,13 +245,13 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
                 android:layout_marginTop="5dp"
-                android:layout_height="325dp">
+                android:layout_height="wrap_content">
 
                 <RelativeLayout
 
                     android:layout_width="match_parent"
                     android:orientation="horizontal"
-                    android:layout_height="325dp">
+                    android:layout_height="wrap_content">
 
                     <TextView
                         android:text="0"
@@ -266,14 +267,16 @@
                         android:progressTint="@color/accent"
                         android:progressTintMode="multiply"
                         android:id="@+id/progress"
-                        android:layout_height="20dp"
+                        android:layout_height="10dp"
                         android:progress="0"
                         android:max="100"
                         android:indeterminate="false"
-                        android:layout_width="330dp"
-                        android:layout_marginBottom="53dp"
-                        android:layout_alignParentBottom="true"
-                        android:layout_centerHorizontal="true" />
+                        android:layout_width="match_parent"
+                        android:layout_below="@id/processTest"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginTop="8dp"/>
 
                     <view
                         class="com.github.anastr.speedviewlib.SpeedView"
@@ -281,8 +284,8 @@
                         android:layout_height="250dp"
                         android:layout_width="250dp"
                         android:layout_alignParentTop="true"
-                        android:layout_alignStart="@+id/start"
-                        android:layout_marginTop="2dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_centerHorizontal="true"
                         card_view:sv_unit="@string/mbps"
                         card_view:sv_unitSpeedInterval="5dp"
                         card_view:sv_unitTextColor="@color/color_white"
@@ -296,13 +299,19 @@
 
                     <Button
                         android:text="@string/start_test"
-                        android:theme="@style/MyButton"
                         android:id="@+id/start"
-                        android:layout_width="250dp"
-                        android:layout_height="55dp"
-                        android:layout_alignParentBottom="true"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
                         android:layout_centerHorizontal="true"
-                        android:textColor="@color/cardview_light_background" />
+                        android:textColor="@color/cardview_light_background"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_below="@id/progress"
+                        android:foreground="?attr/selectableItemBackgroundBorderless"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:background="@drawable/button_bg_rounded_corners"/>
 
                     <TextView
                         android:layout_width="wrap_content"

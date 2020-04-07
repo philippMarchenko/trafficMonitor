@@ -16,6 +16,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
+import timber.log.Timber;
 
 public class SpeedTest {
 
@@ -55,11 +56,12 @@ public class SpeedTest {
 
                     @Override
                     public void onError(SpeedTestError speedTestError, String errorMessage) {
-
+                        Timber.d("onError " + errorMessage);
                     }
                 });
 
-                speedTestSocket.startDownload("http://2.testdebit.info/fichiers/1Mo.dat");
+                speedTestSocket.startDownload("http://ipv4.ikoula.testdebit.info/10M.iso");
+
             }
         });
     }
@@ -84,11 +86,11 @@ public class SpeedTest {
 
                     @Override
                     public void onError(SpeedTestError speedTestError, String errorMessage) {
+                        Timber.d("onError " + errorMessage);
 
                     }
                 });
-
-                speedTestSocket.startUpload("http://2.testdebit.info/", 1000000);
+                speedTestSocket.startUpload("http://ipv4.ikoula.testdebit.info/", 10000000);
             }
         });
     }
