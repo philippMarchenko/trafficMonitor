@@ -77,5 +77,6 @@
 
     <string name="app_data">App data</string>
     <string name="traffic">Traffic</string>
+    <string name="default_notification_channel_id" />
 
 </resources>

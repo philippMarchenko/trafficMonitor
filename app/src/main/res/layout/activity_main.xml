@@ -34,10 +34,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
-        app:itemBackground="@color/primary_dark"
         app:menu="@menu/bottom_navigation_main"
         app:itemIconTint="@drawable/nav_item_color_state"
         app:itemTextColor="@drawable/nav_item_color_state"
-        app:labelVisibilityMode="auto"/>
+        app:labelVisibilityMode="auto"
+        android:background="@color/cardview_color"/>
 
 </RelativeLayout>

@@ -49,9 +49,6 @@ public class MainFragment extends Fragment {
     @BindView(R.id.pieChart)
     PieChart pieChart;
 
-    @BindView(R.id.progressBar)
-    ProgressBar progressBar;
-
     DBHelper dbHelper;
 
     LineChartHelper lineChartHelper;
@@ -106,10 +103,7 @@ public class MainFragment extends Fragment {
 
                     pieChartHelper.updateDataPie(intent.getFloatExtra("trafficFloat",0));
 
-                }
-
-                progressBar.setVisibility(View.INVISIBLE);
-            }
+                } }
         };
 
 

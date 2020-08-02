@@ -24,6 +24,8 @@ import com.devphill.traficMonitor.ui.fragments.test_speed.helper.StartTestPing;
 import com.devphill.traficMonitor.util.Util;
 import com.github.anastr.speedviewlib.base.Gauge;
 
+import java.util.concurrent.TimeUnit;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.bmartel.speedtest.SpeedTestReport;
@@ -99,11 +101,9 @@ public class FragmentTestSpeed extends Fragment  {
             @SuppressLint("CheckResult")
             @Override
             public void onClick(View v) {
-                String netType;
-                netType = Util.getNetworkType(getContext());
-
-                if(netType == null)
+                if(Util.isNetworkConnected(getContext()) == false){
                     Toast.makeText(getActivity(), "Подключение к сети отсутствует!", Toast.LENGTH_LONG).show();
+                }
                 else if(!runTesting){
                     startTestPing.getPing().subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
@@ -193,15 +193,18 @@ public class FragmentTestSpeed extends Fragment  {
             processDU.setText("Downloading...");
             processTest.setVisibility(View.VISIBLE);
             downloadSpeed.setText(Float.toString(speedF));
+            start.setText("Processing...");
         }
         else if(status == STATUS_UPLOAD){
             processDU.setText("Uploading...");
             uploadSpeed.setText(Float.toString(speedF));
+            start.setText("Processing...");
         }
         else if(status_du == STATUS_FINISH) {
             processDU.setText("Finish!");
             processTest.setVisibility(View.INVISIBLE);
             speedView.speedTo(0);
+            start.setText(getString(R.string.start_test));
         }
 
     }

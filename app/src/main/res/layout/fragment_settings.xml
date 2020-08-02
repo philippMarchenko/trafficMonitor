@@ -19,7 +19,6 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:weightSum="1"
                 android:id="@+id/rl1">
                 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_width="match_parent"
@@ -88,7 +87,6 @@
 
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:weightSum="1"
                 android:id="@+id/rl2"
                 android:layout_below="@+id/rl1">
 
@@ -99,25 +97,12 @@
                     android:elevation="8dp"
                     card_view:cardCornerRadius="@dimen/cardview_corner__radius"
                     card_view:cardBackgroundColor="@color/cardview_color"
-                    android:layout_height="235dp">
+                    android:layout_height="wrap_content">
 
                     <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="260dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginStart="8dp">
-
-
-                        <android.support.design.widget.TextInputLayout
-                            android:id="@+id/inputDataLayout"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:hintTextAppearance="@style/MyHintText"
-                            android:focusable="true"
-                            android:focusableInTouchMode="true"
-                            android:layout_below="@+id/textView"
-                            android:layout_marginTop="12dp"
-                            android:layout_alignEnd="@+id/textView">
-                        </android.support.design.widget.TextInputLayout>
 
                         <TextView
                             android:text="@string/set_data"
@@ -133,26 +118,18 @@
                             style="@android:style/Widget.TextView"
                             android:textStyle="bold" />
 
-                        <com.appyvet.rangebar.RangeBar
-                            android:id="@+id/rangebar"
-                            android:layout_marginLeft="2dp"
-                            sample:rangeBar="false"
-                            sample:tickStart="0"
-                            sample:tickEnd="100"
-                            sample:tickInterval="1"
-                            sample:barWeight="50dp"
-                            sample:pinRadius ="0dp"
-                            sample:tickColor="@color/icons"
-                            sample:pinColor="@color/icons"
-                            sample:selectorColor="@color/icons"
-                            sample:rangeBarColor="@color/cardview_color"
-                            sample:connectingLineColor="@color/icons"
+                        <TextView
+                            android:text="@string/levelStop"
                             android:layout_width="wrap_content"
-                            android:layout_alignParentStart="true"
-                            android:layout_height="65dp"
-                            android:layout_alignEnd="@+id/textView"
-                            android:layout_alignParentBottom="true"
-                            android:layout_marginBottom="20dp" />
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/material_drawer_header_selection_text"
+                            android:id="@+id/lableSetLevelStop"
+                            android:layout_marginTop="5dp"
+                            android:textSize="18sp"
+                            android:layout_marginLeft="5dp"
+                            android:layout_below="@+id/textView"
+                            android:layout_alignStart="@+id/rangebar" />
+
 
                         <EditText
                             android:id="@+id/inputDataStop"
@@ -170,18 +147,6 @@
                             android:layout_alignBottom="@+id/lableSetLevelStop"
                             android:layout_alignParentEnd="true"
                             android:textColorHint="@color/md_blue_300" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignBottom="@+id/rangebar"
-                            android:layout_toEndOf="@+id/rangebar"
-                            android:layout_marginBottom="25dp"
-                            android:id="@+id/procent"
-                            android:layout_marginLeft="10dp"
-                            android:textColor="@color/color_white"/>
-
-
 
                         <TextView
                             android:text="@string/stopData"
@@ -205,17 +170,14 @@
                             android:layout_below="@+id/stopDataSwitch"
                             android:layout_alignStart="@+id/lableSetLevelStop" />
 
-                        <TextView
-                            android:text="@string/levelStop"
+                        <android.support.v7.widget.SwitchCompat
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/material_drawer_header_selection_text"
-                            android:id="@+id/lableSetLevelStop"
-                            android:layout_marginTop="5dp"
-                            android:textSize="18sp"
-                            android:layout_marginLeft="5dp"
-                            android:layout_below="@+id/inputDataLayout"
-                            android:layout_alignStart="@+id/rangebar" />
+                            android:layout_marginTop="15dp"
+                            android:id="@+id/stopDataSwitch"
+                            android:layout_below="@+id/lableSetLevelStop"
+                            android:theme="@style/MySwitch"
+                            android:layout_alignEnd="@+id/inputDataStop" />
 
                         <TextView
                             android:text="@string/showMessege"
@@ -228,16 +190,6 @@
                             android:textColor="@color/colorTest"
                             android:layout_marginStart="10dp" />
 
-                        <android.support.v7.widget.SwitchCompat
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="15dp"
-                            android:id="@+id/stopDataSwitch"
-                            android:layout_below="@+id/lableSetLevelStop"
-                            android:theme="@style/MySwitch"
-                            android:layout_alignEnd="@+id/inputDataStop" />
-
-
                         <EditText
                             android:id="@+id/inputDataAllert"
                             android:layout_height="wrap_content"
@@ -246,7 +198,6 @@
                             android:gravity="right"
                             android:textColor="@color/colorTest"
                             android:theme="@style/MyEditText"
-
                             android:layout_weight="1"
                             android:layout_marginRight="5dp"
                             android:layout_width="100dp"
@@ -266,9 +217,41 @@
                             android:layout_alignBottom="@+id/setAllert"
                             android:layout_alignEnd="@+id/inputDataAllert" />
 
+                        <com.appyvet.rangebar.RangeBar
+                            android:id="@+id/rangebar"
+                            android:layout_marginStart="2dp"
+                            sample:rangeBar="false"
+                            sample:tickStart="0"
+                            sample:tickEnd="100"
+                            sample:tickInterval="1"
+                            sample:barWeight="50dp"
+                            sample:pinRadius ="0dp"
+                            sample:tickColor="@color/icons"
+                            sample:pinColor="@color/icons"
+                            sample:selectorColor="@color/icons"
+                            sample:rangeBarColor="@color/cardview_color"
+                            sample:connectingLineColor="@color/icons"
+                            android:layout_width="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_below="@+id/allertSwitch"
+                            android:layout_height="50dp"
+                            android:layout_alignEnd="@+id/textView"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginTop="8dp"
+                         />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignBottom="@+id/rangebar"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginBottom="15dp"
+                            android:id="@+id/procent"
+                            android:layout_marginStart="20dp"
+                            android:textColor="@color/color_white"
+                            android:layout_marginEnd="25dp"/>
 
                     </RelativeLayout>
-
 
                 </android.support.v7.widget.CardView>
 
@@ -277,7 +260,6 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:weightSum="1"
                 android:id="@+id/rl3"
                 android:layout_below="@+id/rl2">
 
@@ -288,11 +270,11 @@
                     android:elevation="8dp"
                     card_view:cardCornerRadius="@dimen/cardview_corner__radius"
                     card_view:cardBackgroundColor="@color/cardview_color"
-                    android:layout_height="120dp">
+                    android:layout_height="wrap_content">
 
                     <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="150dp">
+                        android:layout_height="wrap_content">
 
 
                         <TextView
@@ -340,6 +322,7 @@
                             android:layout_marginTop="12dp"
                             android:layout_marginStart="20dp"
                             android:layout_marginEnd="20dp"
+                            android:layout_marginBottom="20dp"
                             android:text="@string/setDate"
                             android:textColor="@color/color_white"
                             android:foreground="?attr/selectableItemBackgroundBorderless"
@@ -358,7 +341,7 @@
                 android:layout_below="@+id/rl3"
                 android:layout_marginBottom="20dp"
                 android:paddingBottom="20dp"
-                android:weightSum="1">
+            >
 
                 <android.support.v7.widget.CardView
                     android:layout_width="match_parent"
@@ -380,7 +363,7 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentTop="true"
                             android:layout_margin="8dp"
-                            android:layout_marginTop="5dp"
+                            android:layout_marginTop="20dp"
                             android:layout_marginBottom="5dp"
                             android:text="очистить статистику"
                             android:textColor="@color/color_white"

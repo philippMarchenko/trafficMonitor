@@ -3,6 +3,7 @@ package com.devphill.traficMonitor.service;
 import android.Manifest;
 import android.app.AlarmManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -21,6 +22,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
@@ -142,11 +145,6 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 				createTableSim(db, idsim);
 			}
 		}
-
-		//db = dbHelper.getWritableDatabase(); // подключаемся к БД
-		//getlistTable(db);                       // еще раз выведем в лог список
-		//	creatTestTable(db);
-		//	showListTables();
 		recoverSettings();
 
 		setTimer();
@@ -195,37 +193,6 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 		//return START_STICKY;
 	}
 
-	void creatTestTable(SQLiteDatabase db) {
-
-		Cursor c = db.query(idsim, null, null, null, null, null, null);
-		// создаем объект для данных
-		ContentValues cv = new ContentValues();
-
-		try {
-			db.execSQL("create table testDay" + " (" //создание таблицы с названием серии сим карты
-					+ "id integer primary key autoincrement,"
-					+ "allTrafficMobile integer"     //количество общего трафика через мобильный интерфейс в К
-					+ ");"); //зарезервировано
-
-			Log.d(LOG_TAG, "--- onCreating Test database ---");
-
-			for (int i = 0; i < 5000; i++) {
-
-				cv.put("allTrafficMobile", i);
-
-				// вставляем запись и получаем ее ID
-				rowID = db.insert("" + "testDay" + "", null, cv);
-				Log.d(LOG_TAG, "Insert data in  testDay, ID = " + rowID);
-			}
-		} catch (RuntimeException e) {
-			Log.d(LOG_TAG, "RuntimeException " + e.getMessage());
-		}
-
-		// закрываем подключение к БД
-		db.close();
-		c.close();
-	}
-
 	void createTableSim(SQLiteDatabase db, String id_sim) {
 		db.execSQL("create table " + id_sim + " (" //создание таблицы с названием серии сим карты
 				+ "id integer primary key autoincrement,"
@@ -245,49 +212,10 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 				+ "wifi_traffic text" + ");"); //зарезервировано
 
 
-
-		/*db.execSQL("create table " + "set" + id_sim + " (" //создание таблицы с названием серии сим карты для настроек
-				+ "id integer primary key autoincrement,"
-				+ "period integer,"         //период
-				+ "periodChartOffset integer,"         //период граффика
-				+ "stopLevel integer,"     //уровень ограничения
-				+ "allertLevel integer,"     //уровень предупреждения
-				+ "disable_internet integer,"     //отклюаем ли доступ
-				+ "show_allert integer,"     //показуем ли предупреждение
-				+ "reboot_device integer," //было ли устройство перезагруженно (обнуление данных в устройстве)
-				+ "day integer,"     //день
-				+ "month integer,"             //месяц
-				+ "year integer" + ");"); //год начала отсчета за месяц*/
-
-		//initSettings();
-
 		db.close();
 
 		Log.d(LOG_TAG, "--- onCreating database ---" + id_sim);
 
-	}
-
-	void showListTables() {
-		for (int i = 0; i < MAX_SIM; i++) {
-			Log.d(LOG_TAG, "Table " + i + " " + list_table[i] + "\n");
-		}
-	}
-
-	public void getSerialSim() {
-		TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);//доступ к данным о телефоне, sim и сотовой сети
-		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-			// TODO: Consider calling
-			//    ActivityCompat#requestPermissions
-			// here to request the missing permissions, and then overriding
-			//   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-			//                                          int[] grantResults)
-			// to handle the case where the user grants the permission. See the documentation
-			// for ActivityCompat#requestPermissions for more details.
-			return;
-		}
-		idsim = "n" + tm.getSimSerialNumber();//Получения id sim
-		networkstate = tm.getDataState();//Получение значения состояния мобильного интернет подключения (0 отключено, 1 подключается, 2 подключено, 3 ожидание. 0x0000000*)
-		Log.d(LOG_TAG, "idsim " + idsim);
 	}
 
 	public void getlistTable(SQLiteDatabase db) {
@@ -342,7 +270,7 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 
 	public void initNoty(){
 		RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.noty);
-		NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(getBaseContext());
+		NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(getBaseContext(),getApplicationContext().getString(R.string.default_notification_channel_id));
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification notification;
 
@@ -365,8 +293,34 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 		//notification.defaults |= Notification.DEFAULT_SOUND;
 		//notification.defaults |= Notification.DEFAULT_VIBRATE;
 		//mNotificationManager.notify(1, notification);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			createChannel(mNotificationManager);
+		}
+
 		startForeground(1, notification);
 	}
+
+	@RequiresApi(Build.VERSION_CODES.O)
+	private void createChannel(@Nullable NotificationManager mNotificationManager) {
+		try {
+			// The id of the channel.
+			String id = getApplicationContext().getString(R.string.default_notification_channel_id);
+			// The user-visible name of the channel.
+			String name = getApplicationContext().getString(R.string.app_name);
+
+			int importance = NotificationManager.IMPORTANCE_HIGH;
+			NotificationChannel mChannel = new NotificationChannel(id, name, importance);
+			// Configure the notification channel.
+			mChannel.setShowBadge(false);
+			mChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+			mNotificationManager.createNotificationChannel(mChannel);
+		}catch (Exception e){
+
+		}
+
+	}
+
 
 	public void sendNotyAllert(){
 		String text = getResources().getString(R.string.notyAllert1) + App.dataManager.getAlertLevel() + getResources().getString(R.string.notyAllert2);

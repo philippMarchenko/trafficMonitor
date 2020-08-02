@@ -68,12 +68,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        // Для Activity с боковым меню ставьте эту тему,
-        // для Activity без бокового меню ставьте тему AppThemeNonDrawer (она прописана по умолчанию в манифесте кстати)
-        // иначе будет "сползать" ActionBar
-        // Темы находятся в styles.xml
-      //  setTheme(R.style.AppThemeNonDrawer);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -84,24 +78,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-       // getSupportActionBar().hide();
 
         viewPager = (CustomViewPager) findViewById(R.id.viewpager);
         bottomNavigationView =  findViewById(R.id.bottom_navigation);
-
-        //tabLayout = (TabLayout) findViewById(R.id.tabs);
-        //tabLayout.setupWithViewPager(viewPager);
-
-      /*  for (int i = 0; i < tabLayout.getTabCount(); i++) {
-            //noinspection ConstantConditions
-            TextView tv=(TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab_tv,null);
-            Typeface typefaceR = Typeface.createFromAsset(getBaseContext().getAssets(),
-                    "fonts/UbuntuMono-R.ttf");
-            tv.setTypeface(typefaceR);
-            tabLayout.getTabAt(i).setCustomView(tv);
-
-        }*/
-        Log.i(LOG_TAG, "onCreate " );
 
 
     }
@@ -132,22 +111,17 @@ public class MainActivity extends AppCompatActivity {
 
             dialog = builder.create();
             dialog.show();
-        Log.i(LOG_TAG, "showQueryPremission" );
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        Log.i(LOG_TAG, "onStart " );
-
         premission.requestPermissions();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Log.i(LOG_TAG, "onPause " );
     }
 
     @Override
@@ -250,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.addFragment(new FragmentTestSpeed(), getResources().getString(R.string.tab_2));
         adapter.addFragment(new FragmentSettings(),getResources().getString(R.string.tab_3));
         viewPager.setAdapter(adapter);
+        viewPager.setOffscreenPageLimit(4);
     }
 
     class ViewPagerAdapter extends FragmentStatePagerAdapter {

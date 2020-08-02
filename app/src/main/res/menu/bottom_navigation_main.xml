@@ -4,19 +4,19 @@
     <item
         android:id="@+id/action_all_traffic"
         android:enabled="true"
-        android:icon="@drawable/traffic_icon"
+        android:icon="@drawable/ic_data"
         android:title="@string/tab_1"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_apps_traffic"
         android:enabled="true"
-        android:icon="@drawable/apps_icon"
+        android:icon="@drawable/ic_iconfinder_grid_1063899"
         android:title="@string/app_data"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_speed_test"
         android:enabled="true"
-        android:icon="@drawable/speed_test_icon"
+        android:icon="@drawable/ic_iconfinder_performance_clock_speed_353431"
         android:title="@string/tab_2"
         app:showAsAction="ifRoom" />
     <item

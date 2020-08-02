@@ -10,7 +10,7 @@
 
     <color name="colorTest">#b1bdf5</color>
     <!-- A200/A400/A700 -->
-    <color name="accent">#7f93ff</color>
+    <color name="accent">#536DFE</color>
     <!-- 50 light / 900 dark -->
     <color name="window_background">#4157b9  </color>
     <!-- 300 -->
