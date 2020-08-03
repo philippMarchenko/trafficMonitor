@@ -73,6 +73,10 @@ public class FragmentSettings extends Fragment {
     @BindView(R.id.allertSwitch)
     SwitchCompat allertSwitch;
 
+    @BindView(R.id.allertNonFiniteSwitch)
+    SwitchCompat allertNonFiniteSwitch;
+
+
     @BindView(R.id.setupDate)
     Button setupDate;
 
@@ -109,6 +113,7 @@ public class FragmentSettings extends Fragment {
 
             allertSwitch.setChecked(App.dataManager.isShowAlert());
             stopDataSwitch.setChecked(App.dataManager.isDisableConectionWhenLimit());
+            allertNonFiniteSwitch.setChecked(App.dataManager.isAlertLevelInfinity());
 
             viewDate.setText(App.dataManager.getDate());
 
@@ -236,6 +241,15 @@ public class FragmentSettings extends Fragment {
                 App.dataManager.setIsShowAlert(isChecked);
             }
         });
+
+        allertNonFiniteSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                App.dataManager.setAlertInfinity(isChecked);
+            }
+        });
+
+
 
         setupDate.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -14,6 +14,7 @@ object Constants{
     val APP_PREFERENCES_ALLERT_LEVEL = "allertLevel"
     val APP_PREFERENCES_DISABLE_INTERNET = "disable_internet"
     val APP_PREFERENCES_SHOW_ALLERT = "show_allert"
+    val APP_PREFERENCES_ALLERT_INFINITY = "set_allert-infinity"
 
     val APP_PREFERENCES_REBOOT_ACTION = "reboot_action"
     val APP_PREFERENCES_HAS_VISITED = "has_visited"

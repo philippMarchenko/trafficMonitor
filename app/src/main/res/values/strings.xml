@@ -1,15 +1,6 @@
 <resources>
     <string name="app_name">Traffic Monitoring</string>
 
-    <!-- Navigation Drawer-->
-    <string name="info_fr1">Общий</string>
-    <string name="info_fr2">По приложениям</string>
-    <string name="info_fr3">Графики</string>
-    <string name="info_fr4">Настройки</string>
-
-
-
-
     <string name="title_activity_main">DateTimePicker Example</string>
     <string name="selected_time">The time you picked will be shown here.</string>
     <string name="selected_date">The date you picked will be shown here.</string>
@@ -63,6 +54,9 @@
     <string name="levelWarning">Warning level</string>
     <string name="levelStop">Stop level</string>
     <string name="showMessege">Show Messege</string>
+    <string name="set_alert_infinity">Set alert non-finite</string>
+    <string name="alert">Alert!</string>
+
     <string name="setDate">Set date begin</string>
     <string name="setDateButton">Set date</string>
     <string name="currentDate">Current Date</string>
@@ -77,6 +71,8 @@
 
     <string name="app_data">App data</string>
     <string name="traffic">Traffic</string>
-    <string name="default_notification_channel_id" />
+    <string name="version_app">Version App</string>
+    <string name="default_notification_channel_id">default_id</string>
+
 
 </resources>

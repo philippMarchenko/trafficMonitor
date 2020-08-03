@@ -162,12 +162,12 @@ public class TrafficHelper{
         contentView.setImageViewResource(R.id.imSendData, R.drawable.arrowup);
         contentView.setImageViewResource(R.id.imDownloadData, R.drawable.arrowdown);
         if((int)trafficFloat < 100) {
-            contentView.setTextViewText(R.id.title, "Использовано " + trafficFloat + " Мб");
+            contentView.setTextViewText(R.id.title, context.getString(R.string.used) + " " + trafficFloat + " " + context.getString(R.string.mb));
             contentView.setTextViewText(R.id.tvDownloadData,Float.toString(trafficRxFloat));
             contentView.setTextViewText(R.id.tvSendData,Float.toString(trafficTxFloat));
         }
         else {
-            contentView.setTextViewText(R.id.title, "Использовано " + (int)trafficFloat + " Мб");
+            contentView.setTextViewText(R.id.title, context.getString(R.string.used) + " " + (int)trafficFloat + " " + context.getString(R.string.mb));
             contentView.setTextViewText(R.id.tvDownloadData,"" + (int)trafficRxFloat);
             contentView.setTextViewText(R.id.tvSendData,"" + (int)trafficTxFloat);
         }

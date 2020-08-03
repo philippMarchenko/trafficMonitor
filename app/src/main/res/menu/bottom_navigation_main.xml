@@ -23,7 +23,7 @@
         android:id="@+id/action_settings"
         android:enabled="true"
         android:icon="@drawable/baseline_settings_20px"
-        android:title="@string/info_fr4"
+        android:title="@string/tab_3"
         
         app:showAsAction="ifRoom" />
 </menu>

@@ -1,91 +1,103 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout"
-    android:layout_width="fill_parent"
-    android:padding="0dp"
-    android:layout_height="64dp"
-    android:background="@drawable/round_corners"
-    android:alpha="1">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00FFFFFF"
+  >
 
-    <ImageView
-        android:src="@drawable/bittorrent"
-        android:id="@+id/image"
-        android:layout_marginRight="0dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="5dp"
-        android:layout_width="45dp"
-        android:layout_height="45dp" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/round_corners"
+        >
 
-    <ProgressBar
-        android:id="@+id/usageData"
-        style="@android:style/Widget.ProgressBar.Horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/image"
-        android:layout_toEndOf="@+id/image"
-        android:progress="90"
-        android:max="100"
-        android:progressDrawable="@drawable/barstyle"
-        android:layout_marginBottom="0dp"
-        android:layout_marginEnd="5dp" />
+        <ImageView
+            android:src="@drawable/bittorrent"
+            android:id="@+id/image"
+            android:layout_marginRight="0dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="5dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp" />
 
-    <ImageView
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        card_view:srcCompat="@drawable/arrowup"
-        android:id="@+id/imSendData"
-        android:layout_alignBottom="@+id/tvDownloadData"
-        android:layout_toStartOf="@+id/tvSendData"
-        android:layout_marginRight="5dp" />
+        <ProgressBar
+            android:id="@+id/usageData"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/image"
+            android:layout_toEndOf="@+id/image"
+            android:progress="0"
+            android:max="100"
+            android:progressDrawable="@drawable/barstyle"
+            android:layout_marginBottom="0dp"
+            android:layout_marginEnd="5dp" />
 
-    <TextView
-        android:text="0 Мб"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/tvSendData"
-        android:textColor="@color/color_white"
-        android:layout_alignBottom="@+id/imSendData"
-        android:layout_alignEnd="@+id/usageData" />
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            card_view:srcCompat="@drawable/arrowup"
+            android:id="@+id/imSendData"
+            android:layout_alignBottom="@+id/tvDownloadData"
+            android:layout_toStartOf="@+id/tvSendData"
+            android:layout_marginRight="5dp" />
 
-    <ImageView
-        card_view:srcCompat="@drawable/arrowdown"
-        android:id="@+id/imDownloadData"
-        android:layout_height="25dp"
-        android:layout_width="25dp"
-        android:layout_marginRight="5dp"
-        android:layout_alignParentTop="true"
-        android:layout_toStartOf="@+id/tvDownloadData"
-        android:layout_marginTop="2dp" />
+        <TextView
+            android:text="0 Мб"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvSendData"
+            android:textColor="@color/color_white"
+            android:layout_alignBottom="@+id/imSendData"
+            android:layout_alignEnd="@+id/usageData" />
 
-    <TextView
-        android:text="0 Мб"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/tvDownloadData"
-        android:textColor="@color/color_white"
-        android:layout_marginRight="5dp"
-        android:layout_alignBottom="@+id/imDownloadData"
-        android:layout_toStartOf="@+id/imSendData" />
+        <ImageView
+            card_view:srcCompat="@drawable/arrowdown"
+            android:id="@+id/imDownloadData"
+            android:layout_height="25dp"
+            android:layout_width="25dp"
+            android:layout_marginRight="5dp"
+            android:layout_alignParentTop="true"
+            android:layout_toStartOf="@+id/tvDownloadData"
+            android:layout_marginTop="2dp" />
 
-    <TextView
-        android:text="Использовано 30 Мб"
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/color_white"
-        android:layout_alignBottom="@+id/imDownloadData"
-        android:layout_alignStart="@+id/usageData" />
+        <TextView
+            android:text="0 Мб"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvDownloadData"
+            android:textColor="@color/color_white"
+            android:layout_marginRight="5dp"
+            android:layout_alignBottom="@+id/imDownloadData"
+            android:layout_toStartOf="@+id/imSendData" />
 
-    <TextView
-        android:text="0 %"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/procentData"
-        android:textColor="@color/color_white"
-        android:layout_alignBottom="@+id/usageData"
-        android:layout_alignEnd="@+id/usageData"
-        android:layout_marginBottom="2dp"
-        android:layout_marginEnd="4dp" />
+        <TextView
+            android:text="gwg weg weg weg weg weg weg weg weg we weg we wg wg we weg"
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/color_white"
+            android:layout_alignBottom="@+id/imDownloadData"
+            android:layout_alignStart="@+id/usageData"
+            android:layout_toStartOf="@+id/imDownloadData"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginEnd="6dp"/>
+
+        <TextView
+            android:text="0 %"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/procentData"
+            android:textColor="@color/color_white"
+            android:layout_alignBottom="@+id/usageData"
+            android:layout_alignEnd="@+id/usageData"
+            android:layout_marginBottom="2dp"
+            android:layout_marginEnd="4dp" />
+
+    </RelativeLayout>
+
 
 </RelativeLayout>

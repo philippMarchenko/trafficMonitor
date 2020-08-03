@@ -74,6 +74,9 @@
     <string name="used_WIFI">Використано WiFi </string>
     <string name="app_data">Додатки</string>
     <string name="traffic">Трафік</string>
-
+    <string name="version_app">Версія додатку</string>
+    <string name="default_notification_channel_id">default_id</string>
+    <string name="set_alert_infinity">Зробити безперервним повідомлення</string>
+    <string name="alert">Увага!</string>
 
 </resources>

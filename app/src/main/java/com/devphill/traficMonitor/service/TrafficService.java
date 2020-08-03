@@ -22,15 +22,18 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.service.notification.StatusBarNotification;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.devphill.traficMonitor.App;
+import com.devphill.traficMonitor.BuildConfig;
 import com.devphill.traficMonitor.R;
 import com.devphill.traficMonitor.model.Package;
 import com.devphill.traficMonitor.networkStats.LoadPackageList;
@@ -59,6 +62,9 @@ import java.util.TimerTask;
 public class TrafficService extends Service implements LoadPackageList.ILoadPackageListListener {
 
 	final String LOG_TAG = "serviceTag";
+	final int ALERT_NOTY_ID = 1000;
+	final int ALERT_STOP_ID = 10001;
+
 	final int MAX_SIM = 10;
 	public long mobile_trafficTXToday, mobile_trafficRXToday, mobile_trafficTXYesterday, mobile_trafficRXYesterday, allTrafficMobile;
 	static public String idsim = "mySim";
@@ -82,8 +88,8 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 	public static int ALARM_ACTION = 3;
 
 	public static boolean runTimer = false;
-	//boolean showNotyAllert = false;
-	//boolean showNotyStop = false;
+	boolean isNotyAllertShowed = false;
+	boolean showNotyStop = false;
 
 	public static final int PERIOD_DAY = 1;
 	public static final int PERIOD_MOUNTH = 2;
@@ -147,19 +153,13 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 		}
 		recoverSettings();
 
-		setTimer();
+		setTimerForCheckNewDay();
 
 		initNoty();
 
 		task();
 
-		if (Build.VERSION.SDK_INT < 23) {
-
-		} else {
-
-			startUpdateAppTraffic();
-
-		}
+		startUpdateAppTraffic();
 
 	}
 
@@ -182,7 +182,7 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 				Log.d(LOG_TAG, "SET_REBOOT_ACTION");
 			}
 		} else if (task == ALARM_ACTION) {
-			setTimer();
+			setTimerForCheckNewDay();
 			Log.d(LOG_TAG, "ALARM_ACTION");
 			newDay = true;
 		}
@@ -290,9 +290,6 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 		notification = mBuilder.build();
 
 		notification.flags |= Notification.FLAG_AUTO_CANCEL;
-		//notification.defaults |= Notification.DEFAULT_SOUND;
-		//notification.defaults |= Notification.DEFAULT_VIBRATE;
-		//mNotificationManager.notify(1, notification);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			createChannel(mNotificationManager);
@@ -304,14 +301,11 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 	@RequiresApi(Build.VERSION_CODES.O)
 	private void createChannel(@Nullable NotificationManager mNotificationManager) {
 		try {
-			// The id of the channel.
 			String id = getApplicationContext().getString(R.string.default_notification_channel_id);
-			// The user-visible name of the channel.
 			String name = getApplicationContext().getString(R.string.app_name);
 
 			int importance = NotificationManager.IMPORTANCE_HIGH;
 			NotificationChannel mChannel = new NotificationChannel(id, name, importance);
-			// Configure the notification channel.
 			mChannel.setShowBadge(false);
 			mChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
 			mNotificationManager.createNotificationChannel(mChannel);
@@ -323,36 +317,35 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 
 
 	public void sendNotyAllert(){
-		String text = getResources().getString(R.string.notyAllert1) + App.dataManager.getAlertLevel() + getResources().getString(R.string.notyAllert2);
 
-		Context context = getApplicationContext();
-		Intent notificationIntent = new Intent(context, MainActivity.class);
-		PendingIntent pIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+		if(App.dataManager.isAlertLevelInfinity() == false && isNotyAllertShowed){
+			return;
+		}
+		else{
+			String text = getResources().getString(R.string.notyAllert1) + " " + App.dataManager.getAlertLevel() + getResources().getString(R.string.notyAllert2);
 
-		Notification.Builder builder = new Notification.Builder(this)
-				//.setTicker("Traffic Monitor!")
-				.setContentTitle("Мониторинг траффика")
-				.setContentText(text)
-				.setContentIntent(pIntent)
-				.setSmallIcon(R.drawable.icon_noty);
-		//.addAction(R.drawable.check, "Запустить активность",
-		//	pIntent).setAutoCancel(true);
+			Context context = getApplicationContext();
+			Intent notificationIntent = new Intent(context, MainActivity.class);
+			PendingIntent pIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-		Notification notification = new Notification.BigTextStyle(builder)
-				.bigText(text).build();
-		Uri ringURI =
-				RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-		//notification.sound = ringURI;
-
-		notification.defaults |= Notification.DEFAULT_SOUND;
-		notification.defaults |= Notification.DEFAULT_VIBRATE;
-
-		NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		notificationManager.notify(3, notification);
+			Notification.Builder builder = new Notification.Builder(this)
+					.setContentTitle(getString(R.string.alert))
+					.setContentText(text)
+					.setContentIntent(pIntent)
+					.setSmallIcon(R.drawable.data)
+					.setColor(ContextCompat.getColor(getApplicationContext(),R.color.cardview_color));
 
 
-		//showNotyAllert = true;
-		Log.d(LOG_TAG, "Показали уведомление об предупреждении");
+			Notification notification = new Notification.BigTextStyle(builder).bigText(text).build();
+
+			notification.defaults |= Notification.DEFAULT_SOUND;
+			notification.defaults |= Notification.DEFAULT_VIBRATE;
+			NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+			notificationManager.notify(ALERT_NOTY_ID, notification);
+			isNotyAllertShowed = true;
+			Log.d(LOG_TAG, "Показали уведомление об предупреждении");
+		}
 	}
 
 	public void sendNotyStop(){
@@ -363,27 +356,20 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 		PendingIntent pIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
 		Notification.Builder builder = new Notification.Builder(this)
-				//.setTicker("Traffic Monitor!")
-				.setContentTitle("Мониторинг траффика")
+				.setContentTitle(getString(R.string.alert))
 				.setContentText(text)
 				.setContentIntent(pIntent)
-				.setSmallIcon(R.drawable.icon_noty);
-		//.addAction(R.drawable.check, "Запустить активность",
-		//	pIntent).setAutoCancel(true);
+				.setSmallIcon(R.drawable.data)
+				.setColor(ContextCompat.getColor(getApplicationContext(),R.color.cardview_color));
 
-		Notification notification = new Notification.BigTextStyle(builder)
-				.bigText(text).build();
-		Uri ringURI =
-				RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-		//notification.sound = ringURI;
+		Notification notification = new Notification.BigTextStyle(builder).bigText(text).build();
 
 		notification.defaults |= Notification.DEFAULT_SOUND;
 		notification.defaults |= Notification.DEFAULT_VIBRATE;
 
 		NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		notificationManager.notify(2, notification);
+		notificationManager.notify(ALERT_STOP_ID, notification);
 
-	//	showNotyStop = true;
 		Log.d(LOG_TAG, "Показали уведомление о лимите и отключении ");
 	}
 
@@ -393,70 +379,25 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 		myTimerService.schedule(new TimerTask() { // Определяем задачу
 			@Override
 			public void run() {//функция для длительных задач(например работа с сетью)
-					//if(runTimer) {
 
-				if(Build.VERSION.SDK_INT < 23){
-
-					if (isNewDay() || isNewMonth()) {
-						Log.d(LOG_TAG, "Конец учетного периода");
-
-						TrafficHelper.saveTotalTraffic(getBaseContext());
-						TrafficHelper.resetTraffic();                        //считали значения сегоднашнего траффика, записали его в переменные вчерашнего
-						cleanTable(idsim);                    //очистили таблицу
-						setRebootAction(0);
-
-						TrafficHelper.initAppTrafficList(getBaseContext());
-						TrafficHelper.initAppTrafficList(getBaseContext());
-
-						intent.putExtra(MainFragment.UPDATE_CHART, 1);    //обновили граффик,
-
-
-						try {
-							sendBroadcast(intent);            //послали интент фрагменту
-							Log.d(LOG_TAG, "Интент отправлен");
-						} catch (Error e) {
-							Log.d(LOG_TAG, "Error send br" + e.getMessage());
-							e.printStackTrace();
-						}
-					} else {
-
-						TrafficHelper.updateAppTrafficList(getBaseContext());
-
-						if (getRebootAction() == 0) {
-							TrafficHelper.saveTrafficAppsForReboot(getBaseContext());
-							TrafficHelper.saveTrafficAppsForRebootWiFi(getBaseContext());
-							TrafficHelper.saveTotalTrafficReboot(getBaseContext());
-						}
-					}
-
-					allTrafficMobile = TrafficHelper.getAllTrafficMobile();
-
+				if (isNewDay()){
+					cleanTable(idsim);                    //очистили таблицу
+					packageList.clear();
 				}
-				else{
+				TrafficMHelper.refreshWidget(getBaseContext());
+				TrafficMHelper.dbWriteTraffic(getBaseContext(),idsim);
+				TrafficMHelper.updateNoty(getBaseContext(),getPackageName());
 
-					if (isNewDay()){
-						//cleanTable("traffic_app");
-						cleanTable(idsim);                    //очистили таблицу
-						packageList.clear();
-					}
-					TrafficMHelper.refreshWidget(getBaseContext());
-					TrafficMHelper.dbWriteTraffic(getBaseContext(),idsim);
-					TrafficMHelper.updateNoty(getBaseContext(),getPackageName());
-					//TrafficMHelper.updateData(getBaseContext());
-
-					allTrafficMobile = TrafficMHelper.getAllTrafficMobile();
-
-					Log.d(LOG_TAG, " Update all services on M " );
-
-				}
+				allTrafficMobile = TrafficMHelper.getAllTrafficMobile();
 
 				if (isAllertLevel() && App.dataManager.isShowAlert()){
 					sendNotyAllert();
 				}
 				if (isStopLevel() &&  App.dataManager.isDisableConectionWhenLimit()) {
+					sendNotyStop();
+
 					try {
 						setMobileDataEnabled(getBaseContext(), false);
-						sendNotyStop();
 					} catch (InvocationTargetException e) {
 						e.printStackTrace();
 					} catch (IllegalAccessException e) {
@@ -534,6 +475,7 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 	}			//наступил новый месяц?
 
 	private void setMobileDataEnabled(Context context, boolean enabled) throws InvocationTargetException, IllegalAccessException, ClassNotFoundException, NoSuchFieldException, NoSuchMethodException {
+/*
 		final ConnectivityManager conman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		final Class conmanClass = Class.forName(conman.getClass().getName());
 		final Field iConnectivityManagerField = conmanClass.getDeclaredField("mService");
@@ -544,9 +486,16 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 		setMobileDataEnabledMethod.setAccessible(true);
 
 		setMobileDataEnabledMethod.invoke(iConnectivityManager, enabled);
+*/
+
+		ConnectivityManager dataManager;
+		dataManager  = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		Method dataMtd = ConnectivityManager.class.getDeclaredMethod("setMobileDataEnabled", boolean.class);
+		dataMtd.setAccessible(true);
+		dataMtd.invoke(dataManager, enabled);
 	}
 
-	public void setTimer(){
+	public void setTimerForCheckNewDay(){
 
 		Calendar calNow = Calendar.getInstance();
 		Calendar calSet = (Calendar) calNow.clone();
@@ -619,17 +568,6 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 
 		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
 
-		//TrafficService.period = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_PERIOD,TrafficService.period);
-		//TrafficService.stopLevel = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_STOPL_EVEL,TrafficService.stopLevel);
-	//	TrafficService.allertLevel = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_ALLERT_LEVEL,TrafficService.allertLevel);
-		//TrafficService.disable_internet = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_DISABLE_INTERNET,TrafficService.disable_internet);
-		//TrafficService.show_allert = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_SHOW_ALLERT,TrafficService.show_allert);
-		//TrafficService.day = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_DAY,TrafficService.day);
-		//TrafficService.month = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_MONTH,TrafficService.month);
-		//TrafficService.mYear = mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_YEAR,TrafficService.mYear);
-
-
-
 		boolean hasVisited = mySharedPreferences.getBoolean(APP_PREFERENCES_HAS_VISITED,false);
 
 		if(!hasVisited){		//первый раз запуск приложения?
@@ -639,7 +577,7 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 			editor.apply();
 		}
 
-	}		//востановим настройки
+	}
 
 	public void cleanTable(String table) {
 

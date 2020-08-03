@@ -159,16 +159,6 @@
                             android:textColor="@color/colorTest"
                             android:layout_marginStart="10dp" />
 
-                        <TextView
-                            android:text="@string/levelWarning"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/material_drawer_header_selection_text"
-                            android:id="@+id/setDataView"
-                            android:textSize="18sp"
-                            android:layout_marginTop="15dp"
-                            android:layout_below="@+id/stopDataSwitch"
-                            android:layout_alignStart="@+id/lableSetLevelStop" />
 
                         <android.support.v7.widget.SwitchCompat
                             android:layout_width="wrap_content"
@@ -180,15 +170,15 @@
                             android:layout_alignEnd="@+id/inputDataStop" />
 
                         <TextView
-                            android:text="@string/showMessege"
+                            android:text="@string/levelWarning"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="24dp"
-                            android:id="@+id/setAllert"
-                            android:layout_below="@+id/setDataView"
-                            android:layout_alignStart="@+id/setDataView"
-                            android:textColor="@color/colorTest"
-                            android:layout_marginStart="10dp" />
+                            android:textColor="@color/material_drawer_header_selection_text"
+                            android:id="@+id/setDataView"
+                            android:textSize="18sp"
+                            android:layout_marginTop="15dp"
+                            android:layout_below="@+id/stopDataSwitch"
+                            android:layout_alignStart="@+id/lableSetLevelStop" />
 
                         <EditText
                             android:id="@+id/inputDataAllert"
@@ -206,6 +196,18 @@
                             android:layout_alignBottom="@+id/setDataView"
                             android:layout_alignStart="@+id/inputDataStop" />
 
+
+                        <TextView
+                            android:text="@string/showMessege"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="24dp"
+                            android:id="@+id/setAllert"
+                            android:layout_below="@+id/setDataView"
+                            android:layout_alignStart="@+id/setDataView"
+                            android:textColor="@color/colorTest"
+                            android:layout_marginStart="10dp" />
+
                         <android.support.v7.widget.SwitchCompat
                             android:layout_height="wrap_content"
                             android:id="@+id/allertSwitch"
@@ -215,6 +217,28 @@
                             android:switchMinWidth="56dp"
                             android:layout_alignBaseline="@+id/setAllert"
                             android:layout_alignBottom="@+id/setAllert"
+                            android:layout_alignEnd="@+id/inputDataAllert" />
+
+                        <TextView
+                            android:text="@string/set_alert_infinity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:id="@+id/setnonFiniteAllert"
+                            android:layout_below="@+id/setAllert"
+                            android:layout_alignStart="@+id/setAllert"
+                            android:textColor="@color/colorTest"
+                          />
+
+                        <android.support.v7.widget.SwitchCompat
+                            android:layout_height="wrap_content"
+                            android:id="@+id/allertNonFiniteSwitch"
+                            android:layout_width="wrap_content"
+                            android:theme="@style/MySwitch"
+                            android:thumbTextPadding="25dp"
+                            android:switchMinWidth="56dp"
+                            android:layout_alignBaseline="@+id/setnonFiniteAllert"
+                            android:layout_alignBottom="@+id/setnonFiniteAllert"
                             android:layout_alignEnd="@+id/inputDataAllert" />
 
                         <com.appyvet.rangebar.RangeBar
@@ -233,11 +257,12 @@
                             sample:connectingLineColor="@color/icons"
                             android:layout_width="wrap_content"
                             android:layout_alignParentStart="true"
-                            android:layout_below="@+id/allertSwitch"
+                            android:layout_below="@+id/allertNonFiniteSwitch"
                             android:layout_height="50dp"
                             android:layout_alignEnd="@+id/textView"
                             android:layout_alignParentBottom="true"
                             android:layout_marginTop="8dp"
+                            android:layout_marginEnd="12dp"
                          />
 
                         <TextView
@@ -381,7 +406,7 @@
                             android:layout_marginStart="12dp"
                             android:layout_marginBottom="12dp"
                             android:layout_marginTop="8dp"
-                            android:text="Версия ..."
+                            android:text="@string/version_app"
                             android:layout_below="@id/newDay"
                             android:textColor="@color/cardview_light_background" />
 

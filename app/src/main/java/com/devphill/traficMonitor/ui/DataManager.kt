@@ -27,6 +27,12 @@ class DataManager(context: Context?) {
         get() {
             return loginSharedPreferences?.getInt(Constants.APP_PREFERENCES_ALLERT_LEVEL, 0)
         }
+
+    val isAlertLevelInfinity: Boolean?
+        get() {
+            return loginSharedPreferences?.getBoolean(Constants.APP_PREFERENCES_ALLERT_INFINITY, false)
+        }
+
     val stopLevel: Int?
         get() {
             return loginSharedPreferences?.getInt(Constants.APP_PREFERENCES_STOP_LEVEL, 0)
@@ -74,6 +80,11 @@ class DataManager(context: Context?) {
 
     fun setIsShowAlert(bool: Boolean) {
         editor?.putBoolean(Constants.APP_PREFERENCES_SHOW_ALLERT, bool)
+        editor?.commit()
+    }
+
+    fun setAlertInfinity(bool: Boolean) {
+        editor?.putBoolean(Constants.APP_PREFERENCES_ALLERT_INFINITY, bool)
         editor?.commit()
     }
 

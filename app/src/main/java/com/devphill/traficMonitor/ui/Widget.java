@@ -46,12 +46,12 @@ public class Widget extends AppWidgetProvider {
 
 
             if(traffic < 100){
-                views.setTextViewText(R.id.title, "Использовано " + traffic);
+                views.setTextViewText(R.id.title, context.getString(R.string.used) + " " + traffic + " " + context.getString(R.string.mb));
                 views.setTextViewText(R.id.tvSendData, Float.toString(trafficTxFloat));
                 views.setTextViewText(R.id.tvDownloadData, Float.toString(trafficRxFloat));
             }
             else{
-                views.setTextViewText(R.id.title, "Использовано " + (int)traffic);
+                views.setTextViewText(R.id.title, context.getString(R.string.used) + " " + (int)traffic + " " + context.getString(R.string.mb));
                 views.setTextViewText(R.id.tvSendData, "" + (int)trafficTxFloat);
                 views.setTextViewText(R.id.tvDownloadData, "" + (int)trafficRxFloat);
             }
