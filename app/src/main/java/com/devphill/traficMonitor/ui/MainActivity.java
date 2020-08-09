@@ -1,38 +1,26 @@
 package com.devphill.traficMonitor.ui;
 
-import android.Manifest;
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.AppOpsManager;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Typeface;
-import android.os.Build;
+import android.content.pm.PermissionGroupInfo;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import com.devphill.traficMonitor.R;
-import com.devphill.traficMonitor.premmision.Premission;
+import com.devphill.traficMonitor.premmision.Permission;
 import com.devphill.traficMonitor.service.TrafficService;
 import com.devphill.traficMonitor.helper.CustomViewPager;
 import com.devphill.traficMonitor.ui.fragments.test_speed.FragmentTestSpeed;
@@ -59,9 +47,6 @@ public class MainActivity extends AppCompatActivity {
     public static CustomViewPager viewPager;
 
 
-    AlertDialog dialog;
-    AlertDialog.Builder builder;
-    Premission premission;
     BottomNavigationView bottomNavigationView;
 
 
@@ -71,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        premission = new Premission(getBaseContext(),this);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -84,39 +68,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-    public void showQueryPremission(){
-
-        builder = new AlertDialog.Builder(this,R.style.MyDialogTheme);
-        builder.setTitle("Необходимо разрешение!");
-        builder.setMessage("Этому приложению необходимо предоставить разрешение на просмотр данных сети");
-
-        builder.setPositiveButton("Предоставить!",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                        premission.requestReadNetworkHistoryAccess();
-                    }
-                });
-
-        builder.setNegativeButton("Отмена!",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                        finish();
-                    }
-                });
-
-
-            dialog = builder.create();
-            dialog.show();
-    }
 
     @Override
     protected void onStart() {
         super.onStart();
-        premission.requestPermissions();
     }
 
     @Override
@@ -124,22 +79,14 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    @Override
-    @TargetApi(Build.VERSION_CODES.M)
     protected void onResume() {
-        Log.i(LOG_TAG, "onResume " );
 
         super.onResume();
-        if (!premission.hasPermissions()) {
-            Log.i(LOG_TAG, "return " );
+        initUI();
 
-            if (dialog == null) {
-                showQueryPremission();
-            }
+    }
 
-            return;
-        }
-        
+    private void initUI(){
         setupViewPager(viewPager);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(
@@ -204,9 +151,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, TrafficService.class);
             startService(intent);
         }
-
     }
-
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -255,5 +200,6 @@ public class MainActivity extends AppCompatActivity {
             return mFragmentTitleList.get(position);
         }
     }
+
 
 }

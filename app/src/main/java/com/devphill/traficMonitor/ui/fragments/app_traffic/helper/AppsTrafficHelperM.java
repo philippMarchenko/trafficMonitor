@@ -2,6 +2,7 @@ package com.devphill.traficMonitor.ui.fragments.app_traffic.helper;
 
 import android.app.usage.NetworkStatsManager;
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -84,12 +85,21 @@ public class AppsTrafficHelperM{
 
     }
 
-    public void initAppListM(){
+    public void initAppListM(@Nullable List<Package> list){
 
-        packageList.clear();
-        packageList.addAll(TrafficService.packageList);
-        appTrafficAdapter.updateAdapter();
-        appTrafficAdapter.notifyDataSetChanged();
+        if(TrafficService.packageList.isEmpty() && list != null){
+            TrafficService.packageList.addAll(list);
+            packageList.clear();
+            packageList.addAll(TrafficService.packageList);
+            appTrafficAdapter.updateAdapter();
+            appTrafficAdapter.notifyDataSetChanged();
+        }
+        else{
+            packageList.addAll(TrafficService.packageList);
+            appTrafficAdapter.updateAdapter();
+            appTrafficAdapter.notifyDataSetChanged();
+        }
+
 
 
     } //обновляем траффик в БД по приложениям

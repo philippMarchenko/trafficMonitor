@@ -25,7 +25,7 @@
     <string name="action_settings">Settings</string>
 
     <string name="tab_1">Traffic</string>
-    <string name="tab_2">Test speed</string>
+    <string name="tab_2">Speed</string>
     <string name="tab_3">Settings</string>
 
     <string name="upload_data">Upload data</string>
@@ -73,6 +73,13 @@
     <string name="traffic">Traffic</string>
     <string name="version_app">Version App</string>
     <string name="default_notification_channel_id">default_id</string>
+    <string name="cancel">Cancel</string>
+    <string name="make_request">Make Request</string>
+    <string name="make_request2">Go to settings</string>
+    <string name="need_permissions">Need permissions!</string>
+    <string name="need_permissions_text">This application must be granted permission to view data online and view data on your phone. Attention, this application does not manage phone calls. This permission is needed ONLY to receive data in the used network traffic.</string>
+    <string name="need_permissions2_text">Also, to view data on used traffic, you must give permission to this application to view data about the network. Please go to the settings and enable this access.</string>
+
 
 
 </resources>

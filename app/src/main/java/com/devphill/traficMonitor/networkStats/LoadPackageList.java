@@ -17,16 +17,16 @@ import com.devphill.traficMonitor.model.Package;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 public class LoadPackageList extends AsyncTask<Void, Package,Void> {
 
-    public  String LOG_TAG = "LoadPackageListTag";
     private Context mContext;
     private ILoadPackageListListener mILoadPackageListListener;
-    List<Package> packageList = new ArrayList<>();
+    public List<Package> packageList = new ArrayList<>();
 
     public interface ILoadPackageListListener {
-        public void onGetPackage(Package p);
-       // public void onFinishLoadpackage(List<Package> packageList);
+        void allPackagesLoaded();
     }
 
     public LoadPackageList (Context context,ILoadPackageListListener iLoadPackageListListener){
@@ -35,6 +35,10 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
         mContext = context;
     }
 
+
+    public  List<Package> getPackages(){
+        return packageList;
+    }
     @Override
     protected Void doInBackground(Void... voids) {
 
@@ -56,7 +60,7 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
                 int uid = PackageManagerHelper.getPackageUid(mContext, packageInfo.packageName);
                 networkStatsHelper = new NetworkStatsHelper(networkStatsManager, uid,packageInfo.packageName);
 
-                Log.i(LOG_TAG, "add  packageItem");             // 253 мс
+                Timber.d("add  packageItem");             // 253 мс
 
                 packageItem.setVersion(packageInfo.versionName);
                 packageItem.setPackageName(packageInfo.packageName);    //1240 мс
@@ -93,16 +97,19 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
                 packageItem.setMobileData(Float.toString(trafficMobile));
                //  packageItem.setMobileData("1458");
 
-                Log.i(LOG_TAG, "setWiFiData  " + Float.toString(trafficWiFi));
+             //   Log.i(LOG_TAG, "setWiFiData  " + Float.toString(trafficWiFi));
                // Log.i(LOG_TAG, "setMobileData  " + Float.toString(trafficMobile));
-                Log.i(LOG_TAG, "packageName  " + packageInfo.packageName);
+            //    Log.i(LOG_TAG, "packageName  " + packageInfo.packageName);
 
-                publishProgress(packageItem);
 
-                packageList.add(packageItem);
+                if(packageItem.isUseTraffic()){
+                    Timber.d("add  " + packageInfo.packageName);
+
+                    packageList.add(packageItem);
+                }
 
             }
-          //  mILoadPackageListListener.onFinishLoadpackage(packageList);
+            publishProgress();
 
         }
         catch (Exception e){
@@ -115,8 +122,9 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
     @Override
     protected void onProgressUpdate(Package... p) {
         super.onProgressUpdate(p);
+        Timber.d("onProgressUpdate");
+        mILoadPackageListListener.allPackagesLoaded();
 
-        mILoadPackageListListener.onGetPackage(p[0]);
     }
 
     public List<PackageInfo> getListApp (PackageManager packageManager){

@@ -37,7 +37,9 @@
         app:menu="@menu/bottom_navigation_main"
         app:itemIconTint="@drawable/nav_item_color_state"
         app:itemTextColor="@drawable/nav_item_color_state"
-        app:labelVisibilityMode="auto"
-        android:background="@color/cardview_color"/>
+        app:labelVisibilityMode="labeled"
+        android:background="@color/cardview_color"
+
+        />
 
 </RelativeLayout>

@@ -1,13 +1,6 @@
 <resources>
     <string name="app_name">Traffic Monitoring</string>
 
-    <!-- Navigation Drawer-->
-    <string name="info_fr1">Общий</string>
-    <string name="info_fr2">Приложения</string>
-    <string name="info_fr3">Графики</string>
-    <string name="info_fr4">Настройки</string>
-
-
     <string name="title_activity_main">DateTimePicker Example</string>
     <string name="selected_time">The time you picked will be shown here.</string>
     <string name="selected_date">The date you picked will be shown here.</string>
@@ -32,7 +25,7 @@
     <string name="action_settings">Settings</string>
 
     <string name="tab_1">Траффик</string>
-    <string name="tab_2">Тест скорости</string>
+    <string name="tab_2">Cкорость</string>
     <string name="tab_3">Настройки</string>
 
     <string name="upload_data">Переданые данные</string>
@@ -79,6 +72,12 @@
     <string name="default_notification_channel_id">default_id</string>
     <string name="set_alert_infinity">Сделать уведомление бесконечным</string>
     <string name="alert">Внимание!</string>
+    <string name="cancel">Отмена</string>
+    <string name="make_request">Запросить разрешение</string>
+    <string name="make_request2">Перейти в настройки</string>
+    <string name="need_permissions">Необходимо разрешение!</string>
+    <string name="need_permissions_text">Этому приложению необходимо предоставить разрешение на просмотр данных в сети и на просмотр данных на телефоне. Внимание, данное приложение не выполняет управление телефонными звонками. Это разрешение нужно ТОЛЬКО для получения данных в использованном траффике сети.</string>
+    <string name="need_permissions2_text">Так же для просмотра данных о использованном траффике,вам необходимо дать разрешение этому приложению на просмотр данных о сети. Перейдите пожалуйста в настройки и включите этот доступ.</string>
 
 
 </resources>

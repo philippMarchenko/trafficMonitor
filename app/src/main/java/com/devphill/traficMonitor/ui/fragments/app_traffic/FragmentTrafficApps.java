@@ -5,9 +5,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -21,13 +23,19 @@ import android.widget.TextView;
 
 import com.devphill.traficMonitor.model.ApplicationItem;
 import com.devphill.traficMonitor.R;
+import com.devphill.traficMonitor.model.Package;
+import com.devphill.traficMonitor.networkStats.LoadPackageList;
+import com.devphill.traficMonitor.service.TrafficService;
 import com.devphill.traficMonitor.ui.fragments.app_traffic.helper.AppsTrafficHelper;
 import com.devphill.traficMonitor.ui.fragments.app_traffic.helper.AppsTrafficHelperM;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
+public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.OnRefreshListener, LoadPackageList.ILoadPackageListListener{
 
 
     public  String LOG_TAG = "fragmentTrafficApps";
@@ -53,7 +61,7 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
 
     AppsTrafficHelper appsTrafficHelper;
     AppsTrafficHelperM appsTrafficHelperM;
-
+    LoadPackageList loadPackageList;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_app_traff, container, false);
@@ -62,57 +70,49 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
 
         appsTrafficHelper = new AppsTrafficHelper(getContext(),tvDataUsageWiFi,tvDataUsageMobile,tvDataUsageTotal);
 
-        if(Build.VERSION.SDK_INT < 23) {
+        recyclerViewApplications = (RecyclerView) view.findViewById(R.id.rvInstallApplication);
+        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext(), 1);
+        recyclerViewApplications.setLayoutManager(mLayoutManager);
+        recyclerViewApplications.setItemAnimator(new DefaultItemAnimator());
 
-            appsTrafficHelper.initAdapter();
-        }
-        else{
-            recyclerViewApplications = (RecyclerView) view.findViewById(R.id.rvInstallApplication);
-            RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext(), 1);
-            recyclerViewApplications.setLayoutManager(mLayoutManager);
-            recyclerViewApplications.setItemAnimator(new DefaultItemAnimator());
+        appsTrafficHelperM = new AppsTrafficHelperM(getContext(),tvDataUsageWiFi,tvDataUsageMobile,tvDataUsageTotal);
 
-            appsTrafficHelperM = new AppsTrafficHelperM(getContext(),tvDataUsageWiFi,tvDataUsageMobile,tvDataUsageTotal);
-
-            recyclerViewApplications.setAdapter(appsTrafficHelperM.getAppTrafficAdapter());
-        }
+        recyclerViewApplications.setAdapter(appsTrafficHelperM.getAppTrafficAdapter());
 
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_layout);
-        swipeRefreshLayout.setColorSchemeColors(R.color.accent);
+        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(requireContext(),R.color.accent));
 
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        if(Build.VERSION.SDK_INT < 23) {
 
-            brAppsTrafficFragment = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                     Log.i(LOG_TAG, "onReceive brAppsTrafficFragment ");
-                    appsTrafficHelper.updateAdapter();
+        appsTrafficHelperM.showAllTrafficM();
 
-                    long trafficMobile = intent.getLongExtra("allTrafficMobile", 0);
-                    appsTrafficHelper.showAllTraffic(trafficMobile);
-                }
-            };
-        }
-        else{
 
-            appsTrafficHelperM.showAllTrafficM();
-            appsTrafficHelperM.initAppListM();
-        }
-
-        Log.i(LOG_TAG, "onCreateView FragmentTrafficApps ");
-
+        initAppList();
         return view;
 
     }
+
+
+    public void initAppList(){
+
+        if(TrafficService.packageList.isEmpty()){
+            swipeRefreshLayout.setRefreshing(true);
+            loadPackageList = new LoadPackageList(requireContext(),this);
+            loadPackageList.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
+        else{
+            appsTrafficHelperM.initAppListM(null);
+        }
+
+
+    } //обновляем траффик в БД по приложениям
 
 
     public void onResume() {
         super.onResume();
 
         getActivity().registerReceiver(brAppsTrafficFragment, new IntentFilter(FragmentTrafficApps.UPDATE_TRAFFIC_APPS));
-        Log.i(LOG_TAG, "onResume");
     }
     @Override
 
@@ -125,8 +125,9 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
             Log.d(LOG_TAG, "Error unregisterReceiver in Fragment2" + e.getMessage());
         }
 
-        Log.i(LOG_TAG, "onPause");
     }
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -139,14 +140,16 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
 
         swipeRefreshLayout.setRefreshing(true);
         Log.i(LOG_TAG, "onRefresh ");
+        TrafficService.packageList.clear();
+        loadPackageList = new LoadPackageList(requireContext(),this);
+        loadPackageList.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
 
-        if(Build.VERSION.SDK_INT < 23) {
+    @Override
+    public void allPackagesLoaded() {
+        Log.i(LOG_TAG, "allPackagesLoaded ");
 
-        }
-        else{
-            appsTrafficHelperM.initAppListM();
-        }
-
+        appsTrafficHelperM.initAppListM(loadPackageList.getPackages());
         swipeRefreshLayout.setRefreshing(false);
     }
 }

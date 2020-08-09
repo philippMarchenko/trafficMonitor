@@ -74,7 +74,7 @@
             android:layout_toStartOf="@+id/imSendData" />
 
         <TextView
-            android:text="gwg weg weg weg weg weg weg weg weg we weg we wg wg we weg"
+            android:text="Used 0 Mb"
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

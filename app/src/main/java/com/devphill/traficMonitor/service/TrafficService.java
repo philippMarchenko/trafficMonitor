@@ -59,7 +59,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class TrafficService extends Service implements LoadPackageList.ILoadPackageListListener {
+public class TrafficService extends Service  {
 
 	final String LOG_TAG = "serviceTag";
 	final int ALERT_NOTY_ID = 1000;
@@ -84,7 +84,6 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 	Timer timerAppsUpdate = new Timer();
 
 	public static int CLEAN_TABLE = 1;
-	public static int SET_REBOOT_ACTION = 2;
 	public static int ALARM_ACTION = 3;
 
 	public static boolean runTimer = false;
@@ -93,16 +92,7 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 
 	public static final int PERIOD_DAY = 1;
 	public static final int PERIOD_MOUNTH = 2;
-	//public static int period = PERIOD_DAY;
-	//public static int stopLevel = 100;
-	//public static int allertLevel = 80;
-	//public static int disable_internet = 1;
-	//public static int show_allert = 1;
-	//public static int day = 1;
-	//public static int month = 1;
-	//public static int mYear = 2017;
 
-	public static List<Package> packageList = new ArrayList<>();
 
 	public static final String APP_PREFERENCES = "settingsTrafficMonitor";
 	public static final String APP_PREFERENCES_TRAFFIC_APPS = "TrafficApps";
@@ -126,6 +116,7 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 	public static boolean brRegistered = false;
 
 	SQLiteDatabase db;
+	public static List<Package> packageList = new ArrayList<>();
 
 	public void onCreate() {
 		super.onCreate();
@@ -159,7 +150,6 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 
 		task();
 
-		startUpdateAppTraffic();
 
 	}
 
@@ -174,14 +164,8 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 			Log.d(LOG_TAG, "CLEAN_TABLE_ACTION");
 			cleanTable(idsim);
 
-		}//очистим ее
-		else if (task == SET_REBOOT_ACTION) {
-			if (Build.VERSION.SDK_INT < 23) {
-				setRebootAction(1);
-				TrafficHelper.resetTrafficReboot(getBaseContext(), idsim);
-				Log.d(LOG_TAG, "SET_REBOOT_ACTION");
-			}
-		} else if (task == ALARM_ACTION) {
+		}
+		 else if (task == ALARM_ACTION) {
 			setTimerForCheckNewDay();
 			Log.d(LOG_TAG, "ALARM_ACTION");
 			newDay = true;
@@ -189,8 +173,8 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 
 		runTimer = true;
 
-		return super.onStartCommand(intent, flags, startId);
-		//return START_STICKY;
+		//return super.onStartCommand(intent, flags, startId);
+		return START_STICKY;
 	}
 
 	void createTableSim(SQLiteDatabase db, String id_sim) {
@@ -382,7 +366,6 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 
 				if (isNewDay()){
 					cleanTable(idsim);                    //очистили таблицу
-					packageList.clear();
 				}
 				TrafficMHelper.refreshWidget(getBaseContext());
 				TrafficMHelper.dbWriteTraffic(getBaseContext(),idsim);
@@ -528,6 +511,7 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 
 	}
 
+/*
 	public void startUpdateAppTraffic() {
 
 		initAppListM();
@@ -554,15 +538,8 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 			}
 		}, 0L, 600L * 1000); // интервал - 10 мин, 0 миллисекунд до первого запуска.
 	}//каждые 3 мин обновляем список траффика по приложениям
+*/
 
-	public void initAppListM(){
-
-		Log.i(LOG_TAG, "initAppListM");
-		packageList.clear();
-		LoadPackageList loadPackageList = new LoadPackageList(getBaseContext(),this);
-		loadPackageList.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
-	} //обновляем траффик в БД по приложениям
 
 	public void recoverSettings(){
 
@@ -615,15 +592,4 @@ public class TrafficService extends Service implements LoadPackageList.ILoadPack
 		Log.d(LOG_TAG, "onTaskRemoved traffic_service");
 	}
 
-
-	@Override
-	public void onGetPackage(Package p) {
-		//&& !packageList.contains(p)
-		if(p.isUseTraffic()){
-
-			packageList.add(p);
-			Log.i(LOG_TAG, "packageListM.add ");
-
-		}
-	}
 }
