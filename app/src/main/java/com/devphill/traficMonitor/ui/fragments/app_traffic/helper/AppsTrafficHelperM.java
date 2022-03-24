@@ -85,10 +85,9 @@ public class AppsTrafficHelperM{
 
     }
 
-    public void initAppListM(@Nullable List<Package> list){
+    public void initAppListM(){
 
-        if(TrafficService.packageList.isEmpty() && list != null){
-            TrafficService.packageList.addAll(list);
+        if(TrafficService.packageList.isEmpty()){
             packageList.clear();
             packageList.addAll(TrafficService.packageList);
             appTrafficAdapter.updateAdapter();

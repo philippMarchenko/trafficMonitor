@@ -1,12 +1,15 @@
 package com.devphill.traficMonitor.networkStats;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.usage.NetworkStats;
 import android.app.usage.NetworkStatsManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.RemoteException;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -19,12 +22,11 @@ import java.util.Date;
 /**
  * Created by Robert Zagórski on 2016-09-09.
  */
-@TargetApi(Build.VERSION_CODES.M)
 public class NetworkStatsHelper {
 
     NetworkStatsManager networkStatsManager;
     int packageUid;
-    public  String LOG_TAG = "NetworkStatsHelperTag";
+    public String LOG_TAG = "NetworkStatsHelperTag";
 
     Date date;
     Date currentdate;
@@ -45,7 +47,7 @@ public class NetworkStatsHelper {
 
     }
 
-    public NetworkStatsHelper(NetworkStatsManager networkStatsManager, int packageUid,String packageName) {
+    public NetworkStatsHelper(NetworkStatsManager networkStatsManager, int packageUid, String packageName) {
 
         this.networkStatsManager = networkStatsManager;
         this.packageUid = packageUid;
@@ -66,14 +68,13 @@ public class NetworkStatsHelper {
         NetworkStats.Bucket bucket = null;
         try {
             bucket = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_MOBILE,
-                    getSubscriberId(context, ConnectivityManager.TYPE_MOBILE),
+                    getSubscriberId(context),
                     date.getTime(),
                     System.currentTimeMillis());
         } catch (RemoteException e) {
             return -1;
-        }
-        catch(NullPointerException e){
-            Log.i(LOG_TAG, "Не удалось получить данные траффика " +  e.getMessage());
+        } catch (NullPointerException e) {
+            Log.i(LOG_TAG, "Не удалось получить данные траффика " + e.getMessage());
         }
         return bucket.getRxBytes();
     }
@@ -82,14 +83,13 @@ public class NetworkStatsHelper {
         NetworkStats.Bucket bucket = null;
         try {
             bucket = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_MOBILE,
-                    getSubscriberId(context, ConnectivityManager.TYPE_MOBILE),
+                    getSubscriberId(context),
                     date.getTime(),
                     System.currentTimeMillis());
         } catch (RemoteException e) {
             return -1;
-        }
-        catch(NullPointerException e){
-            Log.i(LOG_TAG, "Не удалось получить данные траффика " +  e.getMessage());
+        } catch (NullPointerException e) {
+            Log.i(LOG_TAG, "Не удалось получить данные траффика " + e.getMessage());
         }
         return bucket.getTxBytes();
     }
@@ -105,9 +105,8 @@ public class NetworkStatsHelper {
                     System.currentTimeMillis());
         } catch (RemoteException e) {
             return -1;
-        }
-        catch(NullPointerException e){
-            Log.i(LOG_TAG, "Не удалось получить данные траффика " +  e.getMessage());
+        } catch (NullPointerException e) {
+            Log.i(LOG_TAG, "Не удалось получить данные траффика " + e.getMessage());
         }
         return bucket.getRxBytes();
     }
@@ -122,132 +121,29 @@ public class NetworkStatsHelper {
                     System.currentTimeMillis());
         } catch (RemoteException e) {
             return -1;
-        }
-        catch(NullPointerException e){
-            Log.i(LOG_TAG, "Не удалось получить данные траффика " +  e.getMessage());
+        } catch (NullPointerException e) {
+            Log.i(LOG_TAG, "Не удалось получить данные траффика " + e.getMessage());
         }
         return bucket.getTxBytes();
     }
 
- /*   public long getPackageRxBytesMobile(Context context) {
-
-        Date currentdate = new Date(System.currentTimeMillis());
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm");
-
-        String strTime = simpleDateFormat.format(date.getTime());
-        Log.i(LOG_TAG, "start date " +  strTime);
-        Log.i(LOG_TAG, "start ms " +  date.getTime());
-        strTime = simpleDateFormat.format(currentdate.getTime());
-        Log.i(LOG_TAG, "end date " + strTime);
-        Log.i(LOG_TAG, "end ms " + currentdate.getTime());
-        NetworkStats networkStats = null;
-        try {
-            networkStats = networkStatsManager.queryDetailsForUid(
-                    ConnectivityManager.TYPE_MOBILE,
-                    getSubscriberId(context, ConnectivityManager.TYPE_MOBILE),
-                    night.getTimeInMillis(),
-                    System.currentTimeMillis(),
-                    packageUid);
-        } catch (RemoteException e) {
-            return -1;
+    public String getSubscriberId(Context context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                return null;
+            }
+            else{
+                return telephonyManager.getSubscriberId();
+            }
+        } else {
+            return null;
         }
-        catch(NullPointerException e){
-            Log.i(LOG_TAG, "Не удалось получить данные траффика " +  e.getMessage());
-        }
-        NetworkStats.Bucket bucket = new NetworkStats.Bucket();
-        networkStats.getNextBucket(bucket);
-
-        strTime = simpleDateFormat.format(bucket.getStartTimeStamp());
-        Log.i(LOG_TAG, "getStartTimeStamp " +  strTime);
-        strTime = simpleDateFormat.format(bucket.getEndTimeStamp());
-
-        Log.i(LOG_TAG, "getEndTimeStamp " + strTime);
-        return bucket.getRxBytes();
-    }*/
-/*
-    public long getPackageTxBytesMobile(Context context) {
-        NetworkStats networkStats = null;
-        try {
-            networkStats = networkStatsManager.queryDetailsForUid(
-                    ConnectivityManager.TYPE_MOBILE,
-                    getSubscriberId(context, ConnectivityManager.TYPE_MOBILE),
-                    night.getTimeInMillis(),
-                    System.currentTimeMillis(),
-                    packageUid);
-        } catch (RemoteException e) {
-            return -1;
-        }
-        NetworkStats.Bucket bucket = new NetworkStats.Bucket();
-        networkStats.getNextBucket(bucket);
-        return bucket.getTxBytes();
-    }*/
-
-   /* public long getPackageRxBytesWifi() {
-
-        Date currentdate = new Date(System.currentTimeMillis());
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm");
-
-        Log.i(LOG_TAG, "getPackageRxBytesWifi  ");
-        Log.i(LOG_TAG, "packageName " +  packageName);
-
-
-        String strTime = simpleDateFormat.format( night.getTimeInMillis());
-        Log.i(LOG_TAG, "start date " +  strTime);
-        Log.i(LOG_TAG, "start ms " +   night.getTimeInMillis());
-        strTime = simpleDateFormat.format(currentdate.getTime());
-        Log.i(LOG_TAG, "end date " + strTime);
-        Log.i(LOG_TAG, "end ms " + currentdate.getTime());
-
-        NetworkStats networkStats = null;
-
-        try {
-            networkStats = networkStatsManager.queryDetailsForUid(
-                    ConnectivityManager.TYPE_WIFI,
-                    "",
-                    night.getTimeInMillis(),
-                    System.currentTimeMillis(),
-                    packageUid);
-        } catch (RemoteException e) {
-            return -1;
-        }
-        NetworkStats.Bucket bucket = new NetworkStats.Bucket();
-        networkStats.getNextBucket(bucket);
-
-        Log.i(LOG_TAG, "getRxBytes " + bucket.getRxBytes());
-        return bucket.getRxBytes();
-    }*/
-
-/*    public long getPackageTxBytesWifi() {
-
-        NetworkStats networkStats = null;
-        try {
-            networkStats = networkStatsManager.queryDetailsForUid(
-                    ConnectivityManager.TYPE_WIFI,
-                    "",
-                    night.getTimeInMillis(),
-                    System.currentTimeMillis(),
-                    packageUid);
-        } catch (RemoteException e) {
-            return -1;
-        }
-        NetworkStats.Bucket bucket = new NetworkStats.Bucket();
-        networkStats.getNextBucket(bucket);
-        return bucket.getTxBytes();
-    }*/
-
-    private String getSubscriberId(Context context, int networkType) {
-        if (ConnectivityManager.TYPE_MOBILE == networkType) {
-            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            return tm.getSubscriberId();
-        }
-        return "";
     }
 
     public long getDataMobile(Context context){
 
-        return getMobileUsage(ConnectivityManager.TYPE_MOBILE,getSubscriberId(context,ConnectivityManager.TYPE_MOBILE));
+        return getMobileUsage(ConnectivityManager.TYPE_MOBILE,getSubscriberId(context));
     }
 
     private long getMobileUsage(int networkType, String subScriberId) {
@@ -275,7 +171,7 @@ public class NetworkStatsHelper {
 
     public long getDataWiFi(Context context){
 
-        return getWiFiUsage(ConnectivityManager.TYPE_WIFI,getSubscriberId(context,ConnectivityManager.TYPE_MOBILE));
+        return getWiFiUsage(ConnectivityManager.TYPE_WIFI,getSubscriberId(context));
     }
 
     private long getWiFiUsage(int networkType, String subScriberId) {

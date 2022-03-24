@@ -7,8 +7,11 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -41,8 +44,9 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
     }
     @Override
     protected Void doInBackground(Void... voids) {
+        Timber.d("doInBackground  " );
 
-        try{
+     //   try{
 
             PackageManager packageManager = mContext.getPackageManager();
 
@@ -60,61 +64,65 @@ public class LoadPackageList extends AsyncTask<Void, Package,Void> {
                 int uid = PackageManagerHelper.getPackageUid(mContext, packageInfo.packageName);
                 networkStatsHelper = new NetworkStatsHelper(networkStatsManager, uid,packageInfo.packageName);
 
-                Timber.d("add  packageItem");             // 253 мс
+                if(networkStatsHelper.getDataMobile(mContext) > 1048576){                              //more than 1 MB
+                    Timber.d("add  packageItem");             // 253 мс
 
-                packageItem.setVersion(packageInfo.versionName);
-                packageItem.setPackageName(packageInfo.packageName);    //1240 мс
+                    packageItem.setVersion(packageInfo.versionName);
+                    packageItem.setPackageName(packageInfo.packageName);    //1240 мс
 
-                ApplicationInfo ai = null;
-                try {
-                    ai = packageManager.getApplicationInfo(packageInfo.packageName, PackageManager.GET_META_DATA);
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
+                    ApplicationInfo ai = null;
+                    try {
+                        ai = packageManager.getApplicationInfo(packageInfo.packageName, PackageManager.GET_META_DATA);
+                    } catch (PackageManager.NameNotFoundException e) {
+                        Timber.d("PackageManager.NameNotFoundException e " + e.getMessage());             // 253 мс
+
+                        e.printStackTrace();
+                    }
+                    if (ai == null) {
+                        continue;
+                    }
+                    CharSequence appName = packageManager.getApplicationLabel(ai);
+                    if (appName != null) {
+                        packageItem.setName(appName.toString());
+                    }                                                               //2950 мс
+
+                    try {
+                        packageItem.setIcon(packageManager.getApplicationIcon(packageInfo.packageName));
+                    } catch (PackageManager.NameNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    float trafficWiFi = (float) (networkStatsHelper.getDataWiFi(mContext) / 1048576);
+                    trafficWiFi = Math.round(trafficWiFi * (float) 10.0) / (float) 10.0;
+
+                    packageItem.setWiFiData(trafficWiFi);
+
+                    float trafficMobile = (float) (networkStatsHelper.getDataMobile(mContext) / 1048576) ;
+                    trafficMobile = Math.round(trafficMobile * (float) 10.0) / (float) 10.0;
+                    Timber.d("networkStatsHelper.getDataMobile(mContext)  " + networkStatsHelper.getDataMobile(mContext));
+
+                    packageItem.setMobileData(trafficMobile);
+
+
+                    if(packageItem.isUseTraffic()){
+                        Timber.d("add  " + packageInfo.packageName);
+
+                        packageList.add(packageItem);
+                    }
                 }
-                if (ai == null) {
-                    continue;
-                }
-                CharSequence appName = packageManager.getApplicationLabel(ai);
-                if (appName != null) {
-                    packageItem.setName(appName.toString());
-                }                                                               //2950 мс
-
-                try {
-
-                    packageItem.setIcon(((BitmapDrawable)packageManager.getApplicationIcon(packageInfo.packageName)).getBitmap());
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
-                }
-
-                float trafficWiFi = (float) (networkStatsHelper.getDataWiFi(mContext) / ((float)1024*(float)1024));
-                trafficWiFi = Math.round(trafficWiFi * (float) 10.0) / (float) 10.0;
-
-                packageItem.setWiFiData(Float.toString(trafficWiFi));
-
-                float trafficMobile = (float) (networkStatsHelper.getDataMobile(mContext) /((float)1024*(float)1024)) ;
-                trafficMobile = Math.round(trafficMobile * (float) 10.0) / (float) 10.0;
-
-                packageItem.setMobileData(Float.toString(trafficMobile));
-               //  packageItem.setMobileData("1458");
-
-             //   Log.i(LOG_TAG, "setWiFiData  " + Float.toString(trafficWiFi));
-               // Log.i(LOG_TAG, "setMobileData  " + Float.toString(trafficMobile));
-            //    Log.i(LOG_TAG, "packageName  " + packageInfo.packageName);
 
 
-                if(packageItem.isUseTraffic()){
-                    Timber.d("add  " + packageInfo.packageName);
+                Timber.d("packageList  " + packageList.size());
 
-                    packageList.add(packageItem);
-                }
 
             }
             publishProgress();
 
-        }
+    /*    }
         catch (Exception e){
+            Timber.d("Exception  " + e.getMessage());
 
-        }
+        }*/
 
         return null;
     }

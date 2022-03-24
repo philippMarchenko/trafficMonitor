@@ -1,24 +1,25 @@
 package com.devphill.traficMonitor.model;
 
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 
 public class Package {
 
     private String name;
     private String version;
     private String packageName;
-    private Bitmap icon;
+    private Drawable icon;
     private long mobileTx;
     private long mobileRx;
     private long wiFiTx;
     private long wiFiRx;
 
-    private String mobileData;
-    private String wiFiData;
+    private float mobileData;
+    private float wiFiData;
 
     public boolean isUseTraffic(){
 
-        if(Float.parseFloat(mobileData) > 0 || Float.parseFloat(wiFiData) > 0){
+        if(mobileData > 0 || wiFiData > 0){
 
             return true;
         }
@@ -29,28 +30,28 @@ public class Package {
 
     }
 
-    public void setMobileData(String mobileData) {
+    public void setMobileData(float mobileData) {
         this.mobileData = mobileData;
     }
 
-    public void setWiFiData(String wiFiData) {
+    public void setWiFiData(float wiFiData) {
         this.wiFiData = wiFiData;
     }
 
-    public String getMobileData(){
+    public float getMobileData(){
 
         return mobileData;
     }
 
-    public String getWiFiData(){
+    public float getWiFiData(){
         return wiFiData;
     }
 
-    public Bitmap getIcon() {
+    public Drawable getIcon() {
         return icon;
     }
 
-    public void setIcon(Bitmap icon) {
+    public void setIcon(Drawable icon) {
         this.icon = icon;
     }
 

@@ -10,6 +10,8 @@ import android.os.Build;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 
+import timber.log.Timber;
+
 /**
  * Created by Valera on 24.11.2017.
  */
@@ -42,10 +44,13 @@ public class Permission {
 
     public boolean hasPermissionToReadPhoneStats() {
 
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
-            return false;
-        } else {
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            Timber.d("hasPermissionToReadPhoneStats  PackageManager.PERMISSION_GRANTED");
             return true;
+        } else {
+            Timber.d("hasPermissionToReadPhoneStats  PackageManager. false");
+
+            return false;
         }
     }
 

@@ -2,7 +2,6 @@ package com.devphill.traficMonitor.service.helper;
 
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.usage.NetworkStatsManager;
 import android.content.ContentValues;
@@ -26,16 +25,12 @@ import com.devphill.traficMonitor.ui.fragments.main.MainFragment;
 import java.util.Date;
 
 
+import timber.log.Timber;
+
 import static com.devphill.traficMonitor.ui.fragments.main.MainFragment.UPDATE_DATA;
 
 public class TrafficMHelper{
 
-
-    final String LOG_TAG = "TrafficMHelper";
-
-    float trafficFloat;
-    float trafficTxFloat;
-    float trafficRxFloat ;
 
     public static long getAllTrafficMobile() {
         return allTrafficMobile;
@@ -96,15 +91,15 @@ public class TrafficMHelper{
 
     }		//записть данных в бд
 
-    public static void updateNoty (Context context,String packageName){
-
+    public static Notification getNoty (Context context, String packageName){
+        Timber.d("updateNoty " + allTrafficMobile);
         RemoteViews contentView = new RemoteViews(packageName, R.layout.noty);
-        NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(context);
-        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context,context.getString(R.string.default_notification_channel_id));
         Notification notification;
 
         float trafficFloat = (float)allTrafficMobile/1024;
         trafficFloat = Math.round(trafficFloat*(float)10.0)/(float)10.0;
+        Timber.d("updateNoty trafficFloat " + trafficFloat);
 
         float trafficTxFloat = (float)mobile_trafficTXToday/1048576;
         trafficTxFloat = Math.round(trafficTxFloat*(float)10.0)/(float)10.0;  //округляем до сотых
@@ -120,26 +115,18 @@ public class TrafficMHelper{
         contentView.setProgressBar(R.id.usageData, App.dataManager.getStopLevel(), (int) (allTrafficMobile / 1024), false);
         contentView.setImageViewResource(R.id.imSendData, R.drawable.arrowup);
         contentView.setImageViewResource(R.id.imDownloadData, R.drawable.arrowdown);
-        if((int)trafficFloat < 100) {
-            contentView.setTextViewText(R.id.title, context.getString(R.string.used) + " " + trafficFloat + " " + context.getString(R.string.mb));
-            contentView.setTextViewText(R.id.tvDownloadData,Float.toString(trafficRxFloat));
-            contentView.setTextViewText(R.id.tvSendData,Float.toString(trafficTxFloat));
-        }
-        else {
-            contentView.setTextViewText(R.id.title, context.getString(R.string.used) + " " + (int)trafficFloat + " " + context.getString(R.string.mb));
-            contentView.setTextViewText(R.id.tvDownloadData,"" + (int)trafficRxFloat);
-            contentView.setTextViewText(R.id.tvSendData,"" + (int)trafficTxFloat);
-        }
+
+        contentView.setTextViewText(R.id.title, context.getString(R.string.used) + " " + trafficFloat + " " + context.getString(R.string.mb));
+        contentView.setTextViewText(R.id.tvDownloadData,Float.toString(trafficTxFloat));
+        contentView.setTextViewText(R.id.tvSendData,Float.toString(trafficRxFloat));
 
         contentView.setTextViewText(R.id.procentData,(int)procent + " %");
 
         Intent notificationIntent = new Intent(context, MainActivity.class);
 
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        PendingIntent intent = PendingIntent.getActivity(context, 0,
-                notificationIntent, 0);
+        PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
 
         mBuilder.setContentIntent(intent);
 
@@ -150,12 +137,11 @@ public class TrafficMHelper{
 
 
         notification = mBuilder.build();
-        notification.flags |= Notification.FLAG_AUTO_CANCEL;
-
+      //  notification.flags |= Notification.FLAG_AUTO_CANCEL;
         //notification.defaults |= Notification.DEFAULT_SOUND;
         //notification.defaults |= Notification.DEFAULT_VIBRATE;
-        mNotificationManager.notify(1, notification);
 
+        return notification;
     }
 
     public static void refreshWidget(Context context) {

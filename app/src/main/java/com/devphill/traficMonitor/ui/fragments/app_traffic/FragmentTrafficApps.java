@@ -2,11 +2,8 @@ package com.devphill.traficMonitor.ui.fragments.app_traffic;
 
 
 import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -23,14 +20,9 @@ import android.widget.TextView;
 
 import com.devphill.traficMonitor.model.ApplicationItem;
 import com.devphill.traficMonitor.R;
-import com.devphill.traficMonitor.model.Package;
 import com.devphill.traficMonitor.networkStats.LoadPackageList;
 import com.devphill.traficMonitor.service.TrafficService;
-import com.devphill.traficMonitor.ui.fragments.app_traffic.helper.AppsTrafficHelper;
 import com.devphill.traficMonitor.ui.fragments.app_traffic.helper.AppsTrafficHelperM;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -59,16 +51,14 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
 
     public static boolean sortMobile = true;
 
-    AppsTrafficHelper appsTrafficHelper;
     AppsTrafficHelperM appsTrafficHelperM;
     LoadPackageList loadPackageList;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_app_traff, container, false);
 
         ButterKnife.bind(this,view);
-
-        appsTrafficHelper = new AppsTrafficHelper(getContext(),tvDataUsageWiFi,tvDataUsageMobile,tvDataUsageTotal);
 
         recyclerViewApplications = (RecyclerView) view.findViewById(R.id.rvInstallApplication);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext(), 1);
@@ -102,12 +92,9 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
             loadPackageList.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
         else{
-            appsTrafficHelperM.initAppListM(null);
+            appsTrafficHelperM.initAppListM();
         }
-
-
-    } //обновляем траффик в БД по приложениям
-
+    }
 
     public void onResume() {
         super.onResume();
@@ -140,16 +127,20 @@ public class FragmentTrafficApps extends Fragment implements SwipeRefreshLayout.
 
         swipeRefreshLayout.setRefreshing(true);
         Log.i(LOG_TAG, "onRefresh ");
+        try{ loadPackageList.packageList.clear(); }catch (Exception e){ }
         TrafficService.packageList.clear();
+        appsTrafficHelperM.initAppListM();
         loadPackageList = new LoadPackageList(requireContext(),this);
         loadPackageList.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
     }
 
     @Override
     public void allPackagesLoaded() {
         Log.i(LOG_TAG, "allPackagesLoaded ");
+        TrafficService.packageList.addAll(loadPackageList.getPackages());
 
-        appsTrafficHelperM.initAppListM(loadPackageList.getPackages());
+        appsTrafficHelperM.initAppListM();
         swipeRefreshLayout.setRefreshing(false);
     }
 }

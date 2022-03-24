@@ -74,7 +74,7 @@
             android:layout_toStartOf="@+id/imSendData" />
 
         <TextView
-            android:text="Used 0 Mb"
+            android:text="Used 12.5 Mb"
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

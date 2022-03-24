@@ -1,57 +1,40 @@
 package com.devphill.traficMonitor.service;
 
-import android.Manifest;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.service.notification.StatusBarNotification;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.devphill.traficMonitor.App;
-import com.devphill.traficMonitor.BuildConfig;
 import com.devphill.traficMonitor.R;
 import com.devphill.traficMonitor.model.Package;
-import com.devphill.traficMonitor.networkStats.LoadPackageList;
-import com.devphill.traficMonitor.service.helper.TrafficHelper;
 import com.devphill.traficMonitor.service.helper.TrafficMHelper;
 import com.devphill.traficMonitor.helper.DBHelper;
 import com.devphill.traficMonitor.reciver.AlarmReceiver;
-import com.devphill.traficMonitor.ui.Constants;
 import com.devphill.traficMonitor.ui.MainActivity;
 import com.devphill.traficMonitor.ui.TimeUtil;
 import com.devphill.traficMonitor.ui.fragments.main.MainFragment;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -233,28 +216,9 @@ public class TrafficService extends Service  {
 			return false;
 	}
 
-	public void setRebootAction(int reboot){
-
-		Log.d(LOG_TAG, "setRebootAction" );
-		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = mySharedPreferences.edit();
-
-		editor.putInt(APP_PREFERENCES_REBOOT_ACTION,reboot);
-
-		editor.apply();
-	}
-
-	public int getRebootAction(){
-
-		SharedPreferences mySharedPreferences = getBaseContext().getSharedPreferences(TrafficService.APP_PREFERENCES, Context.MODE_PRIVATE);
-	//	Log.d(LOG_TAG, "getRebootAction = " + mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION,0));
-		return mySharedPreferences.getInt(TrafficService.APP_PREFERENCES_REBOOT_ACTION,0);
-
-	}
-
 	public void initNoty(){
 		RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.noty);
-		NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(getBaseContext(),getApplicationContext().getString(R.string.default_notification_channel_id));
+		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getBaseContext(),getApplicationContext().getString(R.string.default_notification_channel_id));
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification notification;
 
@@ -369,7 +333,8 @@ public class TrafficService extends Service  {
 				}
 				TrafficMHelper.refreshWidget(getBaseContext());
 				TrafficMHelper.dbWriteTraffic(getBaseContext(),idsim);
-				TrafficMHelper.updateNoty(getBaseContext(),getPackageName());
+
+				startForeground(1,TrafficMHelper.getNoty(getApplicationContext(),getPackageName()));
 
 				allTrafficMobile = TrafficMHelper.getAllTrafficMobile();
 

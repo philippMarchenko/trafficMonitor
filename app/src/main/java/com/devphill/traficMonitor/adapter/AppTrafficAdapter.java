@@ -86,9 +86,7 @@ public class AppTrafficAdapter extends RecyclerView.Adapter<AppTrafficAdapter.My
         });
 
         final int iconSize = Math.round(48 * mContext.getResources().getDisplayMetrics().density);
-        holder.image.setImageDrawable(new BitmapDrawable(mContext.getResources(), Bitmap.createScaledBitmap(
-                 mPackage.getIcon(), iconSize, iconSize, true)
-           ));
+        holder.image.setImageDrawable( mPackage.getIcon());
 
         holder.tvAppName.setText(mPackage.getName());
 
@@ -108,7 +106,7 @@ public class AppTrafficAdapter extends RecyclerView.Adapter<AppTrafficAdapter.My
                 @Override
                 public int compare(Package lhs, Package rhs) {
 
-                    return (int) ((Float.parseFloat(rhs.getMobileData()) - Float.parseFloat(lhs.getMobileData())) * 10);
+                    return (int) (((rhs.getMobileData()) - (lhs.getMobileData())) * 10);
                 }
             });
         }
@@ -118,7 +116,7 @@ public class AppTrafficAdapter extends RecyclerView.Adapter<AppTrafficAdapter.My
                 @Override
                 public int compare(Package lhs, Package rhs) {
 
-                    return (int) ((Float.parseFloat(rhs.getWiFiData()) - Float.parseFloat(lhs.getWiFiData())) * 10);
+                    return (int) ((rhs.getWiFiData()) - (lhs.getWiFiData()) * 10);
                 }
             });
 
